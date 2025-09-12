@@ -1,5 +1,3 @@
-import java.awt.desktop.SystemEventListener;
-
 public class GameThread
 {
     /* How many times we aim to update the status of every object and character in the game each second.
@@ -75,7 +73,7 @@ public class GameThread
             }
 
         }
-        
+
 
     }
 
