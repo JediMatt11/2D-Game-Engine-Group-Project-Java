@@ -1,3 +1,5 @@
+package gameframework;
+
 public class GameThread
 {
     /* How many times we aim to update the status of every object and character in the game each second.
@@ -12,7 +14,7 @@ public class GameThread
     // This method triggers the rendering of every object in the game
     public void render() {}
 
-    public void gameLoop() throws Exception
+    private void gameLoop() throws Exception
     {
         final long NANOSECONDS_PER_SECOND = 1000000000;
         long startTime = System.nanoTime();           // time when loop starts
@@ -45,7 +47,7 @@ public class GameThread
             else
             {
                 // On schedule or behind schedule
-                while (elapsedTime > updateInterval)
+                while (elapsedTime >= updateInterval)
                 {
                     // Perform as many updates as needed if we’ve fallen behind
                     update();
@@ -75,6 +77,18 @@ public class GameThread
         }
 
 
+    }
+
+    public void gameRun() throws Exception
+    {
+        try
+        {
+            gameLoop();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
 }
