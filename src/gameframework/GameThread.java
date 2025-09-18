@@ -1,18 +1,43 @@
 package gameframework;
 
+import gameframework.display.GameDisplay;
+
 public class GameThread
 {
     /* How many times we aim to update the status of every object and character in the game each second.
        Ideally we want the frame rate to match this, render after every update, but it is not always possible */
     public final static int UPDATES_PER_SECOND = 60;
-
     private boolean gameOver;
-    public boolean isGameOver() { return gameOver;}
+    public static GameData data;
+    public static GameDisplay display;
 
+    public GameThread()
+    {
+        gameOver = false;
+        data = new GameData();
+        initializeGameDisplay();
+    }
+
+    public boolean initializeGameDisplay()
+    {
+        boolean success = true;
+        display = new GameDisplay(data);
+        return success;
+    }
+
+    public void setGameTitle(String title)
+    {
+        display.setTitle(title);
+    }
+
+    public boolean isGameOver() { return gameOver;}
     // This method triggers the update of every object in the game
     public void update() {}
     // This method triggers the rendering of every object in the game
-    public void render() {}
+    public void render()
+    {
+        display.repaint();
+    }
 
     private void gameLoop() throws Exception
     {

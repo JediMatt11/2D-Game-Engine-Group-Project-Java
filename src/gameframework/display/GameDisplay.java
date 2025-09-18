@@ -7,8 +7,8 @@ import gameframework.GameData;
 public class GameDisplay extends JFrame
 {
     private GameData data;
-    private int displayWidth;
-    private int displayHeight;
+    private static int displayWidth;
+    private static int displayHeight;
 
     /* We intend to be able to toggle a message on the game window, these attributes hold the properties of
      * how that message displays (like position and text color), for example we can use it to show game
@@ -66,13 +66,24 @@ public class GameDisplay extends JFrame
         }
     }
 
-    public void setDisplayResolution(int displayWidth, int displayHeight)
+    public static void setDisplayResolution(int newDisplayWidth, int newDisplayHeight)
     {
-        if (displayWidth > 0 && displayHeight > 0)
+        if (newDisplayWidth > 0 && newDisplayHeight > 0)
         {
-            this.displayWidth = displayWidth;
-            this.displayHeight = displayHeight;
+            displayWidth = newDisplayWidth;
+            displayHeight = newDisplayHeight;
         }
+    }
+
+    @Override
+    public void paint(Graphics g)
+    {
+        super.paint(g);
+        g.setColor(Color.ORANGE);
+        g.drawImage()
+
+
+
     }
 
 }
