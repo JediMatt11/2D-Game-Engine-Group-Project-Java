@@ -2,6 +2,8 @@ package gameframework;
 
 import gameframework.display.GameDisplay;
 
+import java.util.ArrayList;
+
 public class GameThread
 {
     /* How many times we aim to update the status of every object and character in the game each second.
@@ -11,11 +13,29 @@ public class GameThread
     public static GameData data;
     public static GameDisplay display;
 
+    private static ArrayList<GameLevel> levels;
+    private static int curLevelNumber;
+
     public GameThread()
     {
         gameOver = false;
         data = new GameData();
         initializeGameDisplay();
+        levels = new ArrayList<GameLevel>();
+        curLevelNumber = 0;
+    }
+
+    public static void addLevel(GameLevel level)
+    {
+        levels.add(level);
+    }
+
+    public static GameLevel getCurrentLevel()
+    {
+        GameLevel curLevel = null;
+        if (curLevelNumber >= 0 && curLevelNumber < levels.size())
+            curLevel = levels.get(curLevelNumber);
+        return curLevel;
     }
 
     public boolean initializeGameDisplay()
