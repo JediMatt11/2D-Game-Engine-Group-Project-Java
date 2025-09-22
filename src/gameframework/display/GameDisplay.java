@@ -2,7 +2,11 @@ package gameframework.display;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+
 import gameframework.GameData;
+import gameframework.GameLevel;
+import gameframework.GameThread;
 
 public class GameDisplay extends JFrame
 {
@@ -80,10 +84,12 @@ public class GameDisplay extends JFrame
     {
         super.paint(g);
         g.setColor(Color.ORANGE);
-        g.drawImage()
-
-
-
+        GameLevel level = GameThread.getCurrentLevel();
+        BufferedImage background = level != null ?
+                                  GameThread.resourceManager.loadImageResource(level.getBackground()):
+                                  null;
+        if (background != null)
+            g.drawImage(background, 0, 0, displayWidth, displayHeight, null);
     }
 
 }

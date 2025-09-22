@@ -1,4 +1,7 @@
 package gameframework.resourcemanagement;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.HashMap;
 
 public class ResourceManager
@@ -11,7 +14,12 @@ public class ResourceManager
         resourceMap = new HashMap<String,Object>();
     }
 
-    public Object loadGeneralResource(String name)
+    public interface ResourceProcessor
+    {
+        Object process(InputStream resourceStream) throws Exception;
+    }
+
+    public Object loadGeneralResource(String name, ResourceProcessor resourceProcessor)
     {
         String resourcePath = RESOURCE_FOLDER + name;
         Object resource = resourceMap.get(name);
@@ -20,7 +28,7 @@ public class ResourceManager
         {
             try {
                 //load from JAR file
-                resource = getClass().getResourceAsStream(resourcePath);
+                resource = resourceProcessor.process(getClass().getResourceAsStream(resourcePath));
                 resourceMap.put(name, resource);
             }
             catch (Exception e)
@@ -32,6 +40,17 @@ public class ResourceManager
         return resource;
     }
 
+    public BufferedImage loadImageResource(String name)
+    {
+        return (BufferedImage)loadGeneralResource(name, new ResourceProcessor() {
+            @Override
+            public Object process(InputStream resourceStream) throws Exception
+            {
+                return ImageIO.read(resourceStream);
+            }
+        });
+
+    }
 
     public boolean resourceIsAlreadyLoaded(String name)
     {

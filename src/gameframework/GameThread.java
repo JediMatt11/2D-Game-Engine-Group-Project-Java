@@ -1,6 +1,7 @@
 package gameframework;
 
 import gameframework.display.GameDisplay;
+import gameframework.resourcemanagement.ResourceManager;
 
 import java.util.ArrayList;
 
@@ -12,6 +13,7 @@ public class GameThread
     private boolean gameOver;
     public static GameData data;
     public static GameDisplay display;
+    public static ResourceManager resourceManager;
 
     private static ArrayList<GameLevel> levels;
     private static int curLevelNumber;
@@ -21,6 +23,7 @@ public class GameThread
         gameOver = false;
         data = new GameData();
         initializeGameDisplay();
+        resourceManager = new ResourceManager();
         levels = new ArrayList<GameLevel>();
         curLevelNumber = 0;
     }
