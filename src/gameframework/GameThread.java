@@ -14,6 +14,7 @@ public class GameThread
     public static GameData data;
     public static GameDisplay display;
     public static ResourceManager resourceManager;
+    public static boolean displayFrameUpdateRate;
 
     private static ArrayList<GameLevel> levels;
     private static int curLevelNumber;
@@ -26,6 +27,7 @@ public class GameThread
         resourceManager = new ResourceManager();
         levels = new ArrayList<GameLevel>();
         curLevelNumber = 0;
+        displayFrameUpdateRate = false;
     }
 
     public static void addLevel(GameLevel level)
@@ -55,11 +57,11 @@ public class GameThread
 
     public boolean isGameOver() { return gameOver;}
     // This method triggers the update of every object in the game
-    public void update() {}
+    public void update() { data.update();}
     // This method triggers the rendering of every object in the game
     public void render()
     {
-        display.repaint();
+        display.render();
     }
 
     private void gameLoop() throws Exception
@@ -118,6 +120,11 @@ public class GameThread
             {
                 //A full second has passed
                 System.out.println("Updates:" + updates + " Frames:" + frames);
+                if (displayFrameUpdateRate)
+                    display.setMessage("Updates:" + updates + " Frames:" + frames);
+                else if (display.getMessage().startsWith("Updates:"))
+                    display.setMessage("");
+
                 updates = frames = 0;
                 startTime = System.nanoTime();
             }
