@@ -1,8 +1,10 @@
 package gameframework;
 
 import gameframework.display.GameDisplay;
+import gameframework.gamecharacters.Player;
 import gameframework.resourcemanagement.ResourceManager;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class GameThread
@@ -19,6 +21,8 @@ public class GameThread
     private static ArrayList<GameLevel> levels;
     private static int curLevelNumber;
 
+    public static Player player;
+
     public GameThread()
     {
         gameOver = false;
@@ -28,6 +32,13 @@ public class GameThread
         levels = new ArrayList<GameLevel>();
         curLevelNumber = 0;
         displayFrameUpdateRate = false;
+
+        player = new Player("elf1", 200, 200, 1, 300, 300,
+                200, 3);
+        BufferedImage image = resourceManager.loadImageResource("elf_idle.png");
+        player.setImage(image);
+        player.setSpeed(3);
+
     }
 
     public static void addLevel(GameLevel level)

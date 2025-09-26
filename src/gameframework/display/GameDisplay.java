@@ -112,6 +112,8 @@ public class GameDisplay extends JFrame
         g.setFont(messageFont);
         g.drawString(message, messageOffsetX, messageOffsetY);
 
+        GameThread.player.render(g);
+
         g.dispose();
         bufferStrategy.show();
 
