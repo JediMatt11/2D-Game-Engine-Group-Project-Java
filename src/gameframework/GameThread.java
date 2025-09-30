@@ -1,5 +1,7 @@
 package gameframework;
 
+import gameframework.animations.Animation;
+import gameframework.animations.Spritesheet;
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
 import gameframework.resourcemanagement.ResourceManager;
@@ -36,7 +38,12 @@ public class GameThread
         player = new Player("elf1", 200, 200, 1, 300, 300,
                 200, 3);
         BufferedImage image = resourceManager.loadImageResource("elf_idle.png");
-        player.setImage(image);
+        Spritesheet spritesheet = new Spritesheet("elf_walk_right.png", 3, 2, 5);
+        Animation animation = new Animation(spritesheet, 300, 300);
+        animation.setSpeed(5);
+        player.setCurAnimation(animation);
+
+        //player.setImage(image);
         player.setSpeed(3);
 
     }

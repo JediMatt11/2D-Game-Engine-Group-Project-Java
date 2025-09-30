@@ -1,5 +1,7 @@
 package gameframework.gameobjects;
 
+import gameframework.animations.Animation;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -17,7 +19,7 @@ public abstract class GameObject
     private int scaleWidth;
     private int scaleHeight;
 
-    private BufferedImage image;
+    private Animation curAnimation;
 
     public GameObject(String name, int type,
                       int x, int y, int z,
@@ -34,18 +36,6 @@ public abstract class GameObject
         velX = velY = 0;
     }
 
-
-    public BufferedImage getImage()
-    {
-        return image;
-    }
-
-    public void setImage(BufferedImage image)
-    {
-        if (image != null)
-            this.image = image;
-    }
-
     public void update()
     {
         x += velX;
@@ -54,6 +44,20 @@ public abstract class GameObject
 
     public void render(Graphics g)
     {
-        g.drawImage(getImage(), x, y, scaleWidth, scaleHeight, null );
+        if (curAnimation != null)
+        {
+            curAnimation.drawFrame(g, x, y);
+            curAnimation.nextFrame();
+        }
+    }
+
+    public Animation getCurAnimation() {
+        return curAnimation;
+    }
+
+    public void setCurAnimation(Animation curAnimation)
+    {
+        if (curAnimation != null)
+            this.curAnimation = curAnimation;
     }
 }
