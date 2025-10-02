@@ -12,6 +12,7 @@ public class Spritesheet
     private int numCols;
     private int spriteCount;
     private BufferedImage spritesheet;
+    private boolean leftToRight;
 
     public Spritesheet(String name, int numRows, int numCols,
                        int spriteCount)
@@ -22,6 +23,13 @@ public class Spritesheet
         this.numRows = numRows;
         this.numCols = numCols;
         this.spriteCount = spriteCount;
+        leftToRight = true;
+    }
+
+    public Spritesheet(String name, int numRows, int numCols,
+                       int spriteCount, boolean leftToRight) {
+        this(name, numRows, numCols, spriteCount);
+        this.leftToRight = leftToRight;
     }
 
     public BufferedImage[] convertToImageArray()
@@ -45,6 +53,9 @@ public class Spritesheet
     {
         int spriteWidth = spritesheet.getWidth() / numCols;
         int spriteHeight = spritesheet.getHeight() / numRows;
+
+        if (!leftToRight)
+            col = numCols - (col + 1);
 
         return spritesheet.getSubimage(col * spriteWidth, row * spriteHeight,
                 spriteWidth, spriteHeight);

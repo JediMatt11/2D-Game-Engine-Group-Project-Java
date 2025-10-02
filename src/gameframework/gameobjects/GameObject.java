@@ -60,4 +60,9 @@ public abstract class GameObject
         if (curAnimation != null)
             this.curAnimation = curAnimation;
     }
+
+    public Point getPosition()
+    {
+        return new Point(x,y);
+    }
 }

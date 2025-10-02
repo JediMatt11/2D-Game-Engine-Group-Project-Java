@@ -18,6 +18,10 @@ public class GameDisplay extends JFrame
 
     private BufferStrategy bufferStrategy;
 
+    //camera attributes
+    private Point cameraOrigin;
+
+
     /* We intend to be able to toggle a message on the game window, these attributes hold the properties of
      * how that message displays (like position and text color), for example we can use it to show game
      * information like frame rates, update rates, etc
@@ -30,6 +34,7 @@ public class GameDisplay extends JFrame
     private Font messageFont;
     private int messageOffsetX;
     private int messageOffsetY;
+    private BufferedImage background;
 
     public GameDisplay(GameData data)
     {
@@ -102,11 +107,13 @@ public class GameDisplay extends JFrame
 
         //draw normally whatever you want
         GameLevel level = GameThread.getCurrentLevel();
-        BufferedImage background = level != null ?
+        background = level != null ?
                 GameThread.resourceManager.loadImageResource(level.getBackground()):
                 null;
         if (background != null)
             g.drawImage(background, 0, 0, getWidth(), getHeight(), null);
+
+        setCameraPos(g, GameThread.player.getPosition());
 
         g.setColor(messageColor);
         g.setFont(messageFont);
@@ -125,6 +132,39 @@ public class GameDisplay extends JFrame
         super.paint(g);
         g.setColor(Color.ORANGE);
     }
+
+    public void drawCameraScreen(Graphics g)
+    {
+        background.getSubimage(cameraOrigin.x, cameraOrigin.y, displayWidth, displayHeight);
+
+    }
+
+    public void setCameraPos(Graphics g, Point cameraCenter)
+    {
+        cameraOrigin.x = cameraCenter.x - displayWidth / 2;
+        cameraOrigin.y = cameraCenter.y - displayHeight / 2;
+
+        if (cameraOrigin.x < 0)
+            cameraOrigin.x = 0;
+
+        if (cameraOrigin.y < 0)
+            cameraOrigin.y = 0;
+
+        if ( cameraOrigin.x > background.getWidth() - displayWidth)
+            cameraOrigin.x = background.getWidth() - displayWidth;
+
+        if ( cameraOrigin.y > background.getHeight() - displayHeight)
+            cameraOrigin.y = background.getHeight() - displayHeight;
+
+        g.translate(-cameraOrigin.x, -cameraOrigin.y);
+    }
+
+
+
+
+
+
+
 
     public int getMessageOffsetX() {
         return messageOffsetX;
