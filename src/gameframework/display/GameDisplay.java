@@ -158,14 +158,7 @@ public class GameDisplay extends JFrame
 
         g.translate(-cameraOrigin.x, -cameraOrigin.y);
     }
-
-
-
-
-
-
-
-
+    
     public int getMessageOffsetX() {
         return messageOffsetX;
     }
