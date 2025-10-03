@@ -28,6 +28,20 @@ public class Animation
         speedCounter = 0;
     }
 
+    public Animation(BufferedImage image, String name,  int scaleWidth, int scaleHeight)
+    {
+        this.name = name;
+        frames = new BufferedImage[1];
+        frameCount = 1;
+        curFrameIndex = 0;
+        curFrame = frames[0];
+        this.scaleHeight = scaleHeight;
+        this.scaleWidth = scaleWidth;
+        speed = 1;
+        speedCounter = 0;
+
+    }
+
     public void nextFrame()
     {
         speedCounter++;

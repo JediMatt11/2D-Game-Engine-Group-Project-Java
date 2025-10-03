@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import gameframework.GameData;
 import gameframework.GameLevel;
 import gameframework.GameThread;
+import gameframework.gameobjects.GameObject;
 import gameframework.inputhandlers.KeyboardHandler;
 
 public class GameDisplay extends JFrame
@@ -47,6 +48,9 @@ public class GameDisplay extends JFrame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         add(new GamePanel(this));
+
+        //initialize camera origin
+        cameraOrigin = new Point(0,0);
 
         //setup buffer strategy
         createBufferStrategy(2);
@@ -114,12 +118,17 @@ public class GameDisplay extends JFrame
             g.drawImage(background, 0, 0, getWidth(), getHeight(), null);
 
         setCameraPos(g, GameThread.player.getPosition());
+        drawCameraScreen(g);
+
+        GameThread.player.render(g);
+
+        //draws all objects of the game
+        for (GameObject object : data.getObjects())
+            object.render(g);
 
         g.setColor(messageColor);
         g.setFont(messageFont);
         g.drawString(message, messageOffsetX, messageOffsetY);
-
-        GameThread.player.render(g);
 
         g.dispose();
         bufferStrategy.show();
@@ -135,7 +144,9 @@ public class GameDisplay extends JFrame
 
     public void drawCameraScreen(Graphics g)
     {
-        background.getSubimage(cameraOrigin.x, cameraOrigin.y, displayWidth, displayHeight);
+        BufferedImage cameraScreen =
+                background.getSubimage(cameraOrigin.x, cameraOrigin.y, displayWidth, displayHeight);
+        g.drawImage(cameraScreen, cameraOrigin.x, cameraOrigin.y,  displayWidth, displayHeight, null);
 
     }
 

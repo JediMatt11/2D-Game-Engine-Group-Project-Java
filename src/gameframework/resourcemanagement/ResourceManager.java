@@ -2,7 +2,9 @@ package gameframework.resourcemanagement;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class ResourceManager
 {
@@ -51,6 +53,27 @@ public class ResourceManager
         });
 
     }
+
+    public ArrayList<String> loadTextResource(String name)
+    {
+        return (ArrayList<String>)loadGeneralResource(name, new ResourceProcessor() {
+            @Override
+            public Object process(InputStream resourceStream) throws Exception
+            {
+                ArrayList<String> text = new ArrayList<String>();
+                Scanner fileScanner = new Scanner(resourceStream);
+
+                while (fileScanner.hasNextLine())
+                    text.add(fileScanner.nextLine());
+
+                return text;
+            }
+        });
+
+    }
+
+
+
 
     public boolean resourceIsAlreadyLoaded(String name)
     {

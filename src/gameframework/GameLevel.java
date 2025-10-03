@@ -1,5 +1,8 @@
 package gameframework;
+import gameframework.gameobjects.GameObject;
+
 import java.awt.*;
+import java.util.ArrayList;
 
 public class GameLevel
 {
@@ -8,6 +11,7 @@ public class GameLevel
     private String background;
     private String theme;
     private Point playerStartPos;
+    private final static String LEVEL_FOLDER = "levels/";
 
     public GameLevel(String initName, int initNumber, String initBackground,
                      String initTheme,
@@ -44,5 +48,19 @@ public class GameLevel
     public Point getPlayerStartPos()
     {
         return playerStartPos;
+    }
+
+    public boolean load(GameData data) throws Exception
+    {
+        ArrayList<String> text = GameThread.resourceManager.loadTextResource(LEVEL_FOLDER
+                + name + "/" + name + ".txt");
+
+        for (String textLine : text)
+        {
+            GameObject gameObject = createObject();
+            data.getObjects().add(gameObject);
+        }
+        return true;
+
     }
 }
