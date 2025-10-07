@@ -36,6 +36,10 @@ public abstract class GameObject
         velX = velY = 0;
     }
 
+    public int getX() {return x;}
+    public int getY() {return y;}
+    public int getZ() {return z;}
+
     public void update()
     {
         x += velX;
@@ -61,8 +65,9 @@ public abstract class GameObject
             this.curAnimation = curAnimation;
     }
 
-    public Point getPosition()
+    public void setPosition(int x, int y)
     {
-        return new Point(x,y);
+        this.x = x;
+        this.y = y;
     }
 }

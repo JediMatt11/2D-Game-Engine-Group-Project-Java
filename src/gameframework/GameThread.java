@@ -1,47 +1,68 @@
 package gameframework;
 
-import gameframework.animations.Animation;
-import gameframework.animations.Spritesheet;
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObjectFactory;
 import gameframework.resourcemanagement.ResourceManager;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+/*
+ * This class contains the functionality to start and run the engine. All games based on the engine must implement
+ * their own game thread class inheriting this one, instantiate an object of the thread and call the gameRun() method,
+ * that will activate the engine. This class implements the game loop, the game loop iterates through all objects and
+ * allows them some execution time to update themselves, it also controls the amount of frames we render per second
+ * and triggers the actual rendering of every object.
+ */
 public class GameThread
 {
     /* How many times we aim to update the status of every object and character in the game each second.
-       Ideally we want the frame rate to match this, render after every update, but it is not always possible */
+       Ideally we want the frame rate to match this, render after every update, but it is not always possible.
+       For the time being Game Developers can only fine tune this if they have access to the source code. */
     public final static int UPDATES_PER_SECOND = 60;
-    private boolean gameOver;
+
     public static GameData data;
     public static GameDisplay display;
-    public static ResourceManager resourceManager;
+    public static ResourceManager resourceManager = new ResourceManager();
     public static GameObjectFactory gameObjectFactory;
     public static boolean displayFrameUpdateRate;
+    private boolean gameOver;
 
-    private static ArrayList<GameLevel> levels;
+    //Information for levels in the game
+    private static final ArrayList<GameLevel> levels = new ArrayList<GameLevel>();
     private static int curLevelNumber;
 
-    public static Player player;
-
+    /* The GameThread needs to receive a specific game object factory in order to be able to create
+     * game specific objects when loading levels, if not provided (null) then it will create a general
+     * engine object factory that only handles general types supported by the engine (specified in the
+     * ObjectType class).
+     */
     public GameThread(GameObjectFactory initGameObjectFactory)
     {
         gameOver = false;
-        data = new GameData();
-        initializeGameDisplay();
-        resourceManager = new ResourceManager();
+
+        //initialize game object factory
         if (initGameObjectFactory != null)
             gameObjectFactory = initGameObjectFactory;
         else
             gameObjectFactory = new GameObjectFactory();
 
-        levels = new ArrayList<GameLevel>();
+        //initialize resource loader/manager
+        resourceManager = new ResourceManager();
+
+        //initialize data and display window
+        data = new GameData();
+        initializeGameDisplay();
+
         curLevelNumber = 0;
         displayFrameUpdateRate = false;
+    }
 
+    private boolean initializeGameDisplay()
+    {
+        boolean success = true;
+        display = new GameDisplay(data);
+        return success;
     }
 
     public static void addLevel(GameLevel level)
@@ -57,21 +78,27 @@ public class GameThread
         return curLevel;
     }
 
-    public boolean initializeGameDisplay()
-    {
-        boolean success = true;
-        display = new GameDisplay(data);
-        return success;
-    }
-
     public void setGameTitle(String title)
     {
         display.setTitle(title);
     }
 
     public boolean isGameOver() { return gameOver;}
+
+    //Add a playable character, if the boolean is set to true then this is set
+    //as the initial player character (can switch characters later on)
+    public boolean addPlayableCharacter(Player playableCharacter,
+                                               boolean startingCharacter)
+    {
+        return data.addPlayableCharacter(playableCharacter, startingCharacter);
+    }
+
     // This method triggers the update of every object in the game
-    public void update() { data.update();}
+    public void update()
+    {
+        data.update();
+    }
+
     // This method triggers the rendering of every object in the game
     public void render()
     {
@@ -98,9 +125,11 @@ public class GameThread
             if (elapsedTime < updateInterval )
             {
                 // Ahead of schedule (not enough time has passed for next update)
+                // So we don't need to hog CPU resources until really needed
                 long remaining = updateInterval - elapsedTime;
                 try
                 {
+                    //sleep until we really need to update
                     Thread.sleep(remaining / 1000000);
                 }
                 catch (InterruptedException ie)
@@ -144,10 +173,9 @@ public class GameThread
             }
 
         }
-
-
     }
 
+    // This is the method all games should call to start the engine and trigger the game loop
     public void gameRun() throws Exception
     {
         try

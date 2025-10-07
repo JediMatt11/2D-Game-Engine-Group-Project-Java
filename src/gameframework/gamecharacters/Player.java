@@ -28,9 +28,12 @@ public abstract class Player extends GameCharacter
             availablePlayers = new ArrayList<Player>();
     }
 
-    public static void addPlayer(Player player)
+    public static void addPlayer(Player player, boolean activePlayer )
+
     {
         availablePlayers.add(player);
+        if (activePlayer)
+            curPlayerIndex = availablePlayers.indexOf(player);
     }
 
     public static Player getActivePlayer()

@@ -1,8 +1,10 @@
 package gameframework;
+import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GameLevel
 {
@@ -23,7 +25,6 @@ public class GameLevel
         theme = initTheme;
         playerStartPos = initPlayerStartPos;
     }
-
 
     public String getName()
     {
@@ -50,15 +51,38 @@ public class GameLevel
         return playerStartPos;
     }
 
+    /* This method reads a text file with the information for the level and loads all
+     * objects from the game into the game objects list. */
     public boolean load(GameData data) throws Exception
     {
+        LinkedList<GameObject> gameObjects = data.getObjects();
+        /* Make sure we first free all resources allocated for previous levels otherwise
+         * we might run out of memory (level background images and some audio clips can take
+         * huge amounts of memory in particular).
+         */
+        GameThread.resourceManager.freeResources();
+
         ArrayList<String> text = GameThread.resourceManager.loadTextResource(LEVEL_FOLDER
-                + name + "/" + name + ".txt");
+                    + name + "/" + name + ".txt");
+
+        //make sure to clear game objects list before loading objects for new level
+        gameObjects.clear();
 
         for (String textLine : text)
         {
+            //If a line in the file is commented then ignore it
+            if ( textLine.startsWith("//"))
+                continue;
             GameObject gameObject = GameThread.gameObjectFactory.createGameObject(textLine);
-            data.getObjects().add(gameObject);
+            gameObjects.add(gameObject);
+        }
+
+        //set player starting position and add player to level
+        Player player = Player.getActivePlayer();
+        if (player != null)
+        {
+            player.setPosition(playerStartPos.x, playerStartPos.y);
+            gameObjects.add(player);
         }
         return true;
 

@@ -8,9 +8,15 @@ import java.awt.image.BufferedImage;
 import gameframework.GameData;
 import gameframework.GameLevel;
 import gameframework.GameThread;
+import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
 import gameframework.inputhandlers.KeyboardHandler;
 
+/*
+ * This is the game display class which is in charge of all rendering to the screen, the class is inherited
+ * from JFrame. To draw we are using a buffering strategy instead of regular paint in order to avoid flicker
+ * and have smoother animations.
+ */
 public class GameDisplay extends JFrame
 {
     private GameData data;
@@ -22,19 +28,18 @@ public class GameDisplay extends JFrame
     //camera attributes
     private Point cameraOrigin;
 
-
     /* We intend to be able to toggle a message on the game window, these attributes hold the properties of
-     * how that message displays (like position and text color), for example we can use it to show game
-     * information like frame rates, update rates, etc
-     */
-    private final static int DEFAULT_MESSAGE_OFFSET = 100;
+     * how that message displays (like position (X & Y offsets) and text color), for example we can use it to
+     * show game information like frame rates, update rates, etc */
+    private final static int DEFAULT_MESSAGE_OFFSET = 100;   //Determines X & Y offsets of message position, in pixels
     private final static Font DEFAULT_MESSAGE_FONT = new Font("Arial", Font.BOLD, 42);
-
     private String message;
     private Color messageColor;
     private Font messageFont;
     private int messageOffsetX;
     private int messageOffsetY;
+    /****/
+
     private BufferedImage background;
 
     public GameDisplay(GameData data)
@@ -47,16 +52,14 @@ public class GameDisplay extends JFrame
         this.data = data;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        add(new GamePanel(this));
-
         //initialize camera origin
         cameraOrigin = new Point(0,0);
 
-        //setup buffer strategy
+        //setup buffer strategy of 2 buffers/layers
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
 
-        //add input handlers
+        //add input handlers for keyboard, mouse, controllers, etc (currently we only have one for keyboard)
         addKeyListener(new KeyboardHandler());
 
         setMessage("");
@@ -73,6 +76,7 @@ public class GameDisplay extends JFrame
 
     public void setMessage(String message)
     {
+        //The message can be an empty string "" (we set it to that to hide it)
         this.message = message;
     }
 
@@ -87,9 +91,21 @@ public class GameDisplay extends JFrame
             this.messageColor = messageColor;
     }
 
+    public int getMessageOffsetX()
+    {
+        return messageOffsetX;
+    }
+
+    public int getMessageOffsetY()
+    {
+        return messageOffsetY;
+    }
+
     public void setMessageOffsets(int offsetX, int offsetY)
     {
-        if (offsetX > 0 && offsetY > 0 )
+        if (offsetX > 0 && offsetX < displayWidth &&
+            offsetY > 0 && offsetY < displayHeight
+           )
         {
             messageOffsetX = offsetX;
             messageOffsetY = offsetY;
@@ -117,64 +133,84 @@ public class GameDisplay extends JFrame
         if (background != null)
             g.drawImage(background, 0, 0, getWidth(), getHeight(), null);
 
-        setCameraPos(g, GameThread.player.getPosition());
+        Player player = Player.getActivePlayer();
+        setCameraPos(g, new Point(player.getX(), player.getY()));
         drawCameraScreen(g);
-
-        GameThread.player.render(g);
 
         //draws all objects of the game
         for (GameObject object : data.getObjects())
             object.render(g);
 
-        g.setColor(messageColor);
-        g.setFont(messageFont);
-        g.drawString(message, messageOffsetX, messageOffsetY);
+        renderDisplayMessage(g);
 
         g.dispose();
         bufferStrategy.show();
 
     }
 
-    @Override
-    public void paint(Graphics g)
+    //If a message is set then display it on top of the screen
+    private void renderDisplayMessage(Graphics g)
     {
-        super.paint(g);
-        g.setColor(Color.ORANGE);
+        if ( !message.isEmpty())
+        {
+            g.setColor(messageColor);
+            g.setFont(messageFont);
+            g.drawString(message, messageOffsetX, messageOffsetY);
+        }
     }
 
-    public void drawCameraScreen(Graphics g)
+    private BufferedImage createCameraScreen()
+    {
+
+        BufferedImage cameraScreenImage;
+
+        /* The background dimensions have to be both bigger than the display dimensions to create
+         * a screen subimage, and be able to do the scroll through large background effect. Otherwise
+         * the whole background is simply scaled every time to fully fit within the display window.*/
+        if (background.getWidth() >= displayWidth &&
+                background.getHeight() >= displayHeight )
+            cameraScreenImage = background.getSubimage(cameraOrigin.x, cameraOrigin.y,
+                    displayWidth, displayHeight);
+        else
+            cameraScreenImage = background;
+
+        return cameraScreenImage;
+    }
+
+    private void drawCameraScreen(Graphics g)
     {
         BufferedImage cameraScreen =
-                background.getSubimage(cameraOrigin.x, cameraOrigin.y, displayWidth, displayHeight);
+                createCameraScreen();
         g.drawImage(cameraScreen, cameraOrigin.x, cameraOrigin.y,  displayWidth, displayHeight, null);
 
     }
 
+    /* Set the camera position (camera origin attribute) so that the display is centered in the
+     * coordinates passed as camera center, whenever the display is rendered we will only see the
+     * section of the large background at the current camera position.
+     */
     public void setCameraPos(Graphics g, Point cameraCenter)
     {
         cameraOrigin.x = cameraCenter.x - displayWidth / 2;
         cameraOrigin.y = cameraCenter.y - displayHeight / 2;
 
+        /* This section of the code makes sure to adjust the display screen section properly
+         * once the camera is moving close to the bounds of the background, that is keep the
+         * camera fixed if we are reaching any of the ends of the game level background
+         * (no more data to scroll to).
+         */
         if (cameraOrigin.x < 0)
             cameraOrigin.x = 0;
-
         if (cameraOrigin.y < 0)
             cameraOrigin.y = 0;
-
         if ( cameraOrigin.x > background.getWidth() - displayWidth)
             cameraOrigin.x = background.getWidth() - displayWidth;
-
         if ( cameraOrigin.y > background.getHeight() - displayHeight)
             cameraOrigin.y = background.getHeight() - displayHeight;
 
+        //This call effectively sets the origin of the graphics context to our desired camera position.
         g.translate(-cameraOrigin.x, -cameraOrigin.y);
     }
 
-    public int getMessageOffsetX() {
-        return messageOffsetX;
-    }
 
-    public int getMessageOffsetY() {
-        return messageOffsetY;
-    }
 }

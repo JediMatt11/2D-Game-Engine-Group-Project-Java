@@ -1,5 +1,11 @@
 package gameframework.gameobjects;
 
+/*
+ * Here is where we define all general object types that apply to the
+ * game engine. Types ordinals 0 to 9 are currently reserved for system use.
+ * Game Developers should extend this class in their games in order to
+ * define their own game specific types.
+ */
 public class ObjectType
 {
     /* Type numbers 0-9 are reserved for the engine */

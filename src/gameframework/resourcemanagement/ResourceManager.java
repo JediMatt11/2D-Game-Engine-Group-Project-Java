@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+/* This is a class that we use to easily load images, audio clips and other resources embedded in
+ * the executable (jar file). It also does resource management by making sure we never load the same
+ * resource twice from secondary storage.
+ */
 public class ResourceManager
 {
     private static final String RESOURCE_FOLDER = "/resources/";
-    private HashMap<String, Object> resourceMap;
+    private final HashMap<String, Object> resourceMap;
 
     public ResourceManager()
     {
@@ -28,8 +32,10 @@ public class ResourceManager
 
         if (resource == null)
         {
-            try {
-                //load from JAR file
+            /* if the resource isn't registered already then load it from the jar file and store
+             * it in the resource map so that it can be retrieved easily using the resource name */
+            try
+            {
                 resource = resourceProcessor.process(getClass().getResourceAsStream(resourcePath));
                 resourceMap.put(name, resource);
             }
@@ -72,14 +78,13 @@ public class ResourceManager
 
     }
 
-
-
-
+    /* Returns true if a resource has already been loaded from file and
+     * is currently stored in RAM (in the resource map) for faster access. */
     public boolean resourceIsAlreadyLoaded(String name)
     {
         return resourceMap.get(name) != null;
     }
-    public void freeResources() {resourceMap.clear();}
 
+    public void freeResources() {resourceMap.clear();}
 
 }
