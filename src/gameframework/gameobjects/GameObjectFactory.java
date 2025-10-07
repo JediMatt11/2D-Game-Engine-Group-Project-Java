@@ -4,12 +4,12 @@ import java.util.Scanner;
 
 public class GameObjectFactory
 {
-    private int posX;
-    private int posY;
-    private int type;
-    private String subtype;
-    private int scaleWidth;
-    private int scaleHeight;
+    protected int posX;
+    protected int posY;
+    protected int type;
+    protected String subtype;
+    protected int scaleWidth;
+    protected int scaleHeight;
 
     public GameObject createGameObject(String objectStr)
     {

@@ -57,7 +57,7 @@ public class GameLevel
 
         for (String textLine : text)
         {
-            GameObject gameObject = createObject();
+            GameObject gameObject = GameThread.gameObjectFactory.createGameObject(textLine);
             data.getObjects().add(gameObject);
         }
         return true;

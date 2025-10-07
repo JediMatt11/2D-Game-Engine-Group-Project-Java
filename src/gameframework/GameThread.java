@@ -4,6 +4,7 @@ import gameframework.animations.Animation;
 import gameframework.animations.Spritesheet;
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
+import gameframework.gameobjects.GameObjectFactory;
 import gameframework.resourcemanagement.ResourceManager;
 
 import java.awt.image.BufferedImage;
@@ -18,6 +19,7 @@ public class GameThread
     public static GameData data;
     public static GameDisplay display;
     public static ResourceManager resourceManager;
+    public static GameObjectFactory gameObjectFactory;
     public static boolean displayFrameUpdateRate;
 
     private static ArrayList<GameLevel> levels;
@@ -25,26 +27,20 @@ public class GameThread
 
     public static Player player;
 
-    public GameThread()
+    public GameThread(GameObjectFactory initGameObjectFactory)
     {
         gameOver = false;
         data = new GameData();
         initializeGameDisplay();
         resourceManager = new ResourceManager();
+        if (initGameObjectFactory != null)
+            gameObjectFactory = initGameObjectFactory;
+        else
+            gameObjectFactory = new GameObjectFactory();
+
         levels = new ArrayList<GameLevel>();
         curLevelNumber = 0;
         displayFrameUpdateRate = false;
-
-        player = new Player("elf1", 200, 200, 1, 300, 300,
-                200, 3);
-        BufferedImage image = resourceManager.loadImageResource("elf_idle.png");
-        Spritesheet spritesheet = new Spritesheet("elf_walk_right.png", 3, 2, 5);
-        Animation animation = new Animation(spritesheet, 300, 300);
-        animation.setSpeed(5);
-        player.setCurAnimation(animation);
-
-        //player.setImage(image);
-        player.setSpeed(3);
 
     }
 

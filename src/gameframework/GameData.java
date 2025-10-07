@@ -16,7 +16,7 @@ public class GameData
 
         try
         {
-            GameThread.getCurrentLevel().load();
+            GameThread.getCurrentLevel().load(this);
         }
         catch (Exception e)
         {
