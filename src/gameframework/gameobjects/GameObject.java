@@ -16,10 +16,10 @@ public abstract class GameObject
     protected int velX;
     protected int velY;
 
-    private int scaleWidth;
-    private int scaleHeight;
+    protected int scaleWidth;
+    protected int scaleHeight;
 
-    private Animation curAnimation;
+    protected Animation curAnimation;
 
     public GameObject(String name, int type,
                       int x, int y, int z,

@@ -22,6 +22,7 @@ public class GameObjectFactory
     {
         GameObject gameObject = null;
         Scanner scanner = new Scanner(objectStr);
+        scanner.next();          //All object info description lines in the level file are enclosed in '<' and '>', this skips the starting '<'
         posX = scanner.nextInt();
         posY = scanner.nextInt();
         type = scanner.nextInt();
@@ -31,10 +32,10 @@ public class GameObjectFactory
 
         switch (type)
         {
-            case ObjectType.NPC:
+            case GameObjectType.NPC:
                 break;
-            case ObjectType.INANIMATE:
-                gameObject = new InanimateObject(subtype, posX, posY, 2, scaleWidth, scaleHeight);
+            case GameObjectType.INANIMATE:
+                gameObject = new InanimateObject(subtype + ".png", posX, posY, 2, scaleWidth, scaleHeight);
                 break;
         }
         return gameObject;

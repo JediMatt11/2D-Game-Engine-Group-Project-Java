@@ -2,6 +2,7 @@ package gameframework.display;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 
@@ -24,6 +25,9 @@ public class GameDisplay extends JFrame
     private static int displayHeight;
 
     private BufferStrategy bufferStrategy;
+
+    //input handlers
+    private KeyListener keyboardHandler;
 
     //camera attributes
     private Point cameraOrigin;
@@ -60,7 +64,8 @@ public class GameDisplay extends JFrame
         bufferStrategy = getBufferStrategy();
 
         //add input handlers for keyboard, mouse, controllers, etc (currently we only have one for keyboard)
-        addKeyListener(new KeyboardHandler());
+        keyboardHandler = new KeyboardHandler();
+        addKeyListener(keyboardHandler);
 
         setMessage("");
         setMessageColor(Color.WHITE);
@@ -121,6 +126,12 @@ public class GameDisplay extends JFrame
         }
     }
 
+    public void changeKeyboardHandler(KeyboardHandler newKeyboardHandler)
+    {
+        removeKeyListener(keyboardHandler);
+        addKeyListener(newKeyboardHandler);
+    }
+
     public void render()
     {
         Graphics g = bufferStrategy.getDrawGraphics();
@@ -155,7 +166,8 @@ public class GameDisplay extends JFrame
         {
             g.setColor(messageColor);
             g.setFont(messageFont);
-            g.drawString(message, messageOffsetX, messageOffsetY);
+            g.drawString(message, cameraOrigin.x + messageOffsetX,
+                    cameraOrigin.y + messageOffsetY);
         }
     }
 

@@ -3,6 +3,7 @@ package gameframework;
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObjectFactory;
+import gameframework.inputhandlers.KeyboardHandler;
 import gameframework.resourcemanagement.ResourceManager;
 
 import java.util.ArrayList;
@@ -91,6 +92,12 @@ public class GameThread
                                                boolean startingCharacter)
     {
         return data.addPlayableCharacter(playableCharacter, startingCharacter);
+    }
+
+    public static void changeKeyboardHandler(KeyboardHandler newKeyboardHandler)
+    {
+        if (newKeyboardHandler != null)
+            display.changeKeyboardHandler(newKeyboardHandler);
     }
 
     // This method triggers the update of every object in the game

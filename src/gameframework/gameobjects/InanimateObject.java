@@ -11,7 +11,7 @@ public class InanimateObject extends GameObject
                            int x, int y, int z,
                            int scaleWidth, int scaleHeight)
     {
-        super(name, ObjectType.INANIMATE, x, y, z,
+        super(name, GameObjectType.INANIMATE, x, y, z,
                 scaleWidth, scaleHeight);
         BufferedImage image = GameThread.resourceManager.loadImageResource(name);
         setCurAnimation(new Animation(image, name, scaleWidth, scaleHeight));

@@ -32,14 +32,13 @@ public class Animation
     {
         this.name = name;
         frames = new BufferedImage[1];
+        curFrame = frames[0] = image;
         frameCount = 1;
         curFrameIndex = 0;
-        curFrame = frames[0];
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
         speed = 1;
         speedCounter = 0;
-
     }
 
     public void nextFrame()

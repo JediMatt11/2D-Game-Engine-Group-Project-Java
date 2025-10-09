@@ -57,7 +57,6 @@ public class ResourceManager
                 return ImageIO.read(resourceStream);
             }
         });
-
     }
 
     public ArrayList<String> loadTextResource(String name)

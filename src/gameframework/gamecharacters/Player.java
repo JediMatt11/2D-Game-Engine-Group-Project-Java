@@ -1,35 +1,28 @@
 package gameframework.gamecharacters;
 
-import gameframework.gameobjects.ObjectType;
+import gameframework.gameobjects.GameObjectType;
 
-import java.sql.Array;
 import java.util.ArrayList;
 
 public abstract class Player extends GameCharacter
 {
-    private int totalLives;
-    private int lives;
-    private static ArrayList<Player> availablePlayers = null;
+    private static final int DEFAULT_TOTAL_LIVES = 3;
+
+    protected int totalLives;
+    protected int lives;
+    private static final ArrayList<Player> availablePlayers = new ArrayList<Player>();
     private static int curPlayerIndex;
 
-    public Player(String name, int x, int y, int z,
-                  int scaleWidth, int scaleHeight, int totalHealth,
-                  int totalLives)
+    public Player(String name, int x, int y,
+                  int scaleWidth, int scaleHeight)
     {
-        super(name, ObjectType.PLAYER, x, y, z, scaleWidth, scaleHeight, totalHealth);
-        this.totalLives = totalLives;
-        initializeAvailablePlayers();
+        super(name, GameObjectType.PLAYER, x, y, scaleWidth, scaleHeight);
+        totalLives = DEFAULT_TOTAL_LIVES;
+        lives = totalLives;
         curPlayerIndex = 0;
     }
 
-    private void initializeAvailablePlayers()
-    {
-        if (availablePlayers == null)
-            availablePlayers = new ArrayList<Player>();
-    }
-
     public static void addPlayer(Player player, boolean activePlayer )
-
     {
         availablePlayers.add(player);
         if (activePlayer)
@@ -51,24 +44,22 @@ public abstract class Player extends GameCharacter
 
     public void moveRight(boolean running)
     {
-
         velX = getSpeed();
     }
 
     public void moveLeft(boolean running)
+
     {
         velX = -getSpeed();
     }
 
     public void moveDown(boolean running)
     {
-
         velY = getSpeed();
     }
 
     public void moveUp(boolean running)
     {
-
         velY = -getSpeed();
     }
 

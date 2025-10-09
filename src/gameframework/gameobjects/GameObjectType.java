@@ -6,10 +6,10 @@ package gameframework.gameobjects;
  * Game Developers should extend this class in their games in order to
  * define their own game specific types.
  */
-public class ObjectType
+public class GameObjectType
 {
     /* Type numbers 0-9 are reserved for the engine */
     public static final int PLAYER = 0;
     public static final int NPC = 1;
-    public static final int INANIMATE = 2;
+    public static final int INANIMATE = 3;
 }
