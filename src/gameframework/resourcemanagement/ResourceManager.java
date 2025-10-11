@@ -13,6 +13,7 @@ import java.util.Scanner;
 public class ResourceManager
 {
     private static final String RESOURCE_FOLDER = "/resources/";
+    private final static String LEVELS_FOLDER = "levels/";
     private final HashMap<String, Object> resourceMap;
 
     public ResourceManager()
@@ -25,10 +26,13 @@ public class ResourceManager
         Object process(InputStream resourceStream) throws Exception;
     }
 
-    public Object loadGeneralResource(String name, ResourceProcessor resourceProcessor)
+    public Object loadGeneralResource(String resourceName, String levelName,
+                                      ResourceProcessor resourceProcessor)
     {
-        String resourcePath = RESOURCE_FOLDER + name;
-        Object resource = resourceMap.get(name);
+        String resourcePath = RESOURCE_FOLDER  + (levelName.isEmpty() ? "" :
+                (LEVELS_FOLDER + levelName + "/")) + resourceName ;
+        //Important, note that resource names should be unique per level
+        Object resource = resourceMap.get(resourceName);
 
         if (resource == null)
         {
@@ -37,20 +41,20 @@ public class ResourceManager
             try
             {
                 resource = resourceProcessor.process(getClass().getResourceAsStream(resourcePath));
-                resourceMap.put(name, resource);
+                resourceMap.put(resourceName, resource);
             }
             catch (Exception e)
             {
                 System.out.println("Unable to load resource: " +
-                        name);
+                        resourceName);
             }
         }
         return resource;
     }
 
-    public BufferedImage loadImageResource(String name)
+    public BufferedImage loadImageResource(String name, String levelName)
     {
-        return (BufferedImage)loadGeneralResource(name, new ResourceProcessor() {
+        return (BufferedImage)loadGeneralResource(name, levelName, new ResourceProcessor() {
             @Override
             public Object process(InputStream resourceStream) throws Exception
             {
@@ -59,9 +63,9 @@ public class ResourceManager
         });
     }
 
-    public ArrayList<String> loadTextResource(String name)
+    public ArrayList<String> loadTextResource(String name, String levelName)
     {
-        return (ArrayList<String>)loadGeneralResource(name, new ResourceProcessor() {
+        return (ArrayList<String>)loadGeneralResource(name, levelName, new ResourceProcessor() {
             @Override
             public Object process(InputStream resourceStream) throws Exception
             {

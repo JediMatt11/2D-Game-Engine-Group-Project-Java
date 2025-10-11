@@ -19,7 +19,7 @@ public class Spritesheet
     {
         this.name = name;
         spritesheet = GameThread.resourceManager.
-                loadImageResource(SPRITESHEET_FOLDER + name);
+                loadImageResource(SPRITESHEET_FOLDER + name, "");
         this.numRows = numRows;
         this.numCols = numCols;
         this.spriteCount = spriteCount;

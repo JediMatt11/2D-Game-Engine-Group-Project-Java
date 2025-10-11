@@ -176,7 +176,6 @@ public class KeyboardHandler implements KeyListener
                 player.moveRight(false);
                 break;
             case HANDLER_MOVE_LEFT:
-
                 player.moveLeft(false);
                 break;
             case HANDLER_MOVE_UP:
@@ -196,12 +195,14 @@ public class KeyboardHandler implements KeyListener
             case HANDLER_RANGED_ATTACK_DOWN:
                 break;
             case HANDLER_RANGED_ATTACK_RIGHT:
+                player.attack();
                 break;
             case HANDLER_RANGED_ATTACK_LEFT:
                 break;
             case HANDLER_RANGED_ATTACK_UP:
                 break;
             case HANDLER_ATTACK:
+                player.attack();
                 break;
             case HANDLER_INVENTORY:
                 //Toggle character inventory

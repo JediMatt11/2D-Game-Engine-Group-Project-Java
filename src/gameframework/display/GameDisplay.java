@@ -139,7 +139,7 @@ public class GameDisplay extends JFrame
         //draw normally whatever you want
         GameLevel level = GameThread.getCurrentLevel();
         background = level != null ?
-                GameThread.resourceManager.loadImageResource(level.getBackground()):
+                GameThread.resourceManager.loadImageResource(level.getBackground(), level.getName()):
                 null;
         if (background != null)
             g.drawImage(background, 0, 0, getWidth(), getHeight(), null);

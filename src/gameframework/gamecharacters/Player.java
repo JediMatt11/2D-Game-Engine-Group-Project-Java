@@ -42,39 +42,4 @@ public abstract class Player extends GameCharacter
         curPlayerIndex = (curPlayerIndex + 1) % availablePlayers.size();
     }
 
-    public void moveRight(boolean running)
-    {
-        curAnimation = walkRight;
-        velX = getSpeed();
-    }
-
-    public void moveLeft(boolean running)
-    {
-        curAnimation = walkLeft;
-        velX = -getSpeed();
-    }
-
-    public void moveDown(boolean running)
-    {
-        velY = getSpeed();
-    }
-
-    public void moveUp(boolean running)
-    {
-        velY = -getSpeed();
-    }
-
-    public void stop()
-    {
-        velX = velY = 0;
-    }
-
-
-
-
-
-
-
-
-
 }

@@ -296,4 +296,91 @@ public abstract class GameCharacter extends GameObject
                 curAnimation == getDieUpAnimation() ||
                 curAnimation == getDieDownAnimation());
     }
+
+    /* These methods change the speed, direction and animation of a character
+     * in order to make it move it in a certain direction. */
+    public void moveRight(boolean running)
+    {
+        if (running)
+        {
+            runRight();
+            return;
+        }
+        changeActiveAnimation(getMoveRightAnimation());
+        velX = speed;
+    }
+
+    public void moveLeft(boolean running)
+    {
+        if (running)
+        {
+            runLeft();
+            return;
+        }
+        changeActiveAnimation(getMoveLeftAnimation());
+        velX = -speed;
+    }
+
+    public void moveUp(boolean running)
+    {
+        if (running)
+        {
+            runUp();
+            return;
+        }
+        changeActiveAnimation(getMoveUpAnimation());
+        velY = -speed;
+    }
+
+    public void moveDown(boolean running)
+    {
+        if (running)
+        {
+            runDown();
+            return;
+        }
+        changeActiveAnimation(getMoveDownAnimation());
+        velY = speed;
+    }
+
+    public void stop()
+    {
+        if (isMoving())
+            changeActiveAnimation(getIdleAnimation());
+        velX = velY = 0;
+    }
+
+    /* These methods change the speed, direction and animation of a character
+     * in order to make it run in a certain direction (When running, the engine
+     * sets the speed to double the walking speed, for the time being). */
+    private void runRight()
+    {
+        velX = speed * 2;
+        changeActiveAnimation(getRunRightAnimation());
+    }
+
+    private void runLeft()
+    {
+        velX = -speed * 2;
+        changeActiveAnimation(getRunLeftAnimation());
+    }
+
+    private void runUp()
+    {
+        velY = -speed * 2;
+        changeActiveAnimation(getRunUpAnimation());
+    }
+
+    private void runDown()
+    {
+        velY = speed * 2;
+        changeActiveAnimation(getRunDownAnimation());
+    }
+    /********/
+
+    public void attack()
+    {
+        curAnimation = attackRight;
+    }
+
 }

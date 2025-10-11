@@ -3,7 +3,6 @@ package gameframework.gameobjects;
 import gameframework.animations.Animation;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 public abstract class GameObject
 {
@@ -55,11 +54,11 @@ public abstract class GameObject
         }
     }
 
-    public Animation getCurAnimation() {
+    public Animation getActiveAnimation() {
         return curAnimation;
     }
 
-    public void setCurAnimation(Animation curAnimation)
+    public void changeActiveAnimation(Animation curAnimation)
     {
         if (curAnimation != null)
             this.curAnimation = curAnimation;

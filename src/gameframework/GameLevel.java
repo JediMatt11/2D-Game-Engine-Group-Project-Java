@@ -13,7 +13,6 @@ public class GameLevel
     private String background;
     private String theme;
     private Point playerStartPos;
-    private final static String LEVEL_FOLDER = "levels/";
 
     public GameLevel(String initName, int initNumber, String initBackground,
                      String initTheme,
@@ -62,8 +61,7 @@ public class GameLevel
          */
         GameThread.resourceManager.freeResources();
 
-        ArrayList<String> text = GameThread.resourceManager.loadTextResource(LEVEL_FOLDER
-                    + name + "/" + name + ".txt");
+        ArrayList<String> text = GameThread.resourceManager.loadTextResource(name + ".txt", name);
 
         //make sure to clear game objects list before loading objects for new level
         gameObjects.clear();
