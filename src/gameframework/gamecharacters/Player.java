@@ -44,12 +44,13 @@ public abstract class Player extends GameCharacter
 
     public void moveRight(boolean running)
     {
+        curAnimation = walkRight;
         velX = getSpeed();
     }
 
     public void moveLeft(boolean running)
-
     {
+        curAnimation = walkLeft;
         velX = -getSpeed();
     }
 
