@@ -2,6 +2,7 @@ package gameframework.inputhandlers;
 
 import gameframework.GameThread;
 import gameframework.gamecharacters.Player;
+import gameframework.gameobjects.GameObject;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -43,6 +44,8 @@ public class KeyboardHandler implements KeyListener
     public static final int HANDLER_DEBUG_MODE = 22;
     public static final int HANDLER_ENABLE_SOUNDEFFECTS = 23;
     public static final int HANDLER_GAME_PAUSED = 24;
+    public static final int HANDLER_BOUNDSONLY_MODE = 25;
+    public static final int HANDLER_BORDERSONLY_MODE = 26;
 
     @Override
     public void keyTyped(KeyEvent e)
@@ -126,6 +129,12 @@ public class KeyboardHandler implements KeyListener
                 break;
             case KeyEvent.VK_F1:
                 keyPressedActionHandler(HANDLER_DISPLAY_FRAMERATE, ke, keyHeldId);
+                break;
+            case KeyEvent.VK_F4:
+                keyPressedActionHandler(HANDLER_BOUNDSONLY_MODE, ke, keyHeldId);
+                break;
+            case KeyEvent.VK_F5:
+                keyPressedActionHandler(HANDLER_BORDERSONLY_MODE, ke, keyHeldId);
                 break;
             case KeyEvent.VK_F6:
                 keyPressedActionHandler(HANDLER_DEBUG_MODE, ke, keyHeldId);
@@ -225,6 +234,28 @@ public class KeyboardHandler implements KeyListener
             case HANDLER_DISPLAY_FRAMERATE:
                 //Activate/Deactivate display of frame rate and update rate
                 GameThread.displayFrameUpdateRate = !GameThread.displayFrameUpdateRate;
+                break;
+            case HANDLER_BOUNDSONLY_MODE:
+                //Display only collision bound rectangles mode
+                GameObject.drawBoundsRect = !GameObject.drawBoundsRect;
+                if (GameObject.drawBoundsRect)
+                {
+                    GameObject.disableRendering = true;
+                    GameObject.drawSpriteBorders = false;
+                }
+                else
+                    GameObject.disableRendering = false;
+                break;
+            case HANDLER_BORDERSONLY_MODE:
+                //Display only sprite borders mode
+                GameObject.drawSpriteBorders = !GameObject.drawSpriteBorders;
+                if (GameObject.drawSpriteBorders)
+                {
+                    GameObject.disableRendering = true;
+                    GameObject.drawBoundsRect = false;
+                }
+                else
+                    GameObject.disableRendering = false;
                 break;
             case HANDLER_GAME_PAUSED:
                 break;
