@@ -53,7 +53,7 @@ public class GameData
     public void update()
     {
         for (GameObject object : objects)
-            object.update();
+            object.update(objects);
     }
 
     public LinkedList<GameObject> getObjects() {

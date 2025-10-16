@@ -1,7 +1,11 @@
 package gameframework.gamecharacters;
 
+import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
+import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
+
+import java.util.LinkedList;
 
 /**
  * This class handles general support for characters in the game.
@@ -307,6 +311,7 @@ public abstract class GameCharacter extends GameObject
             return;
         }
         changeActiveAnimation(getMoveRightAnimation());
+        direction = Direction.RIGHT;
         velX = speed;
     }
 
@@ -318,6 +323,7 @@ public abstract class GameCharacter extends GameObject
             return;
         }
         changeActiveAnimation(getMoveLeftAnimation());
+        direction = Direction.LEFT;
         velX = -speed;
     }
 
@@ -329,6 +335,7 @@ public abstract class GameCharacter extends GameObject
             return;
         }
         changeActiveAnimation(getMoveUpAnimation());
+        direction = Direction.UP;
         velY = -speed;
     }
 
@@ -340,6 +347,7 @@ public abstract class GameCharacter extends GameObject
             return;
         }
         changeActiveAnimation(getMoveDownAnimation());
+        direction = Direction.DOWN;
         velY = speed;
     }
 
@@ -347,6 +355,7 @@ public abstract class GameCharacter extends GameObject
     {
         if (isMoving())
             changeActiveAnimation(getIdleAnimation());
+        direction = Direction.NONE;
         velX = velY = 0;
     }
 
@@ -357,24 +366,28 @@ public abstract class GameCharacter extends GameObject
     {
         velX = speed * 2;
         changeActiveAnimation(getRunRightAnimation());
+        direction = Direction.RIGHT;
     }
 
     private void runLeft()
     {
         velX = -speed * 2;
         changeActiveAnimation(getRunLeftAnimation());
+        direction = Direction.LEFT;
     }
 
     private void runUp()
     {
         velY = -speed * 2;
         changeActiveAnimation(getRunUpAnimation());
+        direction = Direction.UP;
     }
 
     private void runDown()
     {
         velY = speed * 2;
         changeActiveAnimation(getRunDownAnimation());
+        direction = Direction.DOWN;
     }
     /********/
 
@@ -382,5 +395,27 @@ public abstract class GameCharacter extends GameObject
     {
         curAnimation = attackRight;
     }
+
+    public boolean handleObjectCollision(GameObject object)
+    {
+        //Handle collision with objects in a general way (applies to all game characters)
+        boolean handled = true;
+
+        switch (object.getType())
+        {
+            case GameObjectType.INANIMATE:
+                //Handle how general characters handle collision with inanimate objects
+                handled = handleCollision(object);
+                break;
+            default:
+                //Call the general collision handler that provides basic collision
+                //for all objects (repositioning to resolve the collision)
+                handled = handleCollision(object);
+                break;
+        }
+
+        return handled;
+    }
+
 
 }

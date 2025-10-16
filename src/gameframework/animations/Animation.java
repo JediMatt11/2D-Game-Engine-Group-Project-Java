@@ -79,6 +79,18 @@ public class Animation
         return frameBorders.get(curFrameIndex).getBordersRectangle();
     }
 
+    /* These method can be used to convert the border point positions for every frame in the animation
+     * from relative coords based on the top left corner of the bounds rectangle of the frame to actual
+     * absolute coordinates in the game world. */
+    public void adjustFrameBordersPosition(int posX, int posY)
+    {
+        for ( int i = 0; i < frameCount; i++)
+        {
+            SpriteBorder s = frameBorders.get(i);
+            frameBorders.set(i, s.reposition(posX, posY));
+        }
+    }
+
     public void nextFrame()
     {
         speedCounter++;
