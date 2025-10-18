@@ -30,7 +30,7 @@ public class GameDisplay extends JFrame
     private KeyListener keyboardHandler;
 
     //camera attributes
-    private Point cameraOrigin;
+    private static Point cameraOrigin;
 
     /* We intend to be able to toggle a message on the game window, these attributes hold the properties of
      * how that message displays (like position (X & Y offsets) and text color), for example we can use it to
@@ -44,7 +44,7 @@ public class GameDisplay extends JFrame
     private int messageOffsetY;
     /****/
 
-    private BufferedImage background;
+    private static BufferedImage background;
 
     public GameDisplay(GameData data)
     {
@@ -73,6 +73,8 @@ public class GameDisplay extends JFrame
         messageOffsetX = DEFAULT_MESSAGE_OFFSET;
         messageOffsetY = DEFAULT_MESSAGE_OFFSET;
     }
+
+    public static BufferedImage getCurBackground() { return background; }
 
     public String getMessage()
     {
@@ -148,9 +150,14 @@ public class GameDisplay extends JFrame
         setCameraPos(g, new Point(player.getX(), player.getY()));
         drawCameraScreen(g);
 
-        //draws all objects of the game
+        /* This code is in charge of rendering the objects in the game to the display. We are
+         * optimizing the rendering process by only drawing those objects that are currently
+         * showing on the screen. */
         for (GameObject object : data.getObjects())
-            object.render(g);
+        {
+            if ( objectWithinCameraView(object) )
+                object.render(g);
+        }
 
         renderDisplayMessage(g);
 
@@ -173,7 +180,6 @@ public class GameDisplay extends JFrame
 
     private BufferedImage createCameraScreen()
     {
-
         BufferedImage cameraScreenImage;
 
         /* The background dimensions have to be both bigger than the display dimensions to create
@@ -222,6 +228,21 @@ public class GameDisplay extends JFrame
 
         //This call effectively sets the origin of the graphics context to our desired camera position.
         g.translate(-cameraOrigin.x, -cameraOrigin.y);
+    }
+
+    //Returns true if object is within the current camera view.
+    public static boolean objectWithinCameraView(GameObject go)
+    {
+        boolean withinView = false;
+        Rectangle cameraBounds = new Rectangle(cameraOrigin.x, cameraOrigin.y,
+                displayWidth, displayHeight);
+
+        if (
+                go.isWithinBounds(cameraBounds)
+        )
+            withinView = true;
+
+        return withinView;
     }
 
 

@@ -45,6 +45,28 @@ public class Animation
         initializeFrameBorders();
     }
 
+    public int getScaleWidth()
+    {
+        return scaleWidth;
+    }
+
+    public void setScaleWidth(int scaleWidth)
+    {
+        if (scaleWidth > 0)
+            this.scaleWidth = scaleWidth;
+    }
+
+    public int getScaleHeight()
+    {
+        return scaleHeight;
+    }
+
+    public void setScaleHeight(int scaleHeight)
+    {
+        if (scaleHeight > 0)
+            this.scaleHeight = scaleHeight;
+    }
+
     /*
      * This method is used to obtain and store the borders of each frame of the animation (the actual
      * sprite borders not including the transparent background), having the borders handy is very useful
@@ -117,6 +139,5 @@ public class Animation
     public void setSpeed(int speed) {
         this.speed = speed;
     }
-
 
 }

@@ -8,6 +8,7 @@ import gameframework.display.GameDisplay;
 import gameframework.supportfunctions.GraphicsLibrary;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 
 public abstract class GameObject
@@ -27,6 +28,8 @@ public abstract class GameObject
     protected int scaleHeight;
 
     protected Animation curAnimation;
+
+    protected boolean constrainToBackground;
 
     public static boolean drawBoundsRect = false;
     public static boolean drawSpriteBorders = false;
@@ -52,6 +55,9 @@ public abstract class GameObject
 
         //initialize collision handler
         collisionHandler = new CollisionHandler(this);
+
+        //By default objects cannot move beyond the game's background
+        constrainToBackground = true;
     }
 
     public int getX() {return x;}
@@ -141,6 +147,8 @@ public abstract class GameObject
         return new Point(x,y);
     }
 
+    /* This method should be the only way used to change positions in order to
+     * easily trace position changes while debugging the game.*/
     public void setPosition(int x, int y)
     {
         this.x = x;
@@ -153,8 +161,14 @@ public abstract class GameObject
      */
     public void update(LinkedList<GameObject> objects)
     {
-        setPosition(x + velX, y + velY);
-        collision(objects);
+        /* Only objects that move need to update their position or handle their own collisions. By having
+         * only the object moving (cause of the collision) handle the collision, we eliminate a  lot of the
+         * computational overhead. */
+        if ( !isUnmovable() )
+        {
+            setPosition(getX() + velX, getY() + velY);
+            collision(objects);
+        }
     }
     public abstract boolean handleObjectCollision(GameObject object);
 
@@ -196,7 +210,7 @@ public abstract class GameObject
 
         if (curAnimation != null)
         {
-            //unamovable objects are automatically repositioned by the engine at load time for performance
+            // unmovable objects are automatically repositioned by the engine at load time for performance
             // reasons, so we ignore any further repositioning requests
             spriteBorders = curAnimation.getCurrentFrameBorders(x, y, !isUnmovable() && reposition);
         }
@@ -248,4 +262,65 @@ public abstract class GameObject
         }
         return;
     }
+
+    //Determine if an object is fully contained within the given bounds.
+    public boolean isWithinBounds(Rectangle bounds)
+    {
+        boolean withinBounds = false;
+
+        if (
+                getX() + scaleWidth > bounds.x &&
+                getX() < bounds.x + bounds.width &&
+                getY() + scaleHeight > bounds.y &&
+                getY() < bounds.y + bounds.height
+        )
+            withinBounds = true;
+
+        return withinBounds;
+    }
+
+    //Make sure this object is never positioned outside the game world
+    public void enforceBackgroundBounds()
+    {
+        //This method is only effective if the constrain to background flag is enabled
+        if (constrainToBackground)
+        {
+            BufferedImage background = GameDisplay.getCurBackground();
+            Rectangle backgroundBounds = new Rectangle(0, 0, background.getWidth(), background.getHeight());
+            enforceBounds(backgroundBounds);
+        }
+    }
+
+    //Make sure this objects is never positioned outside the given bounds area
+    public void enforceBounds(Rectangle boundArea )
+    {
+        int scaledWidth = curAnimation.getScaleWidth();
+        int scaledHeight = curAnimation.getScaleHeight();
+
+        int updatedX = 0, updatedY = 0;
+
+        //savePosition();
+        if (x < boundArea.x)
+        {
+            updatedX = boundArea.x;
+        }
+        else if (x > boundArea.x + boundArea.width - scaledWidth)
+        {
+            updatedX = boundArea.x + boundArea.width - scaledWidth;
+        }
+
+        if (y < boundArea.y)
+        {
+            updatedY = boundArea.y;
+        }
+        else if (y > boundArea.y + boundArea.height - scaledHeight)
+        {
+            updatedY = boundArea.y + boundArea.height - scaledHeight;
+        }
+
+        setPosition(updatedX, updatedY);
+    }
+
+
+
 }
