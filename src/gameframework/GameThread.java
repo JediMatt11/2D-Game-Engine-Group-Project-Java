@@ -88,7 +88,7 @@ public class GameThread
 
     //Add a playable character, if the boolean is set to true then this is set
     //as the initial player character (can switch characters later on)
-    public boolean addPlayableCharacter(Player playableCharacter,
+    public static boolean addPlayableCharacter(Player playableCharacter,
                                                boolean startingCharacter)
     {
         return data.addPlayableCharacter(playableCharacter, startingCharacter);
