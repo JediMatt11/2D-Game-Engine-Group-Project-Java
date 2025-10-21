@@ -5,8 +5,6 @@ import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
 
-import java.util.LinkedList;
-
 /**
  * This class handles general support for characters in the game.
  * Everything in this class applies to any kind of character including

@@ -1,5 +1,7 @@
 package gameframework.gameobjects;
 
+import gameframework.collision.CollisionLayers;
+
 import java.util.Scanner;
 
 /*
@@ -36,6 +38,8 @@ public class GameObjectFactory
                 break;
             case GameObjectType.INANIMATE:
                 gameObject = new InanimateObject(subtype + ".png", posX, posY, 2, scaleWidth, scaleHeight);
+                //Add inanimate objects to the Ground collision layer
+                CollisionLayers.groundLayer.add(gameObject);
                 break;
         }
         return gameObject;

@@ -34,6 +34,7 @@ public abstract class GameObject
     public static boolean drawBoundsRect = false;
     public static boolean drawSpriteBorders = false;
     public static boolean disableRendering = false;
+    private LinkedList<LinkedList<GameObject>> collisionScanLayers;
 
     //internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
@@ -55,6 +56,9 @@ public abstract class GameObject
 
         //initialize collision handler
         collisionHandler = new CollisionHandler(this);
+
+        //initialize collision scan list
+        collisionScanLayers = new LinkedList<>();
 
         //By default objects cannot move beyond the game's background
         constrainToBackground = true;
@@ -167,7 +171,7 @@ public abstract class GameObject
         if ( !isUnmovable() )
         {
             setPosition(getX() + velX, getY() + velY);
-            collision(objects);
+            collision();
         }
     }
     public abstract boolean handleObjectCollision(GameObject object);
@@ -233,30 +237,33 @@ public abstract class GameObject
         return collisionHandler.handleCollision(collidingObject);
     }
 
-    public void collision(LinkedList<GameObject> objects)
+    public void collision()
     {
-        // Loop through all other objects and handle any collisions between this object
+        // Loop through all layers that this object scans and handle any collisions between this object
         // and any other one
 
-        for ( int i = 0; i < objects.size(); i++)
+        for (LinkedList<GameObject> objects : collisionScanLayers)
         {
-            GameObject go = objects.get(i);
-
-            if (go == this)
-                continue;
-
-            //Handle collision here for any objects that require some action
-            //by the game object or character when collision occurs
-            if ( collidesWith(go))
+            for (int i = 0; i < objects.size(); i++)
             {
-                //allow each character/object to handle the collision in a specific way
-                boolean handled = handleObjectCollision(go);
+                GameObject go = objects.get(i);
 
-                if (!handled)
+                if (go == this)
+                    continue;
+
+                //Handle collision here for any objects that require some action
+                //by the game object or character when collision occurs
+                if (collidesWith(go))
                 {
-                    System.out.println("Unable to handle collision with object "
-                            + go.getName());
-                    break;
+                    //allow each character/object to handle the collision in a specific way
+                    boolean handled = handleObjectCollision(go);
+
+                    if (!handled)
+                    {
+                        System.out.println("Unable to handle collision with object "
+                                + go.getName());
+                        break;
+                    }
                 }
             }
         }
@@ -321,6 +328,8 @@ public abstract class GameObject
         setPosition(updatedX, updatedY);
     }
 
-
+    public void addCollisionScanLayer(LinkedList<GameObject> newLayer) {
+        collisionScanLayers.add(newLayer);
+    }
 
 }
