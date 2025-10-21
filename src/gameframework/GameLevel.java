@@ -72,6 +72,9 @@ public class GameLevel
             if ( textLine.startsWith("//"))
                 continue;
             GameObject gameObject = GameThread.gameObjectFactory.createGameObject(textLine);
+            //ignore any objects that fail to load
+            if (gameObject == null )
+                continue;
             gameObjects.add(gameObject);
         }
 
