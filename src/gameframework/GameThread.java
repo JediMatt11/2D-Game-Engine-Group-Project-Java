@@ -2,11 +2,13 @@ package gameframework;
 
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
+import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectFactory;
 import gameframework.inputhandlers.KeyboardHandler;
 import gameframework.resourcemanagement.ResourceManager;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /*
  * This class contains the functionality to start and run the engine. All games based on the engine must implement
@@ -86,12 +88,31 @@ public class GameThread
 
     public boolean isGameOver() { return gameOver;}
 
-    //Add a playable character, if the boolean is set to true then this is set
-    //as the initial player character (can switch characters later on)
-    public boolean addPlayableCharacter(Player playableCharacter,
+    // Add a playable character, if the boolean is set to true then this is set
+    // as the initial player character (can switch characters later on)
+    public static boolean addPlayableCharacter(Player playableCharacter,
                                                boolean startingCharacter)
     {
         return data.addPlayableCharacter(playableCharacter, startingCharacter);
+    }
+
+    // Change playable character to the next available one
+    public static void changePlayableCharacter()
+    {
+        // Make sure to spawn it on the same position
+        Player player = Player.getActivePlayer();
+        LinkedList<GameObject> gameObjects = data != null ? data.getObjects() : null;
+
+        if (player != null && gameObjects != null)
+        {
+            int x = player.getX();
+            int y = player.getY();
+
+            int index = gameObjects.indexOf(player);
+            player = Player.nextPlayer();
+            gameObjects.set(index, player);
+            player.setPosition(x, y);
+        }
     }
 
     public static void changeKeyboardHandler(KeyboardHandler newKeyboardHandler)
