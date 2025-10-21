@@ -10,6 +10,9 @@ import java.util.LinkedList;
 public class GameData
 {
     private LinkedList<GameObject> objects;
+    public LinkedList<GameObject> characterCollisionLayer;
+    public LinkedList<GameObject> groundCollisionLayer;
+    public LinkedList<GameObject> triggerCollisionLayer;
 
     public GameData()
     {
