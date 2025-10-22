@@ -37,9 +37,11 @@ public abstract class Player extends GameCharacter
             return null;
     }
 
-    public static void nextPlayer()
+    // changes the player in the game to the next player in the registered players list
+    public static Player nextPlayer()
     {
         curPlayerIndex = (curPlayerIndex + 1) % availablePlayers.size();
+        return getActivePlayer();
     }
 
 }
