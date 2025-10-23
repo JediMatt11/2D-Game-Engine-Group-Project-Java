@@ -29,6 +29,8 @@ public abstract class GameObject
 
     protected Animation curAnimation;
 
+    protected boolean requiresUpdating;
+
     protected boolean constrainToBackground;
 
     public static boolean drawBoundsRect = false;
@@ -56,6 +58,9 @@ public abstract class GameObject
         //initialize collision handler
         collisionHandler = new CollisionHandler(this);
 
+        //By default all objects require to be updated
+        requiresUpdating = true;
+
         //By default objects cannot move beyond the game's background
         constrainToBackground = true;
     }
@@ -63,6 +68,12 @@ public abstract class GameObject
     public int getX() {return x;}
     public int getY() {return y;}
     public int getZ() {return z;}
+    // No setter for x and y as those should be changed exclusively using the setPosition method
+    public void setZ(int z)
+    {
+        if ( z >= 0 )
+            this.z = z;
+    }
 
     public String getName()
     {
@@ -87,6 +98,11 @@ public abstract class GameObject
     public boolean isUnmovable()
     {
         return isInanimate();
+    }
+
+    public boolean requiresUpdating()
+    {
+        return requiresUpdating;
     }
 
     /* We use this function to render either the bounds rectangle or the actual borders of a sprite
@@ -159,7 +175,7 @@ public abstract class GameObject
      * their own individual updates and how they handle collision with the
      * other objects in the game.
      */
-    public void update(LinkedList<GameObject> objects)
+    public void update(GameObjects objects)
     {
         /* Only objects that move need to update their position or handle their own collisions. By having
          * only the object moving (cause of the collision) handle the collision, we eliminate a  lot of the
@@ -222,7 +238,10 @@ public abstract class GameObject
     public boolean collidesWith(GameObject otherObject)
     {
         boolean objectsCollide = false;
-
+        /*steve temporary hack*/
+       /* if (ignoreTopStoneFloor())
+            return false;*/
+        /**/
         objectsCollide = collisionHandler.checkCollision(otherObject);
 
         return objectsCollide;
@@ -286,8 +305,11 @@ public abstract class GameObject
         if (constrainToBackground)
         {
             BufferedImage background = GameDisplay.getCurBackground();
-            Rectangle backgroundBounds = new Rectangle(0, 0, background.getWidth(), background.getHeight());
-            enforceBounds(backgroundBounds);
+            if (background != null)
+            {
+                Rectangle backgroundBounds = new Rectangle(0, 0, background.getWidth(), background.getHeight());
+                enforceBounds(backgroundBounds);
+            }
         }
     }
 
@@ -299,7 +321,6 @@ public abstract class GameObject
 
         int updatedX = 0, updatedY = 0;
 
-        //savePosition();
         if (x < boundArea.x)
         {
             updatedX = boundArea.x;
@@ -320,7 +341,5 @@ public abstract class GameObject
 
         setPosition(updatedX, updatedY);
     }
-
-
 
 }

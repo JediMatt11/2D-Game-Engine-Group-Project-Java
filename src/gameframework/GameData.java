@@ -3,17 +3,19 @@ package gameframework;
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
+import gameframework.gameobjects.GameObjects;
 
 import java.awt.*;
 import java.util.LinkedList;
 
 public class GameData
 {
-    private LinkedList<GameObject> objects;
+    private GameObjects objects;
 
     public GameData()
     {
-        objects = new LinkedList<GameObject>();
+        //initialize game objects list
+        objects = new GameObjects(true);
 
         //load first game level
         try
@@ -52,11 +54,24 @@ public class GameData
       objects and allows them to use a fraction of the time to do their tasks and update themselves..*/
     public void update()
     {
-        for (GameObject object : objects)
-            object.update(objects);
+        GameObjects objectsToUpdate = objects.getUpdateObjects();
+        for ( GameObject go : objectsToUpdate)
+            go.update(objects);
+
+       /* for (GameObject object : objects)
+            object.update(objects);*/
     }
 
+    //get all objects in the game
     public LinkedList<GameObject> getObjects() {
         return objects;
+    }
+
+    //Returns a list of all objects in the game that are of the requested type.
+    GameObjects getObjectsOfType(int type)
+    {
+        GameObjects foundObjects = objects.getObjectsOfType(type);
+        return foundObjects;
+
     }
 }
