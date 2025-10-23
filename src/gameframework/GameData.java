@@ -6,7 +6,6 @@ import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjects;
 
 import java.awt.*;
-import java.util.LinkedList;
 
 public class GameData
 {
@@ -55,7 +54,7 @@ public class GameData
     public void update()
     {
         GameObjects objectsToUpdate = objects.getUpdateObjects();
-        for ( GameObject go : objectsToUpdate)
+        for (GameObject go : objectsToUpdate)
             go.update(objects);
 
        /* for (GameObject object : objects)
@@ -63,7 +62,7 @@ public class GameData
     }
 
     //get all objects in the game
-    public LinkedList<GameObject> getObjects() {
+    public GameObjects getObjects() {
         return objects;
     }
 

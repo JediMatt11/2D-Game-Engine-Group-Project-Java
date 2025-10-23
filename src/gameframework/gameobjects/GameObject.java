@@ -238,12 +238,7 @@ public abstract class GameObject
     public boolean collidesWith(GameObject otherObject)
     {
         boolean objectsCollide = false;
-        /*steve temporary hack*/
-       /* if (ignoreTopStoneFloor())
-            return false;*/
-        /**/
         objectsCollide = collisionHandler.checkCollision(otherObject);
-
         return objectsCollide;
     }
 
