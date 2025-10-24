@@ -238,7 +238,7 @@ public abstract class GameObject
         // Loop through all other objects and handle any collisions between this object
         // and any other one
 
-        for ( int i = 0; i < objects.size(); i++)
+        for ( int i = 0; i < objects.size() / 3; i++)
         {
             GameObject go = objects.get(i);
 
