@@ -5,8 +5,6 @@ import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
 
-import java.util.LinkedList;
-
 /**
  * This class handles general support for characters in the game.
  * Everything in this class applies to any kind of character including
@@ -55,7 +53,7 @@ public abstract class GameCharacter extends GameObject
                          int x, int y,
                          int scaleWidth, int scaleHeight)
     {
-        super(name, type, x, y, 1, scaleWidth, scaleHeight);
+        super(name, type, x, y, 3, scaleWidth, scaleHeight);
         totalHealth = DEFAULT_TOTAL_HEALTH;
         curHealth = totalHealth;
         speed = DEFAULT_SPEED;
@@ -413,9 +411,7 @@ public abstract class GameCharacter extends GameObject
                 handled = handleCollision(object);
                 break;
         }
-
         return handled;
     }
-
 
 }

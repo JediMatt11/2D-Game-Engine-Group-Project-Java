@@ -2,13 +2,12 @@ package gameframework;
 
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
-import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectFactory;
+import gameframework.gameobjects.GameObjects;
 import gameframework.inputhandlers.KeyboardHandler;
 import gameframework.resourcemanagement.ResourceManager;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 /*
  * This class contains the functionality to start and run the engine. All games based on the engine must implement
@@ -101,16 +100,16 @@ public class GameThread
     {
         // Make sure to spawn it on the same position
         Player player = Player.getActivePlayer();
-        LinkedList<GameObject> gameObjects = data != null ? data.getObjects() : null;
+        GameObjects gameObjects = data != null ? data.getObjects() : null;
 
         if (player != null && gameObjects != null)
         {
             int x = player.getX();
             int y = player.getY();
 
-            int index = gameObjects.indexOf(player);
+            gameObjects.remove(player);
             player = Player.nextPlayer();
-            gameObjects.set(index, player);
+            gameObjects.add(player);
             player.setPosition(x, y);
         }
     }

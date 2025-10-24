@@ -11,10 +11,13 @@ public class InanimateObject extends GameObject
                            int x, int y, int z,
                            int scaleWidth, int scaleHeight)
     {
-        super(name, GameObjectType.INANIMATE, x, y, z,
+        super(name, GameObjectType.INANIMATE, x, y, 4,
                 scaleWidth, scaleHeight);
         BufferedImage image = GameThread.resourceManager.loadImageResource(name, GameThread.getCurrentLevel().getName());
         initializeBaseAnimation(image);
+
+        //disable frequent updates for inanimate objects
+        requiresUpdating = false;
     }
 
     /* Inanimate objects have a default animation consisting of one frame, this
@@ -66,8 +69,7 @@ public class InanimateObject extends GameObject
          * handle the collision. */
         if (!isUnmovable())
         {
-            if (collidesWith(object))
-                handled = handleCollision(object);
+            handled = handleCollision(object);
         }
         return handled;
     }
