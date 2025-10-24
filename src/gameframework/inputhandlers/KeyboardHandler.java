@@ -226,6 +226,7 @@ public class KeyboardHandler implements KeyListener
                 break;
             case HANDLER_CHANGE_CHARACTER:
                 //Change between playable characters
+                GameThread.changePlayableCharacter();
                 break;
             case HANDLER_RESTART_GAME:
                 break;
