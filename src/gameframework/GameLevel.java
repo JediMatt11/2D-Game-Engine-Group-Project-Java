@@ -1,8 +1,10 @@
 package gameframework;
+import gameframework.collision.CollisionRegions;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -16,13 +18,20 @@ public class GameLevel
 
     public GameLevel(String initName, int initNumber, String initBackground,
                      String initTheme,
-                     Point initPlayerStartPos)
+                     Point initPlayerStartPos,
+                     int collisionRegionGridSizeX,
+                     int collisionRegionGridSizeY)
     {
         name = initName;
         number = initNumber;
         background = initBackground;
         theme = initTheme;
         playerStartPos = initPlayerStartPos;
+
+        //Setup collision grid
+        CollisionRegions.setCollisionRegionGridSize(collisionRegionGridSizeX, collisionRegionGridSizeY);
+        BufferedImage background = GameThread.resourceManager.loadImageResource(getBackground(), getName());
+        CollisionRegions.setLevelBounds(background.getWidth(), background.getHeight());
     }
 
     public String getName()

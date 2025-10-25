@@ -4,11 +4,13 @@ import gameframework.animations.Animation;
 import gameframework.animations.BorderPoint;
 import gameframework.animations.SpriteBorder;
 import gameframework.collision.CollisionHandler;
+import gameframework.collision.CollisionRegions;
 import gameframework.display.GameDisplay;
 import gameframework.supportfunctions.GraphicsLibrary;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 public abstract class GameObject
@@ -40,6 +42,8 @@ public abstract class GameObject
     //internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
 
+    private Point currentCollisionRegion;
+
     public GameObject(String name, int type,
                       int x, int y, int z,
                       int scaleWidth, int scaleHeight
@@ -57,6 +61,11 @@ public abstract class GameObject
 
         //initialize collision handler
         collisionHandler = new CollisionHandler(this);
+
+        //Place in collision region based on start position
+        //Will start with region (-1, -1) to denote that it is not currently in a valid region
+        currentCollisionRegion = new Point(-1,-1);
+        currentCollisionRegion = CollisionRegions.assignCollisionRegion(this);
 
         //By default all objects require to be updated
         requiresUpdating = true;
@@ -169,6 +178,8 @@ public abstract class GameObject
     {
         this.x = x;
         this.y = y;
+        //Update collision region
+        currentCollisionRegion = CollisionRegions.assignCollisionRegion(this);
     }
 
     /* Every object must override and extend these methods in order to handle
@@ -183,7 +194,7 @@ public abstract class GameObject
         if ( !isUnmovable() )
         {
             setPosition(getX() + velX, getY() + velY);
-            collision(objects);
+            collision();
         }
     }
     public abstract boolean handleObjectCollision(GameObject object);
@@ -247,35 +258,52 @@ public abstract class GameObject
         return collisionHandler.handleCollision(collidingObject);
     }
 
-    public void collision(LinkedList<GameObject> objects)
+    public void collision()
     {
         // Loop through all other objects and handle any collisions between this object
         // and any other one
 
-        for ( int i = 0; i < objects.size(); i++)
-        {
-            GameObject go = objects.get(i);
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                HashSet<GameObject> objects = CollisionRegions.getCollisionRegionObjects(new Point(currentCollisionRegion.x + x, currentCollisionRegion.y + y));
 
-            if (go == this)
-                continue;
-
-            //Handle collision here for any objects that require some action
-            //by the game object or character when collision occurs
-            if ( collidesWith(go))
-            {
-                //allow each character/object to handle the collision in a specific way
-                boolean handled = handleObjectCollision(go);
-
-                if (!handled)
+                //Depending on the position, some collision regions won't actually exist.
+                if (objects != null)
                 {
-                    System.out.println("Unable to handle collision with object "
-                            + go.getName());
-                    break;
+                    //Collision Code
+                    for (GameObject object : objects)
+                    {
+                        GameObject go = object;
+
+                        if (go == this)
+                            continue;
+
+                        //Handle collision here for any objects that require some action
+                        //by the game object or character when collision occurs
+                        if (collidesWith(go))
+                        {
+                            //allow each character/object to handle the collision in a specific way
+                            boolean handled = handleObjectCollision(go);
+
+                            if (!handled)
+                            {
+                                /*
+                                System.out.println("Unable to handle collision with object "
+                                        + go.getName());
+                                */
+
+                                break;
+                            }
+                        }
+                    }
+                    //End Collision Code
                 }
             }
+
         }
-        return;
     }
+
+
 
     //Determine if an object is fully contained within the given bounds.
     public boolean isWithinBounds(Rectangle bounds)
@@ -337,4 +365,8 @@ public abstract class GameObject
         setPosition(updatedX, updatedY);
     }
 
+    public Point getCurrentCollisionRegion()
+    {
+        return currentCollisionRegion;
+    }
 }
