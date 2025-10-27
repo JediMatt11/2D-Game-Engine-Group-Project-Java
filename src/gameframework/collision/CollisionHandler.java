@@ -4,7 +4,6 @@ import gameframework.gamecharacters.GameCharacter;
 import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
 import gameframework.animations.SpriteBorder;
-import gameframework.platforming.PlatformingHandler;
 
 import java.awt.*;
 
