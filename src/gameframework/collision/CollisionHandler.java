@@ -4,6 +4,7 @@ import gameframework.gamecharacters.GameCharacter;
 import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
 import gameframework.animations.SpriteBorder;
+import gameframework.platforming.PlatformingHandler;
 
 import java.awt.*;
 
@@ -148,12 +149,16 @@ public class CollisionHandler
             return handleCharacterCollision(collidingObject);
     }
 
-    //This method is used to handle general collision between a game character and any other object
+    // This method is used to handle general collision between a game character and any other object
     public boolean handleCharacterCollision(GameObject collidingObject)
     {
-        //This method is not intended for inanimate objects
+        // This method is not intended for inanimate objects
         if (objectTracked.isInanimate())
             return false;
+
+        // If a character is falling then collision is handled in a special way
+        if ( ((GameCharacter)objectTracked).isFalling())
+            return handleFallingCollision(collidingObject);
 
         /* When dealing with the player colliding with any other object or a non player
          * character colliding with the player or an npc colliding with any object, we
@@ -162,15 +167,51 @@ public class CollisionHandler
         return true;
     }
 
-    //This method is used to handle general collision between inanimate objects
+    // This method is used to handle general collision between inanimate objects
     public boolean handleInanimateObjectsCollision(GameObject collidingObject)
     {
-        //This method is only intended for inanimate objects
+        // This method is only intended for inanimate objects
         if (!objectTracked.isInanimate())
             return false;
 
+        // If an object is falling then collision is handled in a special way
+        if ( ((GameCharacter)objectTracked).isFalling())
+            return handleFallingCollision(collidingObject);
+
         resolveCollision(collidingObject);
         return true;
+    }
+
+    // We consider the special case when an object collides with another while
+    // falling and handle it in this method.
+    public boolean handleFallingCollision(GameObject collidingObject)
+    {
+        boolean handled = true;
+
+        /* We differentiate two cases, one is when the object collides with
+         * an object below of it that stops its fall and then acts as a surface
+         * and another case when an object collides with some object on the side
+         * but keeps falling after that.*/
+        if (objectTracked.isLandingOnTopOf(collidingObject))
+        {
+            //colliding because of landing on the other object
+            handled = objectTracked.latch(collidingObject);
+            if (!handled)
+            {
+                System.out.println("failed to latch to platform " + collidingObject.getName());
+                System.out.println("Try setting a higher latching intensity level.");
+            }
+        }
+        else
+        {
+            //Handle all other falling collision cases here
+
+            /* Collision with an object either to the right or left
+             * while falling, we resolve it by repositioning the
+             * collision bounds of the character.*/
+
+        }
+        return handled;
     }
 
     /* Determine the collision direction from the collision bounds intersection, this is
@@ -246,13 +287,6 @@ public class CollisionHandler
             }
         }
         return success;
-    }
-
-    /* This method is the same as the one above but uses the direction the object
-     * is moving right before the collision and sets the variation to 1*/
-    public boolean getClosestValidPosition(int range, GameObject collidingObject)
-    {
-        return getClosestValidPosition(range, collidingObject, Direction.NONE, 1);
     }
 
     public boolean resolveCollision(GameObject collidingObject)

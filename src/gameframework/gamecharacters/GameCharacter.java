@@ -48,6 +48,8 @@ public abstract class GameCharacter extends GameObject
     private int totalHealth;
     private int curHealth;
     protected int speed;
+    protected double jumpImpulseX;
+    protected double jumpImpulseY;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -57,6 +59,7 @@ public abstract class GameCharacter extends GameObject
         totalHealth = DEFAULT_TOTAL_HEALTH;
         curHealth = totalHealth;
         speed = DEFAULT_SPEED;
+        jumpImpulseX = jumpImpulseY = 1;
 
         initializeAnimations();
         initializeStatus();
@@ -96,6 +99,29 @@ public abstract class GameCharacter extends GameObject
     public void setSpeed(int speed)
     {
         this.speed = speed;
+    }
+
+    public double getJumpImpulse(boolean xOrY)
+    {
+        return xOrY ? jumpImpulseX : jumpImpulseY;
+    }
+
+    public void setJumpImpulse(double jumpImpulse, boolean xOrY)
+    {
+        if (jumpImpulse > 0)
+        {
+            if (xOrY)
+                jumpImpulseX = jumpImpulse;
+            else
+                jumpImpulseY = jumpImpulse;
+        }
+
+    }
+
+    // Returns the animation used when determining if a character is latched to a platform or not
+    public Animation getPlatformingReferenceAnimation()
+    {
+        return getIdleAnimation();
     }
 
     public Animation getMoveRightAnimation()
@@ -291,6 +317,11 @@ public abstract class GameCharacter extends GameObject
                 curAnimation == getJumpAnimation());
     }
 
+    public boolean isInTheMiddleOfJump()
+    {
+        return isJumping() && !curAnimation.isPaused();
+    }
+
     public boolean isDead()
     {
         return (curAnimation == getDieLeftAnimation() ||
@@ -299,10 +330,20 @@ public abstract class GameCharacter extends GameObject
                 curAnimation == getDieDownAnimation());
     }
 
+    @Override
+    public boolean isFalling()
+    {
+        //If we are in mid air and not in the middle of a jump then we are falling.
+        return (isInMidAir() && !(isInTheMiddleOfJump()));
+    }
+
     /* These methods change the speed, direction and animation of a character
      * in order to make it move it in a certain direction. */
     public void moveRight(boolean running)
     {
+        if (!isAbleToMove())
+            return;
+
         if (running)
         {
             runRight();
@@ -315,6 +356,9 @@ public abstract class GameCharacter extends GameObject
 
     public void moveLeft(boolean running)
     {
+        if (!isAbleToMove())
+            return;
+
         if (running)
         {
             runLeft();
@@ -327,6 +371,9 @@ public abstract class GameCharacter extends GameObject
 
     public void moveUp(boolean running)
     {
+        if (!isAbleToMove())
+            return;
+
         if (running)
         {
             runUp();
@@ -339,6 +386,9 @@ public abstract class GameCharacter extends GameObject
 
     public void moveDown(boolean running)
     {
+        if (!isAbleToMove())
+            return;
+
         if (running)
         {
             runDown();
@@ -391,7 +441,45 @@ public abstract class GameCharacter extends GameObject
 
     public void attack()
     {
-        curAnimation = attackRight;
+        changeActiveAnimation(attackRight);
+    }
+
+    /* Method used to determine if a character is able to move in the current situation
+     * or not. Note that currently this method is only called to evaluate if the player
+     * can move in response to an input event.*/
+    public boolean isAbleToMove()
+    {
+        boolean ableToMove = false;
+
+        //Can't move if player is dead or while falling
+        if (isDead() || isFalling())
+            return false;
+        else if (curAnimation == getIdleAnimation()
+                || isMoving() )
+        {
+            //If the character is idle then we can move and if we are moving we
+            // can always change direction.
+            ableToMove = true;
+        }
+        else
+        {
+            //Performing a different action that isn't idle or moving
+            if (getGravity() != 0 && isInTheMiddleOfJump())
+            {
+                //The engine allows characters to still move while
+                //they are in the middle of a jump (still have jump impulse)
+                ableToMove = true;
+            }
+            else
+            {
+                //We can move as long as we aren't in the middle
+                //of another action (animation must be completed).
+                if (curAnimation.isPaused())
+                    ableToMove = true;
+            }
+        }
+        return ableToMove;
+
     }
 
     public boolean handleObjectCollision(GameObject object)

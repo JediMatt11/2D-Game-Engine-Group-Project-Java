@@ -217,6 +217,7 @@ public class KeyboardHandler implements KeyListener
                 //Toggle character inventory
                 break;
             case HANDLER_JUMP:
+                player.jump();
                 break;
             case HANDLER_OBJECT_ACTION:
                 break;

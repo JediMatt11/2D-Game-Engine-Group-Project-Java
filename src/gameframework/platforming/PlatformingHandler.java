@@ -1,0 +1,229 @@
+package gameframework.platforming;
+
+import gameframework.gameobjects.GameObject;
+import gameframework.gameobjects.GameObjects;
+
+import java.awt.Rectangle;
+
+/**
+ * This class is used to handle platforming for games that require it. Platforming is mainly
+ * concerned with a given object landing on other objects and using them as a moving surface
+ * or platform. This class governs many aspects like for example what section of the object's
+ * bounds must be within the platform in other to successfully latch onto it, and other issues.
+ */
+public class PlatformingHandler
+{
+    private GameObject mainObject;
+    private GameObject platformObject;
+    private boolean hasLatchedAtLeastOnce;
+
+    /* This attribute determines what percentage of an object's width must fall within a platform
+     * in order to latch to it (if less than that portion is in, the object falls from platform).*/
+    private final static double DEFAULT_PLATFORMING_PERCENTAGE = 0.35;
+    private double platformingPercentage;
+
+    /**
+     * The vertical distance (in pixels) that a latched object is positioned above
+     * the platform surface. This small offset prevents continuous collision detection
+     * from re-triggering while standing on a platform, ensuring stable latching behavior.
+     * Increasing this value slightly can help resolve jittering or overlap issues
+     * caused by pixel rounding or uneven sprite boundaries. */
+    private static final int PLATFORM_LATCH_OFFSET = 5;
+
+    public PlatformingHandler(GameObject object, GameObject platformObject)
+    {
+        mainObject = object;
+        this.platformObject = platformObject;
+        platformingPercentage = DEFAULT_PLATFORMING_PERCENTAGE;
+        hasLatchedAtLeastOnce = false;
+    }
+
+    /**
+     * return the platform object (object that is right below this object and holding it)
+     */
+    public GameObject getPlatformObject()
+    {
+        return platformObject;
+    }
+
+    /**
+     * set the platform object (object that is right below this object and holding it)
+     */
+    public void setPlatformObject(GameObject platformObject)
+    {
+        if (platformObject != null)
+            this.platformObject = platformObject;
+    }
+
+    //Returns true if this object is currently placed on top of another object that acts as a platform for it
+    public boolean isPlacedOnTopOf(GameObject otherObject)
+    {
+        return (platformObject == otherObject);
+    }
+
+    //Returns true if the object we are evaluating is standing on top of any platform
+    public boolean isPlacedOnTopOfPlatform()
+    {
+        return (platformObject != null);
+    }
+
+    /* This method should be called once a collision occurs to determine if the collision
+     * is the result of the object falling on top of another object. */
+    public boolean isLandingOnTopOf(GameObject otherObject)
+    {
+        boolean landingOnTop = false;
+        Rectangle bounds = mainObject.getCollisionBounds();
+        Rectangle otherBounds = otherObject.getCollisionBounds();
+
+        /* To qualify, a certain portion of this object must be encompassed horizontally
+         * by the other object which must be positioned below it. To know that the other
+         * object is below it we can't simply check that (bounds.y < otherBounds.y), if an
+         * object is colliding with the bottom of another object this can lead to misinterpretation
+         * since its y position could be slightly higher than the top object if its too thin, so to
+         * make sure this detects landing accurately in all cases we make sure that 90% of the object
+         * landing is above the object its landing onto. */
+        if ( ((otherBounds.y - bounds.y) >= 0.90 * bounds.height) &&
+              otherObject.encompasses(mainObject, 'H', platformingPercentage)
+        )
+            landingOnTop = true;
+
+        return landingOnTop;
+    }
+
+    //This method is called from within an object's update method in order to update its platforming status
+    public void update(GameObjects objects)
+    {
+        //platforming updates are only relevant in games that use gravity
+        if (mainObject.getGravity() == 0)
+            return;
+
+        //If we haven't latched yet to any platform then its irrelevant to verify if we have detached
+        if (!hasLatchedAtLeastOnce)
+            return;
+
+        /* check if the object is no longer standing on a platform (either because its
+         * currently jumping or fell outside the platform) and update it accordingly */
+        if ( platformObject != null && detachedFromPlatform() )
+        {
+            System.out.println("Object: " + mainObject.getName() + " detached to platform " + platformObject.getName());
+            platformObject = null;
+
+            /* Steve: temporary hack to handle the issue of a platform consisting of multiple tiles
+             * that are aligned together. This is not yet fully verified (might cause performance issues)! */
+            for (GameObject candidatePlatform : objects)
+            {
+                // Only consider things roughly below me
+                if (Math.abs(candidatePlatform.getY() - mainObject.getY()) < 64 /*should be replaced by tuning constant*/
+                        && mainObject.isLandingOnTopOf(candidatePlatform))
+                {
+                    latch(candidatePlatform);
+                    break;
+                }
+            }
+            /****/
+        }
+
+        /* if the object is affected by gravity and isn't standing on a platform,
+         * then it means the object is currently in mid air. */
+        if (platformObject == null)
+            mainObject.setInMidAir(true);
+    }
+
+    //returns true if the object is no longer standing on a platform
+    private boolean detachedFromPlatform()
+    {
+        boolean detached = false;
+
+        /* When an object latches to a platform, they are barely separate from
+         * it by a small distance of PLATFORM_LATCH_OFFSET pixels, so if we increase the
+         * y coordinate by PLATFORM_LATCH_OFFSET pixels and test for collision, the test
+         * will return true if the object is still standing on the platform below or false
+         * otherwise. Note that for all testing to be consistent we base it on the same
+         * animation and even same frame (0) (Other frames could be separated from the
+         * ground by a larger distance in the same animation. */
+
+        int originalFrameNumber = mainObject.getPlatformingReferenceAnimation().getCurrentFrameIndex();
+        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(0);
+        // We use setY in this case instead of setPosition to change the object position, because we are
+        // only changing the position temporarily to test, our intention isn't to really change the object
+        // position in the game.,
+        mainObject.setY(mainObject.getY() + PLATFORM_LATCH_OFFSET);
+
+        if (mainObject.collidesWith(platformObject))
+            detached = false;
+        else
+            detached = true;
+
+        //restore object position and animation frame
+        mainObject.setY(mainObject.getY() - PLATFORM_LATCH_OFFSET);
+        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(originalFrameNumber);
+
+        return detached;
+    }
+
+    /**
+     * Repositions the main object so that its reference animation (frame 0)
+     * is exactly PLATFORM_LATCH_OFFSET pixels above the platform object. */
+    private void attachToPlatform()
+    {
+        if (platformObject == null || mainObject == null)
+            return;
+
+        // Save current animation frame so we can restore it after
+        int originalFrame = mainObject.getPlatformingReferenceAnimation().getCurrentFrameIndex();
+        // Always test alignment using the reference animation at frame 0
+        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(0);
+        // Compute platform and main object bounds
+        Rectangle platformBounds = platformObject.getCollisionBounds();
+        Rectangle mainBounds = mainObject.getCollisionBounds();
+        // Calculate new Y so that bottom of the object sits exactly PLATFORM_LATCH_OFFSET pixels above platform top
+        int newY = platformBounds.y - mainBounds.height - PLATFORM_LATCH_OFFSET;
+        // Update the main object's Y position (keep same X)
+        mainObject.setPosition(mainObject.getX(), newY);
+        // Restore animation frame
+        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(originalFrame);
+    }
+
+    public boolean latch(GameObject platformObject)
+    {
+        this.platformObject = platformObject;
+        attachToPlatform();
+        mainObject.setInMidAir(false);
+
+        //set the flag to enable performing updates after the character's first latch
+        hasLatchedAtLeastOnce = true;
+
+        System.out.println("Object: " + mainObject.getName() + " latched to platform " + platformObject.getName());
+        return true;
+    }
+
+    /* returns the total effect of gravitational forces on this object, this includes
+     * the object's gravity but also surface resistance (if standing on a platform) and
+     * maybe even other forces (like an anti gravity field, etc). This method is still
+     * incomplete & pending, we will know better how to implement it as we develop more
+     * games using the engine.
+     */
+    public int getEffectiveGravity()
+    {
+        return mainObject.getGravity();
+    }
+
+    /**
+     * return the platformingPercentage
+     */
+    public double getPlatformingPercentage()
+    {
+        return platformingPercentage;
+    }
+
+    /**
+     * change the platformingPercentage for an object
+     */
+    public void setPlatformingPercentage(double platformingPercentage)
+    {
+        if (platformingPercentage > 0.0)
+            this.platformingPercentage = platformingPercentage;
+    }
+
+}
+

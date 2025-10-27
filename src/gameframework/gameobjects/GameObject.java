@@ -5,7 +5,9 @@ import gameframework.animations.BorderPoint;
 import gameframework.animations.SpriteBorder;
 import gameframework.collision.CollisionHandler;
 import gameframework.display.GameDisplay;
+import gameframework.platforming.PlatformingHandler;
 import gameframework.supportfunctions.GraphicsLibrary;
+import gameframework.supportfunctions.Line;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -27,9 +29,14 @@ public abstract class GameObject
     protected int scaleWidth;
     protected int scaleHeight;
 
+    protected int gravity;
+
     protected Animation curAnimation;
 
     protected boolean requiresUpdating;
+
+    // if true object is not currently on top of a platform
+    private boolean inMidAir;
 
     protected boolean constrainToBackground;
 
@@ -37,8 +44,10 @@ public abstract class GameObject
     public static boolean drawSpriteBorders = false;
     public static boolean disableRendering = false;
 
-    //internal object attribute used to handle collisions
+    // internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
+    // internal object attribute used to manage all platforming for this object
+    private PlatformingHandler platformingHandler;
 
     public GameObject(String name, int type,
                       int x, int y, int z,
@@ -54,21 +63,37 @@ public abstract class GameObject
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
         velX = velY = 0;
+        gravity = 0;
 
-        //initialize collision handler
+        // initialize collision handler
         collisionHandler = new CollisionHandler(this);
+        //initialize platforming handler
+        platformingHandler = new PlatformingHandler(this, null);
 
-        //By default all objects require to be updated
+        // By default all objects require to be updated
         requiresUpdating = true;
+        // All objects start on the ground (platform) by default
+        inMidAir = false;
 
-        //By default objects cannot move beyond the game's background
+        // By default objects cannot move beyond the game's background
         constrainToBackground = true;
     }
 
     public int getX() {return x;}
     public int getY() {return y;}
     public int getZ() {return z;}
-    // No setter for x and y as those should be changed exclusively using the setPosition method
+    /* Setter for x and y are provided for special cases, but should be avoided when changing the position of
+     * the object in the game, that should be changed exclusively using the setPosition method, so the engine
+     * can keep track internally of important object positioning and tracking info. */
+    public void setX(int x)
+    {
+        this.x = x;
+    }
+    public void setY(int y)
+    {
+        this.y = y;
+    }
+    /***/
     public void setZ(int z)
     {
         if ( z >= 0 )
@@ -152,10 +177,33 @@ public abstract class GameObject
         return curAnimation;
     }
 
-    public void changeActiveAnimation(Animation curAnimation)
+    /**
+     * Change the current animation and make sure to reset it
+     */
+    public void changeActiveAnimation(Animation newAnimation)
     {
-        if (curAnimation != null)
-            this.curAnimation = curAnimation;
+        if ( newAnimation != null)
+        {
+
+            /* Trying to change the animation  to the same one while its still running will
+             * result in weird effects and it should be prevented (there is no reason to do that
+             * anyway), changing to a different animation is fine at anytime.
+             */
+            if ( curAnimation != null && (!curAnimation.isPaused() && newAnimation == curAnimation))
+                return;
+
+            //System.out.println("Old animation was: " + (curAnimation != null ? curAnimation.getName() : "None"));
+            curAnimation = newAnimation;
+            curAnimation.reset(); //initialize the new animation
+            //System.out.println("New animation is: " + curAnimation.getName());
+
+        }
+    }
+
+    // Returns the animation used when determining if an object is latched to a platform or not
+    public Animation getPlatformingReferenceAnimation()
+    {
+        return getActiveAnimation();
     }
 
     public Point getPosition()
@@ -171,12 +219,102 @@ public abstract class GameObject
         this.y = y;
     }
 
+    public int getGravity()
+    {
+        return gravity;
+    }
+
+    public void setGravity(int gravity)
+    {
+        // For the time being assume gravity must be positive
+        if (gravity >= 0)
+        {
+            this.gravity = gravity;
+        }
+    }
+
+    private void applyGravityEffect()
+    {
+        //If an object isn't affected by gravity this method has no effect
+        if (getGravity() == 0)
+            return;
+
+        if (isInMidAir())
+        {
+            if (isFalling())
+            {
+                velY = getEffectiveGravity();
+                velX = 0;
+                direction = Direction.DOWN;
+            }
+        }
+        else
+        {
+            //when an object is no longer in the air we must make sure to set its vel y back to 0
+            velY = 0;
+        }
+    }
+
+    /* returns the total effect of gravitational forces on this object, this includes
+     * the object's gravity but also surface resistance (if standing on a platform) and
+     * maybe even other forces (like an anti gravity field, etc).
+     */
+    private int getEffectiveGravity()
+    {
+        return platformingHandler.getEffectiveGravity();
+    }
+
+    public boolean isFalling()
+    {
+        return inMidAir;
+    }
+
+    //returns true if an object has no surface below (might be falling or jumping)
+    public boolean isInMidAir()
+    {
+        return inMidAir;
+    }
+
+    public void setInMidAir(boolean onAir)
+    {
+        //If an object isn't affected by gravity this method has no effect
+        if (getGravity() == 0)
+            return;
+
+        this.inMidAir = onAir;
+    }
+
+    //Returns true if the object is falling on top of the other object
+    public boolean isLandingOnTopOf(GameObject otherObject)
+    {
+        return platformingHandler.isLandingOnTopOf(otherObject);
+    }
+
+    //Returns true if this object is currently placed on top of another object that acts as a platform for it
+    public boolean isPlacedOnTopOf(GameObject otherObject)
+    {
+        return platformingHandler.isPlacedOnTopOf(otherObject);
+    }
+
+    //This method is used for an object to attach to another and use it as a platform
+    public boolean latch(GameObject platformObject)
+    {
+       return  platformingHandler.latch(platformObject);
+    }
+
     /* Every object must override and extend these methods in order to handle
      * their own individual updates and how they handle collision with the
      * other objects in the game.
      */
     public void update(GameObjects objects)
     {
+        // implement support for platforming for games that consider gravity
+        if (getGravity() > 0)
+        {
+            applyGravityEffect();
+            platformingHandler.update(objects);
+        }
+
         /* Only objects that move need to update their position or handle their own collisions. By having
          * only the object moving (cause of the collision) handle the collision, we eliminate a  lot of the
          * computational overhead. */
@@ -233,8 +371,8 @@ public abstract class GameObject
         return spriteBorders;
     };
 
-    //This method returns true if the object collides with another
-    //given object or false otherwise.
+    // This method returns true if the object collides with another
+    // given object or false otherwise.
     public boolean collidesWith(GameObject otherObject)
     {
         boolean objectsCollide = false;
@@ -252,24 +390,29 @@ public abstract class GameObject
         // Loop through all other objects and handle any collisions between this object
         // and any other one
 
-        for ( int i = 0; i < objects.size(); i++)
+        for ( int i = 0; i < objects.size() / 6; i++)
         {
             GameObject go = objects.get(i);
 
             if (go == this)
                 continue;
 
-            //Handle collision here for any objects that require some action
-            //by the game object or character when collision occurs
+            // ignore objects that are acting as a platform for this one
+            // as those are handled by the platforming handler
+            if (isPlacedOnTopOf(go))
+                continue;
+
+            // Handle collision here for any objects that require some action
+            // by the game object or character when collision occurs
             if ( collidesWith(go))
             {
-                //allow each character/object to handle the collision in a specific way
+                // allow each character/object to handle the collision in a specific way
                 boolean handled = handleObjectCollision(go);
 
                 if (!handled)
                 {
-                    System.out.println("Unable to handle collision with object "
-                            + go.getName());
+                    /*System.out.println("Unable to handle collision with object "
+                            + go.getName());*/
                     break;
                 }
             }
@@ -277,7 +420,7 @@ public abstract class GameObject
         return;
     }
 
-    //Determine if an object is fully contained within the given bounds.
+    // Determine if an object is fully contained within the given bounds.
     public boolean isWithinBounds(Rectangle bounds)
     {
         boolean withinBounds = false;
@@ -335,6 +478,56 @@ public abstract class GameObject
         }
 
         setPosition(updatedX, updatedY);
+    }
+
+    // Calculates the point-to-point distance between the center of this object and another one.
+    public double calculateDistanceToObject(GameObject go)
+    {
+        Point centerObject = new Point(this.getX() + scaleWidth / 2,
+                this.getY() + scaleHeight / 2);
+
+        Point centerOtherObject = new Point(go.getX() + go.scaleWidth / 2,
+                go.getY() + go.scaleHeight / 2);
+
+        return GraphicsLibrary.computePointsDistance(centerObject, centerOtherObject);
+    }
+
+    /* This method is used to determine if this object encompasses another
+     * object (the object is within its bounds for one dimension) either
+     * horizontally or vertically. Its possible to also set a percentage in
+     * which case the  method returns true if a certain part of the object is
+     * within the height/width of the other.
+     */
+    public boolean encompasses(GameObject otherObject, char horzOrVert, double percentage)
+    {
+        boolean success = false;
+        Rectangle bounds = getCollisionBounds();
+        Rectangle otherBounds = otherObject.getCollisionBounds();
+        Line line = null, otherLine = null;
+
+        if (horzOrVert == 'H')
+        {
+            line = new Line(new Point(bounds.x, 0), new Point(bounds.x + bounds.width, 0));
+            otherLine = new Line(new Point(otherBounds.x, 0),
+                    new Point(otherBounds.x + otherBounds.width, 0));
+        }
+        else
+        {
+            line = new Line(new Point(0, bounds.y), new Point(0, bounds.y + bounds.height));
+            otherLine = new Line(new Point(0, otherBounds.y),
+                    new Point(0, otherBounds.y + otherBounds.height));
+        }
+
+        Integer intersectionLength = line.getIntersectionLength(otherLine);
+
+        //To qualify, a certain portion of one line must be contained within the other
+        int amount = (int)((horzOrVert == 'H' ? otherBounds.width : otherBounds.height) * percentage);
+        if ( line.intersectsWith(otherLine)  &&
+                intersectionLength >= amount
+        )
+            success = true;
+
+        return success;
     }
 
 }

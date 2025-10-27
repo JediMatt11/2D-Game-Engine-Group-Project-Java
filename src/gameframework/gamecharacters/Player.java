@@ -44,4 +44,30 @@ public abstract class Player extends GameCharacter
         return getActivePlayer();
     }
 
+    public void jump()
+    {
+        /* For the time being the engine doesn't allow jumping in midair
+         * or during another jump, we might later allow double jumps. Note
+         * that isInMidAir() only works for games that enable gravity so we need
+         * also the other test to prevent double jumps in all other games.
+         */
+        if (/*isInMidAir() ||*/ isInTheMiddleOfJump())
+            return;
+
+        changeActiveAnimation(getJumpAnimation());
+
+        //the character speed gets multiplied when jumping
+        //depending on the jumping impulse attribute
+        velX = (int)Math.round(velX * jumpImpulseX);
+        if (gravity > 0)
+            velY = -speed;
+        velY =  (int)Math.round(velY * jumpImpulseY);
+
+        setInMidAir(true);
+
+        //System.out.println("Player jumped");
+    }
+
+
+
 }
