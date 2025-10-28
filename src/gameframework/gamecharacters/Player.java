@@ -44,6 +44,13 @@ public abstract class Player extends GameCharacter
         return getActivePlayer();
     }
 
+    /* The engine supports the triggering of special actions by pressing the right (A), middle (B) and
+     * left (C) mouse buttons, by default these don't do anything, and developers must override these
+     * method to implement their own functionality. */
+    public void specialActionA(boolean startingAction) {};
+    public void specialActionB(boolean startingAction) {};
+    public void specialActionC(boolean startingAction) {};
+
     public void jump()
     {
         /* For the time being the engine doesn't allow jumping in midair
@@ -67,6 +74,8 @@ public abstract class Player extends GameCharacter
 
         //System.out.println("Player jumped");
     }
+
+
 
 
 

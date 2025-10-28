@@ -125,6 +125,9 @@ public abstract class GameObject
         return isInanimate();
     }
 
+    //Used to disable nearby tile relatching for objects in certain situations
+    public boolean disableAutoRelatching() { return false; }  //objects automatically relatch to nearby tiles by default
+
     public boolean requiresUpdating()
     {
         return requiresUpdating;

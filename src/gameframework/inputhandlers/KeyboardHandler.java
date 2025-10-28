@@ -182,16 +182,16 @@ public class KeyboardHandler implements KeyListener
         switch (action)
         {
             case HANDLER_MOVE_RIGHT:
-                player.moveRight(false);
+                player.moveRight(ke.isControlDown());
                 break;
             case HANDLER_MOVE_LEFT:
-                player.moveLeft(false);
+                player.moveLeft(ke.isControlDown());
                 break;
             case HANDLER_MOVE_UP:
-                player.moveUp(false);
+                player.moveUp(ke.isControlDown());
                 break;
             case HANDLER_MOVE_DOWN:
-                player.moveDown(false);
+                player.moveDown(ke.isControlDown());
                 break;
             case HANDLER_ATTACK_RIGHT:
                 break;
