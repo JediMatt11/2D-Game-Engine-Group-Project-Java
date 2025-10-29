@@ -2,7 +2,6 @@ package gameframework.display;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 
@@ -12,6 +11,7 @@ import gameframework.GameThread;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
 import gameframework.inputhandlers.KeyboardHandler;
+import gameframework.inputhandlers.MouseHandler;
 
 /*
  * This is the game display class which is in charge of all rendering to the screen, the class is inherited
@@ -27,10 +27,14 @@ public class GameDisplay extends JFrame
     private BufferStrategy bufferStrategy;
 
     //input handlers
-    private KeyListener keyboardHandler;
+    private KeyboardHandler keyboardHandler;
+    private MouseHandler mouseHandler;
 
     //camera attributes
     private static Point cameraOrigin;
+
+    //Heads Up Display panel
+    private static HUDPanel hud = null;  //The heads up display is initially null (game developers are supposed to set it)
 
     /* We intend to be able to toggle a message on the game window, these attributes hold the properties of
      * how that message displays (like position (X & Y offsets) and text color), for example we can use it to
@@ -63,9 +67,12 @@ public class GameDisplay extends JFrame
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
 
-        //add input handlers for keyboard, mouse, controllers, etc (currently we only have one for keyboard)
+        //add input handlers for keyboard, mouse, controllers, etc
         keyboardHandler = new KeyboardHandler();
         addKeyListener(keyboardHandler);
+        mouseHandler = new MouseHandler(this, data);
+        addMouseListener(mouseHandler);
+        addMouseMotionListener(mouseHandler);
 
         setMessage("");
         setMessageColor(Color.WHITE);
@@ -159,11 +166,20 @@ public class GameDisplay extends JFrame
                 object.render(g);
         }
 
+        //render heads up display if available
+        renderHUD(g);
+
         renderDisplayMessage(g);
 
         g.dispose();
         bufferStrategy.show();
 
+    }
+
+    private void renderHUD(Graphics g)
+    {
+        if (hud != null && hud.isEnabled())
+            hud.render(g);
     }
 
     //If a message is set then display it on top of the screen
@@ -201,6 +217,11 @@ public class GameDisplay extends JFrame
                 createCameraScreen();
         g.drawImage(cameraScreen, cameraOrigin.x, cameraOrigin.y,  displayWidth, displayHeight, null);
 
+    }
+
+    public Point getCameraPosition()
+    {
+        return cameraOrigin;
     }
 
     /* Set the camera position (camera origin attribute) so that the display is centered in the
@@ -244,6 +265,24 @@ public class GameDisplay extends JFrame
 
         return withinView;
     }
+
+    /**
+     * set up the heads up display
+     */
+    public static HUDPanel getHUD()
+    {
+        return hud;
+    }
+    public static void setHUD(HUDPanel newHUD)
+    {
+        if (newHUD != null)
+            hud = newHUD;
+    }
+    public static void activateHUD(boolean on)
+    {
+        hud.enable(on);
+    }
+    /**/
 
 
 }
