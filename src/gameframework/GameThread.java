@@ -53,8 +53,9 @@ public class GameThread
         resourceManager = new ResourceManager();
 
         //initialize data and display window
-        data = new GameData();
         initializeGameDisplay();
+        data = new GameData();
+        display.setData(data);
 
         curLevelNumber = 0;
         displayFrameUpdateRate = false;

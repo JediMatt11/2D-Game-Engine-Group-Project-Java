@@ -1,5 +1,6 @@
 package gameframework.gameobjects;
 
+import gameframework.GameThread;
 import gameframework.animations.Animation;
 import gameframework.animations.BorderPoint;
 import gameframework.animations.SpriteBorder;
@@ -11,6 +12,7 @@ import gameframework.supportfunctions.Line;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public abstract class GameObject
@@ -49,6 +51,11 @@ public abstract class GameObject
     // internal object attribute used to manage all platforming for this object
     private PlatformingHandler platformingHandler;
 
+    /* This attribute is used to keep track of which area or areas of the background a
+     * given object is currently in, this is used for optimizing collision handling in
+     * the engine. */
+    private ArrayList<Point> backgroundAreas;
+
     public GameObject(String name, int type,
                       int x, int y, int z,
                       int scaleWidth, int scaleHeight
@@ -69,6 +76,9 @@ public abstract class GameObject
         collisionHandler = new CollisionHandler(this);
         //initialize platforming handler
         platformingHandler = new PlatformingHandler(this, null);
+
+        //intialize array that keeps track of background areas
+        backgroundAreas = new ArrayList<Point>();
 
         // By default all objects require to be updated
         requiresUpdating = true;
@@ -214,12 +224,16 @@ public abstract class GameObject
         return new Point(x,y);
     }
 
-    /* This method should be the only way used to change positions in order to
-     * easily trace position changes while debugging the game.*/
+    /* This method should be the only way used to change positions, because it
+     * internally updates important data structures used for collision optimization,
+     * and in order to easily trace position changes while debugging the game.*/
     public void setPosition(int x, int y)
     {
         this.x = x;
         this.y = y;
+
+        GameObjects gameObjects = GameThread.data.getObjects();
+        gameObjects.updateSpatialCells(this);
     }
 
     public int getGravity()
@@ -388,14 +402,18 @@ public abstract class GameObject
         return collisionHandler.handleCollision(collidingObject);
     }
 
-    public void collision(LinkedList<GameObject> objects)
+    public void collision(GameObjects gameObjects)
     {
         // Loop through all other objects and handle any collisions between this object
         // and any other one
 
-        for ( int i = 0; i < objects.size() / 6; i++)
+        // Retrieve only the objects that are in the same area of the screen as this object and
+        // therefore could potentially collide.
+        GameObjects collisionObjects = gameObjects.getPotentialCollisionObjects(this);
+
+        for ( int i = 0; i < collisionObjects.size(); i++)
         {
-            GameObject go = objects.get(i);
+            GameObject go = collisionObjects.get(i);
 
             if (go == this)
                 continue;
@@ -533,4 +551,14 @@ public abstract class GameObject
         return success;
     }
 
+    public ArrayList<Point> getBackgroundAreas()
+    {
+        return backgroundAreas;
+    }
+
+    public void setBackgroundAreas(ArrayList<Point> backgroundAreas)
+    {
+        if (backgroundAreas != null && !backgroundAreas.isEmpty())
+            this.backgroundAreas = backgroundAreas;
+    }
 }
