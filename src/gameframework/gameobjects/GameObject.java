@@ -13,7 +13,6 @@ import gameframework.supportfunctions.Line;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public abstract class GameObject
 {
@@ -77,7 +76,7 @@ public abstract class GameObject
         //initialize platforming handler
         platformingHandler = new PlatformingHandler(this, null);
 
-        //intialize array that keeps track of background areas
+        //intialize array that keeps track of background areas this object belongs to
         backgroundAreas = new ArrayList<Point>();
 
         // By default all objects require to be updated
@@ -407,9 +406,9 @@ public abstract class GameObject
         // Loop through all other objects and handle any collisions between this object
         // and any other one
 
-        // Retrieve only the objects that are in the same area of the screen as this object and
+        // Retrieve only the objects that are in the same area(s) of the screen as this object and
         // therefore could potentially collide.
-        GameObjects collisionObjects = gameObjects.getPotentialCollisionObjects(this);
+        GameObjects collisionObjects = gameObjects.getNeighborObjects(this);
 
         for ( int i = 0; i < collisionObjects.size(); i++)
         {

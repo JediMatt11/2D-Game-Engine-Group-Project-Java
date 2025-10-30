@@ -30,9 +30,20 @@ public class GameThread
     public static boolean displayFrameUpdateRate;
     private boolean gameOver;
 
-    //Information for levels in the game
+    // Information for levels in the game
     private static final ArrayList<GameLevel> levels = new ArrayList<GameLevel>();
     private static int curLevelNumber;
+
+    /* Information for tuning different optimizations in the game */
+
+    /* To optimize collision and interaction with other objects in general we can divide the list of objects into
+     * different sublists representing different areas of the game background, the amount of areas can be set up
+     * by game developers using this tuning constants (width and height of the grid of sections/areas into which
+     * the game background is divided). */
+    public static int AREA_GRID_COLS = 0;
+    public static int AREA_GRID_ROWS = 0;
+
+    /********/
 
     /* The GameThread needs to receive a specific game object factory in order to be able to create
      * game specific objects when loading levels, if not provided (null) then it will create a general

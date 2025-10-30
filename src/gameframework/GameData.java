@@ -14,7 +14,7 @@ public class GameData
     public GameData()
     {
         //initialize game objects list
-        objects = new GameObjects(true, 6, 1);
+        objects = new GameObjects(true);
 
         //load first game level
         try

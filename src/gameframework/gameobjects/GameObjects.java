@@ -1,7 +1,7 @@
 package gameframework.gameobjects;
 
+import gameframework.GameThread;
 import gameframework.display.GameDisplay;
-import gameframework.gamecharacters.Player;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -15,7 +15,8 @@ import java.util.Set;
  * z order or optionally track objects that require frequent updating on
  * a hidden internal list, among other features.
  * Updated: We have added functionality to the list in order to maintain
- * hidden spatial collision area sublists (grid cells) to speed up collision checks.
+ * hidden spatial area sublists (grid cells) to group nearby objects together
+ * and speed up collision checks and other object interactions.
  */
 public class GameObjects extends LinkedList<GameObject>
 {
@@ -25,9 +26,10 @@ public class GameObjects extends LinkedList<GameObject>
      */
     private GameObjects updateObjects;
 
-    /* This is a grid of cells representing collision areas, the entire game background
+    /* This is a grid of cells representing game areas, the entire game background
      * is divided into areas, and an object list is assigned to each area, only the objects
-     * in that area are included on each list. This is independent of the main list that
+     * in that area are included on each list. If in an object is part of more than one area,
+     * its reference its added to all appropriate lists. This is independent of the main list that
      * has objects sorted by  z-order. */
     private ArrayList<ArrayList<GameObjects>> spatialGrid;
     private int gridCols;
@@ -35,14 +37,14 @@ public class GameObjects extends LinkedList<GameObject>
     private int cellWidth;
     private int cellHeight;
 
-    public GameObjects(boolean enableSublists, int gridCols, int gridRows)
+    public GameObjects(boolean enableSublists)
     {
         super();
         if (enableSublists)
         {
-            updateObjects = new GameObjects(false, 0, 0);
-            // Initialize spatial partitioning grid used for collision
-            initializeSpatialGrid(gridCols, gridRows);
+            updateObjects = new GameObjects(false);
+            // Initialize spatial partitioning grid
+            initializeSpatialGrid();
         }
         else
         {
@@ -51,13 +53,20 @@ public class GameObjects extends LinkedList<GameObject>
         }
     }
 
-    private void initializeSpatialGrid(int cols, int rows)
+    private void initializeSpatialGrid()
     {
         BufferedImage background = GameDisplay.getCurBackground();
         if (background == null) return; // No background yet, skip setup, shouldn't happen!
 
-        gridCols = Math.max(1, cols);
-        gridRows = Math.max(1, rows);
+        // If the optimization hasn't been enabled by the developer then we just use the main object list to manage all objects
+        if (GameThread.AREA_GRID_COLS == 0 || GameThread.AREA_GRID_ROWS == 0)
+        {
+            spatialGrid = null;
+            return;
+        }
+
+        gridCols = Math.max(1, GameThread.AREA_GRID_COLS);
+        gridRows = Math.max(1, GameThread.AREA_GRID_ROWS);
 
         cellWidth = background.getWidth() / gridCols;
         cellHeight = background.getHeight() / gridRows;
@@ -68,7 +77,7 @@ public class GameObjects extends LinkedList<GameObject>
             ArrayList<GameObjects> rowList = new ArrayList<>();
             for (int col = 0; col < gridCols; col++)
             {
-                rowList.add(new GameObjects(false, 0, 0));
+                rowList.add(new GameObjects(false));
             }
             spatialGrid.add(rowList);
         }
@@ -104,7 +113,7 @@ public class GameObjects extends LinkedList<GameObject>
         if (go.requiresUpdating() && updateObjects != null)
             updateObjects.add(go);
 
-        // Add to one or more spatial collision areas
+        // Add to one or more spatial areas
         if (spatialGrid != null)
             addToSpatialCells(go);
 
@@ -115,7 +124,7 @@ public class GameObjects extends LinkedList<GameObject>
     public boolean remove(Object go)
     {
         //Overwritten to also remove object from internal update
-        //list when appropriate and to update collision area lists
+        //list when appropriate and to update spatial area lists
         boolean success = true;
 
         GameObject gameObject = (GameObject)go;
@@ -154,31 +163,8 @@ public class GameObjects extends LinkedList<GameObject>
         }
     }
 
-    private void addToSpatialCells(GameObject go)
-    {
-        Rectangle bounds = go.getCollisionBounds();
-
-        int startCol = Math.max(0, bounds.x / cellWidth);
-        int endCol = Math.min(gridCols - 1, (bounds.x + bounds.width) / cellWidth);
-        int startRow = Math.max(0, bounds.y / cellHeight);
-        int endRow = Math.min(gridRows - 1, (bounds.y + bounds.height) / cellHeight);
-
-        ArrayList<Point> newCells = new ArrayList<>();
-
-        for (int row = startRow; row <= endRow; row++)
-        {
-            for (int col = startCol; col <= endCol; col++)
-            {
-                spatialGrid.get(row).get(col).add(go);
-                newCells.add(new Point(row, col));
-            }
-        }
-
-        // store background areas in the object itself for efficient retrieval later
-        go.setBackgroundAreas(newCells);
-    }
-
-    private void removeFromSpatialCells(GameObject go)
+    // Compute which grid cells an object's bounds overlap
+    private ArrayList<Point> computeCellsForObject(GameObject go)
     {
         Rectangle bounds = go.getCollisionBounds();
 
@@ -187,21 +173,47 @@ public class GameObjects extends LinkedList<GameObject>
         int startRow = Math.max(0, bounds.y / cellHeight);
         int endRow   = Math.min(gridRows - 1, (bounds.y + bounds.height) / cellHeight);
 
+        ArrayList<Point> cells = new ArrayList<>();
         for (int row = startRow; row <= endRow; row++)
         {
             for (int col = startCol; col <= endCol; col++)
             {
-                spatialGrid.get(row).get(col).remove(go);
+                cells.add(new Point(col, row));
             }
         }
+        return cells;
+    }
+
+    private void addToSpatialCells(GameObject go)
+    {
+        ArrayList<Point> newCells = computeCellsForObject(go);
+        for (Point cell : newCells)
+        {
+            spatialGrid.get(cell.y).get(cell.x).add(go);
+        }
+
+        // store background areas in the object itself for efficient retrieval later
+        go.setBackgroundAreas(newCells);
+    }
+
+    private void removeFromSpatialCells(GameObject go)
+    {
+        ArrayList<Point> oldCells = go.getBackgroundAreas();
+
+        for (Point cell : oldCells)
+        {
+            spatialGrid.get(cell.y).get(cell.x).remove(go);
+        }
+        oldCells.clear();
+
 
         // remove the background areas from the object itself
         go.getBackgroundAreas().clear();
     }
 
-    public GameObjects getPotentialCollisionObjects(GameObject go)
+    public GameObjects getNeighborObjects(GameObject go)
     {
-        GameObjects result = new GameObjects(false, 0, 0);
+        GameObjects result = new GameObjects(false);
 
         if (spatialGrid == null) {
             // if spatial partitioning not enabled, just return everything
@@ -213,18 +225,9 @@ public class GameObjects extends LinkedList<GameObject>
         Set<GameObject> objectSet = new HashSet<>();
 
         // Figure out which cells the object overlaps
-        Rectangle bounds = go.getCollisionBounds();
-        int startCol = Math.max(0, bounds.x / cellWidth);
-        int endCol   = Math.min(gridCols - 1, (bounds.x + bounds.width) / cellWidth);
-        int startRow = Math.max(0, bounds.y / cellHeight);
-        int endRow   = Math.min(gridRows - 1, (bounds.y + bounds.height) / cellHeight);
-
-        for (int row = startRow; row <= endRow; row++)
+        for (Point cell : computeCellsForObject(go))
         {
-            for (int col = startCol; col <= endCol; col++)
-            {
-                objectSet.addAll(spatialGrid.get(row).get(col));
-            }
+            objectSet.addAll(spatialGrid.get(cell.y).get(cell.x));
         }
 
         // Transfer to result list
@@ -239,54 +242,31 @@ public class GameObjects extends LinkedList<GameObject>
     {
         if (spatialGrid == null) return;
 
-        Rectangle bounds = go.getCollisionBounds();
-
-        int startCol = Math.max(0, bounds.x / cellWidth);
-        int endCol   = Math.min(gridCols - 1, (bounds.x + bounds.width) / cellWidth);
-        int startRow = Math.max(0, bounds.y / cellHeight);
-        int endRow   = Math.min(gridRows - 1, (bounds.y + bounds.height) / cellHeight);
-
         // Build new set of cells this object should be in
-        ArrayList<Point> newCells = new ArrayList<>();
-        for (int row = startRow; row <= endRow; row++)
-        {
-            for (int col = startCol; col <= endCol; col++)
-            {
-                newCells.add(new Point(row, col));
-            }
-        }
-
+        ArrayList<Point> newCells = computeCellsForObject(go);
         // Get the object’s currently tracked cells (stored inside GameObject)
         ArrayList<Point> oldCells = go.getBackgroundAreas();
 
         // If no change, then skip
-        if (oldCells.equals(newCells))
-        {
-            return;
-        }
+        if (oldCells.equals(newCells)) return;
 
         // Remove from cells no longer relevant
         for (Point cell : oldCells)
         {
             if (!newCells.contains(cell))
-            {
-                spatialGrid.get(cell.x).get(cell.y).remove(go);
-            }
+                spatialGrid.get(cell.y).get(cell.x).remove(go);
         }
 
-        // Add to newly relevant cells
+        // Add newly relevant cells
         for (Point cell : newCells)
         {
             if (!oldCells.contains(cell))
-            {
-                spatialGrid.get(cell.x).get(cell.y).add(go);
-            }
+                spatialGrid.get(cell.y).get(cell.x).add(go);
         }
 
         // Update the cell areas in the object
         go.setBackgroundAreas(newCells);
     }
-
 
     //Returns a sublist of all objects currently in this
     //list that are of the requested type. Returns null
@@ -300,7 +280,7 @@ public class GameObjects extends LinkedList<GameObject>
             if (go.getType() == type)
             {
                 if (foundObjects == null)
-                    foundObjects = new GameObjects(false, 0, 0);
+                    foundObjects = new GameObjects(false);
                 foundObjects.add(go);
             }
         }
@@ -311,7 +291,7 @@ public class GameObjects extends LinkedList<GameObject>
     //parameter determines whether we filter out partially contained objects.
     public GameObjects getObjectsWithinBounds(Rectangle bounds, boolean fullyEnclosed)
     {
-        GameObjects objectsWithin = new GameObjects(false, 0, 0);
+        GameObjects objectsWithin = new GameObjects(false);
 
         for (GameObject go: this)
         {
