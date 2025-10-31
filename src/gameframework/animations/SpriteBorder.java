@@ -56,7 +56,7 @@ public class SpriteBorder extends TreeSet<BorderPoint>
         return copy;
     }
 
-    private BorderPoint getBoundPoint(Direction direction)
+    public BorderPoint getBoundPoint(Direction direction)
     {
         BorderPoint requestedPoint = null;
 
