@@ -16,6 +16,10 @@ public class Animation
     private int scaleHeight;
     private int speed;
     private int speedCounter;
+    private boolean paused;
+    private boolean runOnlyOnce;
+    private int timesToRun;
+    private int runsCounter;
 
     public Animation(Spritesheet spritesheet, int scaleWidth, int scaleHeight )
     {
@@ -28,6 +32,10 @@ public class Animation
         this.scaleWidth = scaleWidth;
         speed = 1;
         speedCounter = 0;
+        paused = false;
+        runOnlyOnce = false;
+        runsCounter = 0;
+        timesToRun = -1; //set by default to -1 which means run indefinitely
         initializeFrameBorders();
     }
 
@@ -42,7 +50,24 @@ public class Animation
         this.scaleWidth = scaleWidth;
         speed = 1;
         speedCounter = 0;
+        paused = false;
+        runOnlyOnce = false;
+        runsCounter = 0;
+        timesToRun = -1; //set by default to -1 which means run indefinitely
         initializeFrameBorders();
+    }
+
+    public void reset()
+    {
+        paused = false;
+        curFrameIndex = 0;
+        runsCounter = 0;
+        speedCounter = 0;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public int getScaleWidth()
@@ -101,6 +126,17 @@ public class Animation
         return frameBorders.get(curFrameIndex).getBordersRectangle();
     }
 
+    public int getCurrentFrameIndex()
+    {
+        return curFrameIndex;
+    }
+
+    public void setCurrentFrame(int newFrameIndex)
+    {
+        if ( newFrameIndex >= 0 && newFrameIndex < frameCount)
+            curFrameIndex = newFrameIndex;
+    }
+
     /* These method can be used to convert the border point positions for every frame in the animation
      * from relative coords based on the top left corner of the bounds rectangle of the frame to actual
      * absolute coordinates in the game world. */
@@ -115,16 +151,30 @@ public class Animation
 
     public void nextFrame()
     {
+        if (isPaused())
+            return;
+
         speedCounter++;
 
-        if (speedCounter == speed)
+        if (speedCounter == getSpeed())
         {
             curFrameIndex++;
-            if (curFrameIndex == frameCount)
-                curFrameIndex = 0;
-            curFrame = frames[curFrameIndex];
             speedCounter = 0;
         }
+
+        if ( curFrameIndex == frameCount )
+        {
+            curFrameIndex = 0;
+            runsCounter++;
+
+            if (runsCounter == timesToRun)
+            {
+                runsCounter = 0;
+                curFrameIndex = frameCount - 1;
+                pause();
+            }
+        }
+        curFrame = frames[curFrameIndex];
     }
 
     public void drawFrame(Graphics g, int x, int y)
@@ -132,12 +182,47 @@ public class Animation
         g.drawImage(curFrame, x, y, scaleWidth, scaleHeight, null );
     }
 
-    public int getSpeed() {
+    public int getSpeed()
+    {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(int speed)
+    {
         this.speed = speed;
     }
+
+    public boolean isPaused()
+    {
+        return paused;
+    }
+
+    public void pause()
+    {
+        paused = true;
+    }
+
+    public boolean atLastFrame()
+    {
+        return curFrameIndex == frameCount - 1;
+    }
+
+    public void resume()
+    {
+        paused = false;
+    }
+
+    public void runOnlyOnce()
+    {
+        runOnlyOnce = true;
+        setRunTimes(1);
+    }
+
+    public void setRunTimes(int timesToRun)
+    {
+        runOnlyOnce = false;
+        this.timesToRun = timesToRun;
+    }
+
 
 }

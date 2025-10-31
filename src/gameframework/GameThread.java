@@ -3,6 +3,7 @@ package gameframework;
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObjectFactory;
+import gameframework.gameobjects.GameObjects;
 import gameframework.inputhandlers.KeyboardHandler;
 import gameframework.resourcemanagement.ResourceManager;
 
@@ -29,9 +30,20 @@ public class GameThread
     public static boolean displayFrameUpdateRate;
     private boolean gameOver;
 
-    //Information for levels in the game
+    // Information for levels in the game
     private static final ArrayList<GameLevel> levels = new ArrayList<GameLevel>();
     private static int curLevelNumber;
+
+    /* Information for tuning different optimizations in the game */
+
+    /* To optimize collision and interaction with other objects in general we can divide the list of objects into
+     * different sublists representing different areas of the game background, the amount of areas can be set up
+     * by game developers using this tuning constants (width and height of the grid of sections/areas into which
+     * the game background is divided). */
+    public static int AREA_GRID_COLS = 0;
+    public static int AREA_GRID_ROWS = 0;
+
+    /********/
 
     /* The GameThread needs to receive a specific game object factory in order to be able to create
      * game specific objects when loading levels, if not provided (null) then it will create a general
@@ -52,8 +64,9 @@ public class GameThread
         resourceManager = new ResourceManager();
 
         //initialize data and display window
-        data = new GameData();
         initializeGameDisplay();
+        data = new GameData();
+        display.setData(data);
 
         curLevelNumber = 0;
         displayFrameUpdateRate = false;
@@ -86,12 +99,31 @@ public class GameThread
 
     public boolean isGameOver() { return gameOver;}
 
-    //Add a playable character, if the boolean is set to true then this is set
-    //as the initial player character (can switch characters later on)
+    // Add a playable character, if the boolean is set to true then this is set
+    // as the initial player character (can switch characters later on)
     public static boolean addPlayableCharacter(Player playableCharacter,
                                                boolean startingCharacter)
     {
         return data.addPlayableCharacter(playableCharacter, startingCharacter);
+    }
+
+    // Change playable character to the next available one
+    public static void changePlayableCharacter()
+    {
+        // Make sure to spawn it on the same position
+        Player player = Player.getActivePlayer();
+        GameObjects gameObjects = data != null ? data.getObjects() : null;
+
+        if (player != null && gameObjects != null)
+        {
+            int x = player.getX();
+            int y = player.getY();
+
+            gameObjects.remove(player);
+            player = Player.nextPlayer();
+            gameObjects.add(player);
+            player.setPosition(x, y);
+        }
     }
 
     public static void changeKeyboardHandler(KeyboardHandler newKeyboardHandler)
