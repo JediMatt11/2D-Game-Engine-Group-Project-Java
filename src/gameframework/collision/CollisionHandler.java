@@ -213,41 +213,35 @@ public class CollisionHandler
         return handled;
     }
 
-    /* Determine the collision direction from the collision bounds intersection, this is
-     * more accurate in most cases than relying on the objects's movement direction (because
-     * of changes of animation and animation frames while an object is moving). */
+    /* Determine the direction in which a collision occurs with respect to
+     * the object being tracked. This method assumes that a collision has
+     * already been detected between the two objects. */
     private Direction determineCollisionDirection(GameObject collidingObject)
     {
-        Direction direction = Direction.NONE;
-
         Rectangle objectBounds = objectTracked.getCollisionBounds();
         Rectangle otherObjectBounds = collidingObject.getCollisionBounds();
         Rectangle boundsIntersection = objectBounds.intersection(otherObjectBounds);
 
-        /* We determine the direction of the collision by finding the largest metric in
-         * the intersection bounds rect, if the height is larger then its a collision in
-         * a horizontal direction and if the width is larger then its a vertical collision. */
-        if (boundsIntersection.height > boundsIntersection.width)
-        {
-            /* The collision is in a horizontal direction, now determine
-             * if its left or right based which side of the tracked object's
-             * collision bounds the intersection bounds align with. */
-            if (boundsIntersection.x == objectBounds.x)
-                direction = Direction.LEFT;
-            else
-                direction = Direction.RIGHT;
+        if (boundsIntersection.isEmpty()) {
+            return Direction.NONE;
         }
-        else if (boundsIntersection.height < boundsIntersection.width)
-        {
-            /* The collision is in a vertical direction, now determine
-             * if its up or down based on which side of the tracked object's
-             * collision bounds the intersection bounds align with. */
-            if (boundsIntersection.y == objectBounds.y)
-                direction = Direction.UP;
-            else
-                direction = Direction.DOWN;
+
+        // Use center-to-center vector to determine dominant collision axis and side
+        double cxA = objectBounds.getCenterX();
+        double cyA = objectBounds.getCenterY();
+        double cxB = otherObjectBounds.getCenterX();
+        double cyB = otherObjectBounds.getCenterY();
+
+        // Vector from A to B
+        double dx = cxB - cxA;
+        double dy = cyB - cyA;
+
+        // Determine dominant axis
+        if (Math.abs(dx) > Math.abs(dy)) {
+            return (dx < 0) ? Direction.LEFT : Direction.RIGHT;
+        } else {
+            return (dy < 0) ? Direction.UP : Direction.DOWN;
         }
-        return direction;
     }
 
     /* Adjust the position of an object by shifting to the opposite direction in
@@ -258,6 +252,7 @@ public class CollisionHandler
     public boolean getClosestValidPosition(int range, GameObject collidingObject,
                                            Direction direction, int variation)
     {
+        // Initialize the current position//
         boolean success = false;
         Point curPos = objectTracked.getPosition();
         //if no direction is supplied, then use the object's moving direction
