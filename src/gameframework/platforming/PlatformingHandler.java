@@ -15,7 +15,6 @@ public class PlatformingHandler
 {
     private GameObject mainObject;
     private GameObject platformObject;
-    private boolean hasLatchedAtLeastOnce;
 
     /* This attribute determines what percentage of an object's width must fall within a platform
      * in order to latch to it (if less than that portion is in, the object falls from platform).*/
@@ -35,7 +34,6 @@ public class PlatformingHandler
         mainObject = object;
         this.platformObject = platformObject;
         platformingPercentage = DEFAULT_PLATFORMING_PERCENTAGE;
-        hasLatchedAtLeastOnce = false;
     }
 
     /**
@@ -67,27 +65,25 @@ public class PlatformingHandler
         return (platformObject != null);
     }
 
-    /* This method should be called once a collision occurs to determine if the collision
-     * is the result of the object falling on top of another object. */
     public boolean isLandingOnTopOf(GameObject otherObject)
     {
-        boolean landingOnTop = false;
         Rectangle bounds = mainObject.getCollisionBounds();
         Rectangle otherBounds = otherObject.getCollisionBounds();
 
-        /* To qualify, a certain portion of this object must be encompassed horizontally
-         * by the other object which must be positioned below it. To know that the other
-         * object is below it we can't simply check that (bounds.y < otherBounds.y), if an
-         * object is colliding with the bottom of another object this can lead to misinterpretation
-         * since its y position could be slightly higher than the top object if its too thin, so to
-         * make sure this detects landing accurately in all cases we make sure that 90% of the object
-         * landing is above the object its landing onto. */
-        if ( ((otherBounds.y - bounds.y) >= 0.90 * bounds.height) &&
-              otherObject.encompasses(mainObject, 'H', platformingPercentage)
-        )
-            landingOnTop = true;
+        // Distance between the bottom of this object and the top of the platform
+        int verticalDistance = otherBounds.y - (bounds.y + bounds.height);
 
-        return landingOnTop;
+        // Platform must be below, not above
+        if (verticalDistance > 2 * PLATFORM_LATCH_OFFSET)
+            return false; // Too far below or overlapping from the top
+
+        // Require that 90% of this object’s body is above the platform’s top
+        boolean mostlyAbove = (otherBounds.y - bounds.y) >= 0.90 * bounds.height;
+
+        // Require sufficient horizontal overlap
+        boolean horizontallyAligned = otherObject.encompasses(mainObject, 'H', platformingPercentage);
+
+        return mostlyAbove && horizontallyAligned;
     }
 
     //This method is called from within an object's update method in order to update its platforming status
@@ -97,36 +93,51 @@ public class PlatformingHandler
         if (mainObject.getGravity() == 0)
             return;
 
-        //If we haven't latched yet to any platform then its irrelevant to verify if we have detached
-        if (!hasLatchedAtLeastOnce)
-            return;
-
         /* check if the object is no longer standing on a platform (either because its
          * currently jumping or fell outside the platform) and update it accordingly */
         if ( platformObject != null && detachedFromPlatform() )
         {
-            System.out.println("Object: " + mainObject.getName() + " detached to platform " + platformObject.getName());
             platformObject = null;
 
-            /* Steve: temporary hack to handle the issue of a platform consisting of multiple tiles
+            /* Steve: temporary quick fix to handle the issue of a platform consisting of multiple tiles
              * that are aligned together. This is not yet fully verified (might cause performance issues)! */
-            for (GameObject candidatePlatform : objects)
-            {
-                // Only consider things roughly below me
-                if (Math.abs(candidatePlatform.getY() - mainObject.getY()) < 64 /*should be replaced by tuning constant*/
-                        && mainObject.isLandingOnTopOf(candidatePlatform))
-                {
-                    latch(candidatePlatform);
-                    break;
-                }
-            }
+            boolean foundPlatform = relatchToAdjacentPlatform(objects);
+            if (!foundPlatform)
+                    System.out.println("Object: " + mainObject.getName() + " detached from platform.");
             /****/
         }
 
         /* if the object is affected by gravity and isn't standing on a platform,
-         * then it means the object is currently in mid air. */
+         * then it means the object is currently in midair. */
         if (platformObject == null)
+        {
             mainObject.setInMidAir(true);
+        }
+    }
+
+    /**
+     * Finds a platform directly beneath the main object after it detaches from
+     * its current one. Used to smoothly relatch onto adjacent or aligned tiles
+     * (e.g., multi-tile ground surfaces) without triggering a falling state.
+     * Returns true if we were able to latch to another platform (tile) or false
+     * otherwise.
+     */
+    private boolean relatchToAdjacentPlatform(GameObjects objects)
+    {
+        boolean success = false;
+
+        if (mainObject.disableAutoRelatching())
+            return false;
+
+        for (GameObject candidatePlatform : objects)
+        {
+            if (mainObject.isLandingOnTopOf(candidatePlatform))
+            {
+                success = latch(candidatePlatform);
+                break;
+            }
+        }
+        return success;
     }
 
     //returns true if the object is no longer standing on a platform
@@ -189,9 +200,6 @@ public class PlatformingHandler
         this.platformObject = platformObject;
         attachToPlatform();
         mainObject.setInMidAir(false);
-
-        //set the flag to enable performing updates after the character's first latch
-        hasLatchedAtLeastOnce = true;
 
         System.out.println("Object: " + mainObject.getName() + " latched to platform " + platformObject.getName());
         return true;

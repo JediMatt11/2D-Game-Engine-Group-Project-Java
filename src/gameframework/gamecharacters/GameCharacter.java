@@ -337,6 +337,9 @@ public abstract class GameCharacter extends GameObject
         return (isInMidAir() && !(isInTheMiddleOfJump()));
     }
 
+    //Disable atomatic nearby tile relatching for characters that are jumping
+    public boolean disableAutoRelatching() { return isJumping(); }
+
     /* These methods change the speed, direction and animation of a character
      * in order to make it move it in a certain direction. */
     public void moveRight(boolean running)
