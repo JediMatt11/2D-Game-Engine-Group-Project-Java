@@ -26,14 +26,14 @@ public class GameDisplay extends JFrame
 
     private BufferStrategy bufferStrategy;
 
-    //input handlers
+    // input handlers
     private KeyboardHandler keyboardHandler;
     private MouseHandler mouseHandler;
 
-    //camera attributes
+    // camera attributes
     private static Point cameraOrigin;
 
-    //Heads Up Display panel
+    // Heads Up Display panel
     private static HUDPanel hud = null;  //The heads up display is initially null (game developers are supposed to set it)
 
     /* We intend to be able to toggle a message on the game window, these attributes hold the properties of
@@ -60,14 +60,20 @@ public class GameDisplay extends JFrame
         this.data = data;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        //initialize camera origin
+        // initialize camera origin
         cameraOrigin = new Point(0,0);
 
-        //setup buffer strategy of 2 buffers/layers
+        // setup buffer strategy of 2 buffers/layers
         createBufferStrategy(2);
         bufferStrategy = getBufferStrategy();
 
-        //add input handlers for keyboard, mouse, controllers, etc
+        // load game background
+        GameLevel level = GameThread.getCurrentLevel();
+        background = level != null ?
+                GameThread.resourceManager.loadImageResource(level.getBackground(), level.getName()):
+                null;
+
+        // add input handlers for keyboard, mouse, controllers, etc
         keyboardHandler = new KeyboardHandler();
         addKeyListener(keyboardHandler);
         mouseHandler = new MouseHandler(this, data);
@@ -81,6 +87,12 @@ public class GameDisplay extends JFrame
         messageOffsetY = DEFAULT_MESSAGE_OFFSET;
     }
 
+    public void setData(GameData data)
+    {
+        if (data != null)
+            this.data = data;
+    }
+
     public static BufferedImage getCurBackground() { return background; }
 
     public String getMessage()
@@ -90,7 +102,7 @@ public class GameDisplay extends JFrame
 
     public void setMessage(String message)
     {
-        //The message can be an empty string "" (we set it to that to hide it)
+        // The message can be an empty string "" (we set it to that to hide it)
         this.message = message;
     }
 
@@ -145,13 +157,11 @@ public class GameDisplay extends JFrame
     {
         Graphics g = bufferStrategy.getDrawGraphics();
 
-        //draw normally whatever you want
+        //make sure we are using the proper background for this level
         GameLevel level = GameThread.getCurrentLevel();
         background = level != null ?
                 GameThread.resourceManager.loadImageResource(level.getBackground(), level.getName()):
                 null;
-        if (background != null)
-            g.drawImage(background, 0, 0, getWidth(), getHeight(), null);
 
         Player player = Player.getActivePlayer();
         setCameraPos(g, new Point(player.getX(), player.getY()));
