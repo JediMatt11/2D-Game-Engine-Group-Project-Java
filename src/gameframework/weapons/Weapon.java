@@ -2,10 +2,11 @@ package gameframework.weapons;
 
 import gameframework.gamecharacters.HitBox;
 import gameframework.gameobjects.GameObject;
+import gameframework.gameobjects.GameObjectType;
 
 import java.awt.*;
 
-public class Weapon
+public class Weapon extends GameObject
 {
     private int x;
     private int y;
@@ -17,15 +18,17 @@ public class Weapon
     private int height;
     private HitBox hb;
 
-    public Weapon(String name, int damage, int range, int speed, int x, int y)
+    public Weapon(String name, int damage, int range, int speed, int x, int y, int z, int width, int height)
     {
-        super();
+        super(name, GameObjectType.WEAPON, x,y,z,width, height);
         this.setName(name);
         this.setDamage(damage);
         this.setRange(range);
         this.setSpeed(speed);
         this.setX(x);
         this.setY(y);
+        this.setWidth(width);
+        this.setHeight(height);
         hb = new HitBox(x,y,width,height);
     }
 
