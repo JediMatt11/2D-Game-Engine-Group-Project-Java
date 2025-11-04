@@ -1,10 +1,10 @@
 package gameframework.weapons;
 
+import gameframework.gamecharacters.GameCharacter;
 import gameframework.gamecharacters.HitBox;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
-
-import java.awt.*;
+import gameframework.gameobjects.GameObjects;
 
 public class Weapon extends GameObject
 {
@@ -17,10 +17,13 @@ public class Weapon extends GameObject
     private int width;
     private int height;
     private HitBox hb;
+    private GameCharacter weaponHolder;
 
-    public Weapon(String name, int damage, int range, int speed, int x, int y, int z, int width, int height)
+    public Weapon(String name, GameCharacter weaponHolder, int damage, int width, int height)
     {
-        super(name, GameObjectType.WEAPON, x,y,z,width, height);
+        super(name, GameObjectType.WEAPON, weaponHolder.getX(), weaponHolder.getY(), weaponHolder.getZ(), width, height);
+
+        this.weaponHolder = weaponHolder;
         this.setName(name);
         this.setDamage(damage);
         this.setRange(range);
@@ -29,13 +32,22 @@ public class Weapon extends GameObject
         this.setY(y);
         this.setWidth(width);
         this.setHeight(height);
-        hb = new HitBox(x,y,width,height);
+        setHb(new HitBox(x,y,width,height));
     }
 
     //weapon's hitbox checks if any object comes within its bounds
     public boolean checkCollision(GameObject object){
-        return hb.intersects(object);
+        return getHb().intersects(object);
     }
+
+    //keep track of weapon on weapon holder
+    @Override
+    public void update(GameObjects objects){
+        if(weaponHolder != null){
+            setPosition(weaponHolder.getX(), weaponHolder.getY());
+        }
+    }
+
 
     public int getX() {
         return x;
@@ -104,5 +116,21 @@ public class Weapon extends GameObject
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public GameCharacter getWeaponHolder() {
+        return weaponHolder;
+    }
+
+    public void setWeaponHolder(GameCharacter weaponHolder) {
+        this.weaponHolder = weaponHolder;
+    }
+
+    public HitBox getHb() {
+        return hb;
+    }
+
+    public void setHb(HitBox hb) {
+        this.hb = hb;
     }
 }

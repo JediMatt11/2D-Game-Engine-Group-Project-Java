@@ -4,6 +4,7 @@ import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
+import gameframework.weapons.WeaponFactory;
 
 /**
  * This class handles general support for characters in the game.
@@ -64,6 +65,7 @@ public abstract class GameCharacter extends GameObject
         initializeAnimations();
         initializeStatus();
     }
+
 
     public abstract void initializeStatus();
     public abstract void initializeAnimations();

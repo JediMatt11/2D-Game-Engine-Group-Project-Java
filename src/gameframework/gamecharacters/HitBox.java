@@ -14,7 +14,7 @@ public class HitBox
     private int range;
     private Rectangle hb;
 
-    //needs size of character,  and/or size of weapon
+   //needs size of weapon
 
     public HitBox(int x, int y, int width, int height)
     {
