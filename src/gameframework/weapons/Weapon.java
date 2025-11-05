@@ -1,12 +1,14 @@
 package gameframework.weapons;
 
+import gameframework.animations.Animation;
 import gameframework.gamecharacters.GameCharacter;
 import gameframework.gamecharacters.HitBox;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.gameobjects.GameObjects;
+import gameframework.gameobjects.InanimateObject;
 
-public class Weapon extends GameObject
+public abstract class Weapon extends InanimateObject
 {
     private int x;
     private int y;
@@ -18,10 +20,11 @@ public class Weapon extends GameObject
     private int height;
     private HitBox hb;
     private GameCharacter weaponHolder;
+    protected Animation weaponIdle;
 
     public Weapon(String name, GameCharacter weaponHolder, int damage, int width, int height)
     {
-        super(name, GameObjectType.WEAPON, weaponHolder.getX(), weaponHolder.getY(), weaponHolder.getZ(), width, height);
+        super(name, weaponHolder.getX(), weaponHolder.getY(), weaponHolder.getZ(), width, height);
 
         this.weaponHolder = weaponHolder;
         this.setName(name);
@@ -33,6 +36,7 @@ public class Weapon extends GameObject
         this.setWidth(width);
         this.setHeight(height);
         setHb(new HitBox(x,y,width,height));
+        initializeWeaponAnimation();
     }
 
     //weapon's hitbox checks if any object comes within its bounds
@@ -47,6 +51,10 @@ public class Weapon extends GameObject
             setPosition(weaponHolder.getX(), weaponHolder.getY());
         }
     }
+
+    public abstract void initializeWeaponAnimation();
+
+
 
 
     public int getX() {
@@ -133,4 +141,5 @@ public class Weapon extends GameObject
     public void setHb(HitBox hb) {
         this.hb = hb;
     }
+
 }
