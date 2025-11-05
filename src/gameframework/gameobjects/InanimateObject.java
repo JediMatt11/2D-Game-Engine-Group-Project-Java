@@ -3,6 +3,7 @@ package gameframework.gameobjects;
 import gameframework.GameThread;
 import gameframework.animations.Animation;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class InanimateObject extends GameObject
@@ -18,6 +19,17 @@ public class InanimateObject extends GameObject
 
         //disable frequent updates for inanimate objects
         requiresUpdating = false;
+    }
+
+
+    public InanimateObject() {
+
+    }
+
+
+    @Override
+    public Animation getActiveAnimation() {
+        return curAnimation;
     }
 
     /* Inanimate objects have a default animation consisting of one frame, this

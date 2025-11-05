@@ -88,6 +88,10 @@ public abstract class GameObject
         constrainToBackground = true;
     }
 
+    public GameObject() {
+
+    }
+
     public int getX() {return x;}
     public int getY() {return y;}
     public int getZ() {return z;}
