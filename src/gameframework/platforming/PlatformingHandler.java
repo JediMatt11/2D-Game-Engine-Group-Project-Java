@@ -129,7 +129,7 @@ public class PlatformingHandler
         if (mainObject.disableAutoRelatching())
             return false;
 
-        for (GameObject candidatePlatform : objects)
+        for (GameObject candidatePlatform : objects.getNeighborObjects(mainObject))
         {
             if (mainObject.isLandingOnTopOf(candidatePlatform))
             {

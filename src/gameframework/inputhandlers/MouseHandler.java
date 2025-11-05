@@ -16,8 +16,10 @@ import javax.swing.event.MouseInputListener;
 public class MouseHandler implements MouseInputListener,
         MouseMotionListener
 {
-    private GameDisplay display;
+    protected GameDisplay display;
     private GameData    data;
+    public static int targetX;
+    public static int targetY;
 
     public MouseHandler(GameDisplay display, GameData data)
     {
@@ -28,6 +30,9 @@ public class MouseHandler implements MouseInputListener,
     @Override
     public void mouseClicked(MouseEvent me)
     {
+
+
+
 
 
     }
@@ -43,6 +48,8 @@ public class MouseHandler implements MouseInputListener,
         if (me.getButton() == MouseEvent.BUTTON1)
         {
             System.out.println("Left button clicked");
+            targetX = me.getX() + display.getCameraPosition().x;
+            targetY = me.getY() + display.getCameraPosition().y;
             Player.getActivePlayer().specialActionA(true);
 
         }
