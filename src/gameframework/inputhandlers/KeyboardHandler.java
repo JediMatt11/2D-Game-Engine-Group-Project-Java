@@ -47,6 +47,11 @@ public class KeyboardHandler implements KeyListener
     public static final int HANDLER_BOUNDSONLY_MODE = 25;
     public static final int HANDLER_BORDERSONLY_MODE = 26;
 
+    private boolean pressedLeft = false;
+    private boolean pressedRight = false;
+    private boolean pressedUp = false;
+    private boolean pressedDown = false;
+
     @Override
     public void keyTyped(KeyEvent e)
     {
@@ -182,16 +187,24 @@ public class KeyboardHandler implements KeyListener
         switch (action)
         {
             case HANDLER_MOVE_RIGHT:
-                player.moveRight(ke.isControlDown());
+                pressedRight = true;
+                if(!pressedLeft)
+                    player.moveRight(ke.isControlDown());
                 break;
             case HANDLER_MOVE_LEFT:
-                player.moveLeft(ke.isControlDown());
+                pressedLeft = true;
+                if(!pressedRight)
+                    player.moveLeft(ke.isControlDown());
                 break;
             case HANDLER_MOVE_UP:
-                player.moveUp(ke.isControlDown());
+                pressedUp = true;
+                if(!pressedDown)
+                    player.moveUp(ke.isControlDown());
                 break;
             case HANDLER_MOVE_DOWN:
-                player.moveDown(ke.isControlDown());
+                pressedDown = true;
+                if(!pressedUp)
+                    player.moveDown(ke.isControlDown());
                 break;
             case HANDLER_ATTACK_RIGHT:
                 break;
@@ -270,16 +283,45 @@ public class KeyboardHandler implements KeyListener
         }
     }
 
+    private boolean movementPressed()
+    {
+        if(pressedRight || pressedLeft || pressedUp || pressedDown)
+            return true;
+        return false;
+    }
+
     protected void keyReleasedActionHandler(int action)
     {
         Player player = Player.getActivePlayer();
         switch (action)
         {
             case HANDLER_MOVE_RIGHT:
+                pressedRight = false;
+                if (!movementPressed())
+                    player.stop();
+                else
+                    player.stopX();
+                break;
             case HANDLER_MOVE_LEFT:
+                pressedLeft = false;
+                if (!movementPressed())
+                    player.stop();
+                else
+                    player.stopX();
+                break;
             case HANDLER_MOVE_UP:
+                pressedUp = false;
+                if (!movementPressed())
+                    player.stop();
+                else
+                    player.stopY();
+                break;
             case HANDLER_MOVE_DOWN:
-                player.stop();
+                pressedDown = false;
+                if (!movementPressed())
+                    player.stop();
+                else
+                    player.stopY();
                 break;
         }
     }

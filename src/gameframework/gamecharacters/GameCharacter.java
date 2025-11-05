@@ -410,6 +410,16 @@ public abstract class GameCharacter extends GameObject
         velX = velY = 0;
     }
 
+    public void stopX()
+    {
+        velX = 0;
+    }
+
+    public void stopY()
+    {
+        velY = 0;
+    }
+
     /* These methods change the speed, direction and animation of a character
      * in order to make it run in a certain direction (When running, the engine
      * sets the speed to double the walking speed, for the time being). */
