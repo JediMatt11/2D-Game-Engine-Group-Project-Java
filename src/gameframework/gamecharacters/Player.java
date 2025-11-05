@@ -12,6 +12,7 @@ public abstract class Player extends GameCharacter
     protected int lives;
     private static final ArrayList<Player> availablePlayers = new ArrayList<Player>();
     private static int curPlayerIndex;
+    private static double maximumXSpeed;
 
     public Player(String name, int x, int y,
                   int scaleWidth, int scaleHeight)
@@ -20,6 +21,7 @@ public abstract class Player extends GameCharacter
         totalLives = DEFAULT_TOTAL_LIVES;
         lives = totalLives;
         curPlayerIndex = 0;
+        maximumXSpeed = runRight.getSpeed()*1.5;
     }
 
     public static void addPlayer(Player player, boolean activePlayer )
@@ -58,17 +60,19 @@ public abstract class Player extends GameCharacter
          * that isInMidAir() only works for games that enable gravity so we need
          * also the other test to prevent double jumps in all other games.
          */
-        if (/*isInMidAir() ||*/ isInTheMiddleOfJump())
+        if (isInMidAir() || isInTheMiddleOfJump())
             return;
 
         changeActiveAnimation(getJumpAnimation());
 
         //the character speed gets multiplied when jumping
         //depending on the jumping impulse attribute
-        velX = (int)Math.round(velX * jumpImpulseX);
         if (gravity > 0)
             velY = -speed;
         velY =  (int)Math.round(velY * jumpImpulseY);
+        if (velX<maximumXSpeed)
+            velX = (int)Math.round(velX*jumpImpulseX);
+
 
         setInMidAir(true);
 

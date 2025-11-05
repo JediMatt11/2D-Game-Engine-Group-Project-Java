@@ -22,8 +22,8 @@ public abstract class GameObject
     private int y;
     private int z;
 
-    protected int velX;
-    protected int velY;
+    protected double velX;
+    protected double velY;
 
     protected Direction direction;
 
@@ -226,10 +226,10 @@ public abstract class GameObject
     /* This method should be the only way used to change positions, because it
      * internally updates important data structures used for collision optimization,
      * and in order to easily trace position changes while debugging the game.*/
-    public void setPosition(int x, int y)
+    public void setPosition(double x, double y)
     {
-        this.x = x;
-        this.y = y;
+        this.x =(int) x;
+        this.y =(int) y;
 
         GameObjects gameObjects = GameThread.data.getObjects();
         gameObjects.updateSpatialCells(this);
@@ -260,7 +260,6 @@ public abstract class GameObject
             if (isFalling())
             {
                 velY = getEffectiveGravity();
-                velX = 0;
                 direction = Direction.DOWN;
             }
         }

@@ -465,33 +465,9 @@ public abstract class GameCharacter extends GameObject
         boolean ableToMove = false;
 
         //Can't move if player is dead or while falling
-        if (isDead() || isFalling())
+        if (isDead())
             return false;
-        else if (curAnimation == getIdleAnimation()
-                || isMoving() )
-        {
-            //If the character is idle then we can move and if we are moving we
-            // can always change direction.
-            ableToMove = true;
-        }
-        else
-        {
-            //Performing a different action that isn't idle or moving
-            if (getGravity() != 0 && isInTheMiddleOfJump())
-            {
-                //The engine allows characters to still move while
-                //they are in the middle of a jump (still have jump impulse)
-                ableToMove = true;
-            }
-            else
-            {
-                //We can move as long as we aren't in the middle
-                //of another action (animation must be completed).
-                if (curAnimation.isPaused())
-                    ableToMove = true;
-            }
-        }
-        return ableToMove;
+        else return true;
 
     }
 
