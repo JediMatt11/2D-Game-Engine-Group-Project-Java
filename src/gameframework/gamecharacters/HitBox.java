@@ -7,21 +7,18 @@ import java.awt.*;
 
 public class HitBox
 {
-    private int x;
+    /*private int x;
     private int y;
     private int width;
-    private int height;
+    private int height;*/
     private int range;
     private Rectangle hb;
 
-   //needs size of weapon
+
 
     public HitBox(int x, int y, int width, int height)
     {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+
 
         setHb(new Rectangle(x,y,width,height));
     }
@@ -32,8 +29,12 @@ public class HitBox
         return hb.intersects(object.getBounds());
     }
 
-
-
+    public void update(int x, int y, int width, int height){
+        hb.x = x;
+        hb.y = y;
+        hb.width = width;
+        hb.height = height;
+    }
 
     public void draw(Graphics g)
     {
@@ -55,7 +56,7 @@ public class HitBox
     //check if any rectangle intersects with hitbox rectangle and if its a hurtbox
 
 
-    public int getX() {
+    /*public int getX() {
         return x;
     }
 
@@ -86,12 +87,12 @@ public class HitBox
     public void setHeight(int height) {
         this.height = height;
     }
-
+*/
     public Rectangle getHb() {
         return hb;
     }
 
-    public void setHb(Rectangle hb) {
-        this.hb = hb;
+    public void setHb(Rectangle rectangle) {
+        this.hb = rectangle;
     }
 }
