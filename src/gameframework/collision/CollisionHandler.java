@@ -222,7 +222,8 @@ public class CollisionHandler
         Rectangle otherObjectBounds = collidingObject.getCollisionBounds();
         Rectangle boundsIntersection = objectBounds.intersection(otherObjectBounds);
 
-        if (boundsIntersection.isEmpty()) {
+        if (boundsIntersection.isEmpty())
+        {
             return Direction.NONE;
         }
 
@@ -237,9 +238,11 @@ public class CollisionHandler
         double dy = cyB - cyA;
 
         // Determine dominant axis
-        if (Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > Math.abs(dy))
+        {
             return (dx < 0) ? Direction.LEFT : Direction.RIGHT;
-        } else {
+        } else
+        {
             return (dy < 0) ? Direction.UP : Direction.DOWN;
         }
     }
