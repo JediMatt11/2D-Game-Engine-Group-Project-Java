@@ -1,6 +1,7 @@
 package gameframework.gamecharacters;
 
 import gameframework.gameobjects.GameObjectType;
+import gameframework.gameobjects.GameObjects;
 
 import java.util.ArrayList;
 
@@ -61,7 +62,7 @@ public abstract class Player extends GameCharacter
         if (/*isInMidAir() ||*/ isInTheMiddleOfJump())
             return;
 
-        changeActiveAnimation(getJumpAnimation());
+        changeActiveAnimation(getJumpAnimation(), true);
 
         //the character speed gets multiplied when jumping
         //depending on the jumping impulse attribute

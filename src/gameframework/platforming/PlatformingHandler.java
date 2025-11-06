@@ -1,5 +1,7 @@
 package gameframework.platforming;
 
+import gameframework.animations.Animation;
+import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjects;
 
@@ -151,14 +153,25 @@ public class PlatformingHandler
          * will return true if the object is still standing on the platform below or false
          * otherwise. Note that for all testing to be consistent we base it on the same
          * animation and even same frame (0) (Other frames could be separated from the
-         * ground by a larger distance in the same animation. */
+         * ground by a larger distance in the same animation). */
 
-        int originalFrameNumber = mainObject.getPlatformingReferenceAnimation().getCurrentFrameIndex();
-        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(0);
+        /* temporary for debugging*/
+        if (mainObject instanceof Player)
+            detached = detached;
+
+        // Save active animation, and also the current frame in the reference animation
+        // so we can restore them after
+        Animation originalAnimation = mainObject.getActiveAnimation();
+        Animation referenceAnimation = mainObject.getPlatformingReferenceAnimation();
+        int referenceAnimationFrame = referenceAnimation.getCurrentFrameIndex();
+
+        // Temporarily change the animation of the object to the reference one to test
+        mainObject.changeActiveAnimation(referenceAnimation, true);
+
         // We use setY in this case instead of setPosition to change the object position, because we are
         // only changing the position temporarily to test, our intention isn't to really change the object
         // position in the game.,
-        mainObject.setY(mainObject.getY() + PLATFORM_LATCH_OFFSET);
+        mainObject.setY(mainObject.getY() + PLATFORM_LATCH_OFFSET + 1);
 
         if (mainObject.collidesWith(platformObject))
             detached = false;
@@ -166,24 +179,31 @@ public class PlatformingHandler
             detached = true;
 
         //restore object position and animation frame
-        mainObject.setY(mainObject.getY() - PLATFORM_LATCH_OFFSET);
-        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(originalFrameNumber);
+        mainObject.setY(mainObject.getY() - (PLATFORM_LATCH_OFFSET + 1));
+
+        referenceAnimation.setCurrentFrame(referenceAnimationFrame);
+        mainObject.changeActiveAnimation(originalAnimation, false);
 
         return detached;
     }
 
     /**
-     * Repositions the main object so that its reference animation (frame 0)
+     * Repositions the main object so that its reference animation (at frame 0)
      * is exactly PLATFORM_LATCH_OFFSET pixels above the platform object. */
     private void attachToPlatform()
     {
         if (platformObject == null || mainObject == null)
             return;
 
-        // Save current animation frame so we can restore it after
-        int originalFrame = mainObject.getPlatformingReferenceAnimation().getCurrentFrameIndex();
-        // Always test alignment using the reference animation at frame 0
-        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(0);
+        // Save active animation and also the current frame in reference animation so we can restore them after
+        Animation originalAnimation = mainObject.getActiveAnimation();
+        Animation referenceAnimation = mainObject.getPlatformingReferenceAnimation();
+        int referenceAnimationFrame = referenceAnimation.getCurrentFrameIndex();
+
+        // We always base latching distances on the same animation (reference animation) and on the same
+        // frame (frame 0), so we can evaluate latch/detach distances consistently.
+        mainObject.changeActiveAnimation(referenceAnimation, true);
+
         // Compute platform and main object bounds
         Rectangle platformBounds = platformObject.getCollisionBounds();
         Rectangle mainBounds = mainObject.getCollisionBounds();
@@ -191,8 +211,11 @@ public class PlatformingHandler
         int newY = platformBounds.y - mainBounds.height - PLATFORM_LATCH_OFFSET;
         // Update the main object's Y position (keep same X)
         mainObject.setPosition(mainObject.getX(), newY);
-        // Restore animation frame
-        mainObject.getPlatformingReferenceAnimation().setCurrentFrame(originalFrame);
+
+        // Restore object's original animation (and frame position) now that test is done
+        mainObject.changeActiveAnimation(originalAnimation, false);
+        // Restore reference animation frame
+        referenceAnimation.setCurrentFrame(referenceAnimationFrame);
     }
 
     public boolean latch(GameObject platformObject)

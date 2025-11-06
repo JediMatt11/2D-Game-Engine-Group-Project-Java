@@ -192,7 +192,7 @@ public abstract class GameObject
     /**
      * Change the current animation and make sure to reset it
      */
-    public void changeActiveAnimation(Animation newAnimation)
+    public void changeActiveAnimation(Animation newAnimation, boolean reset)
     {
         if ( newAnimation != null)
         {
@@ -206,7 +206,8 @@ public abstract class GameObject
 
             //System.out.println("Old animation was: " + (curAnimation != null ? curAnimation.getName() : "None"));
             curAnimation = newAnimation;
-            curAnimation.reset(); //initialize the new animation
+            if (reset)
+                curAnimation.reset(); //reset the new animation
             //System.out.println("New animation is: " + curAnimation.getName());
 
         }

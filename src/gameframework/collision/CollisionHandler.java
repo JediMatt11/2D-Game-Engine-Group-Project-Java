@@ -198,7 +198,7 @@ public class CollisionHandler
             if (!handled)
             {
                 System.out.println("failed to latch to platform " + collidingObject.getName());
-                System.out.println("Try setting a higher latching intensity level.");
+                //System.out.println("Try setting a higher latching intensity level.");
             }
         }
         else
