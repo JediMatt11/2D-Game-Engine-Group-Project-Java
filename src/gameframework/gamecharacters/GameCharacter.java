@@ -59,7 +59,8 @@ public abstract class GameCharacter extends GameObject
         totalHealth = DEFAULT_TOTAL_HEALTH;
         curHealth = totalHealth;
         speed = DEFAULT_SPEED;
-        jumpHeight = -8;
+        jumpHeight = -10;
+        gravity = 0.3;
 
         initializeAnimations();
         initializeStatus();
