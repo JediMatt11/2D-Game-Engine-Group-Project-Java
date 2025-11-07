@@ -27,7 +27,7 @@ public class GameThread
     public static GameDisplay display;
     public static ResourceManager resourceManager = new ResourceManager();
     public static GameObjectFactory gameObjectFactory;
-    public static boolean displayFrameUpdateRate;
+    public static volatile boolean displayFrameUpdateRate;
     private boolean gameOver;
 
     // Information for levels in the game
@@ -119,9 +119,13 @@ public class GameThread
             int x = player.getX();
             int y = player.getY();
 
-            gameObjects.remove(player);
+            /* Player changes are usually triggered from input event threads, so make sure to
+             * use thread safe methods */
+            //gameObjects.remove(player);
+            data.removeObject(player);        //thread safe method
             player = Player.nextPlayer();
-            gameObjects.add(player);
+            //gameObjects.add(player);
+            data.addObject(player);           //thread safe method
             player.setPosition(x, y);
         }
     }
