@@ -53,7 +53,7 @@ public class InanimateObject extends GameObject
         if (!inanimate.getCurrentFrameBorders(0, 0, false).verifyBoundPoints())
             System.out.println("Unable to verify bound points for " + getName());
 
-        changeActiveAnimation(inanimate);
+        changeActiveAnimation(inanimate, true);
 
     }
 
