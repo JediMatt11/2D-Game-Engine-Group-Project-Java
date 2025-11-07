@@ -211,7 +211,7 @@ public class PlatformingHandler
      * incomplete & pending, we will know better how to implement it as we develop more
      * games using the engine.
      */
-    public int getEffectiveGravity()
+    public double getEffectiveGravity()
     {
         return mainObject.getGravity();
     }

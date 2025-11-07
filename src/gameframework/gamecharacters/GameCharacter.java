@@ -48,8 +48,7 @@ public abstract class GameCharacter extends GameObject
     private int totalHealth;
     private int curHealth;
     protected int speed;
-    protected double jumpImpulseX;
-    protected double jumpImpulseY;
+    protected int jumpHeight;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -59,7 +58,7 @@ public abstract class GameCharacter extends GameObject
         totalHealth = DEFAULT_TOTAL_HEALTH;
         curHealth = totalHealth;
         speed = DEFAULT_SPEED;
-        jumpImpulseX = jumpImpulseY = 1;
+        jumpHeight = -8;
 
         initializeAnimations();
         initializeStatus();
@@ -99,23 +98,6 @@ public abstract class GameCharacter extends GameObject
     public void setSpeed(int speed)
     {
         this.speed = speed;
-    }
-
-    public double getJumpImpulse(boolean xOrY)
-    {
-        return xOrY ? jumpImpulseX : jumpImpulseY;
-    }
-
-    public void setJumpImpulse(double jumpImpulse, boolean xOrY)
-    {
-        if (jumpImpulse > 0)
-        {
-            if (xOrY)
-                jumpImpulseX = jumpImpulse;
-            else
-                jumpImpulseY = jumpImpulse;
-        }
-
     }
 
     // Returns the animation used when determining if a character is latched to a platform or not
@@ -409,6 +391,14 @@ public abstract class GameCharacter extends GameObject
         direction = Direction.NONE;
         velX = velY = 0;
     }
+    public void stopX()
+    {
+        velX = 0;
+    }
+    public void stopY()
+    {
+        velY = 0;
+    }
 
     /* These methods change the speed, direction and animation of a character
      * in order to make it run in a certain direction (When running, the engine
@@ -454,8 +444,8 @@ public abstract class GameCharacter extends GameObject
     {
         boolean ableToMove = false;
 
-        //Can't move if player is dead or while falling
-        if (isDead() || isFalling())
+        //Can't move if player is dead
+        if (isDead())
             return false;
         else if (curAnimation == getIdleAnimation()
                 || isMoving() )

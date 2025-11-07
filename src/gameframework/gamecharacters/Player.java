@@ -65,10 +65,7 @@ public abstract class Player extends GameCharacter
 
         //the character speed gets multiplied when jumping
         //depending on the jumping impulse attribute
-        velX = (int)Math.round(velX * jumpImpulseX);
-        if (gravity > 0)
-            velY = -speed;
-        velY =  (int)Math.round(velY * jumpImpulseY);
+        velY = jumpHeight;
 
         setInMidAir(true);
 
