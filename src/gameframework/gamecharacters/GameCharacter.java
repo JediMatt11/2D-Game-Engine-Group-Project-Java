@@ -4,6 +4,7 @@ import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
+import gameframework.gameobjects.GameObjects;
 
 /**
  * This class handles general support for characters in the game.
@@ -334,7 +335,7 @@ public abstract class GameCharacter extends GameObject
             runRight();
             return;
         }
-        changeActiveAnimation(getMoveRightAnimation());
+        changeActiveAnimation(getMoveRightAnimation(), true);
         direction = Direction.RIGHT;
         velX = speed;
     }
@@ -349,7 +350,7 @@ public abstract class GameCharacter extends GameObject
             runLeft();
             return;
         }
-        changeActiveAnimation(getMoveLeftAnimation());
+        changeActiveAnimation(getMoveLeftAnimation(), true);
         direction = Direction.LEFT;
         velX = -speed;
     }
@@ -364,7 +365,7 @@ public abstract class GameCharacter extends GameObject
             runUp();
             return;
         }
-        changeActiveAnimation(getMoveUpAnimation());
+        changeActiveAnimation(getMoveUpAnimation(), true);
         direction = Direction.UP;
         velY = -speed;
     }
@@ -379,7 +380,7 @@ public abstract class GameCharacter extends GameObject
             runDown();
             return;
         }
-        changeActiveAnimation(getMoveDownAnimation());
+        changeActiveAnimation(getMoveDownAnimation(), true);
         direction = Direction.DOWN;
         velY = speed;
     }
@@ -387,7 +388,7 @@ public abstract class GameCharacter extends GameObject
     public void stop()
     {
         if (isMoving())
-            changeActiveAnimation(getIdleAnimation());
+            changeActiveAnimation(getIdleAnimation(), true);
         direction = Direction.NONE;
         velX = velY = 0;
     }
@@ -406,35 +407,35 @@ public abstract class GameCharacter extends GameObject
     private void runRight()
     {
         velX = speed * 2;
-        changeActiveAnimation(getRunRightAnimation());
+        changeActiveAnimation(getRunRightAnimation(), true);
         direction = Direction.RIGHT;
     }
 
     private void runLeft()
     {
         velX = -speed * 2;
-        changeActiveAnimation(getRunLeftAnimation());
+        changeActiveAnimation(getRunLeftAnimation(), true);
         direction = Direction.LEFT;
     }
 
     private void runUp()
     {
         velY = -speed * 2;
-        changeActiveAnimation(getRunUpAnimation());
+        changeActiveAnimation(getRunUpAnimation(), true);
         direction = Direction.UP;
     }
 
     private void runDown()
     {
         velY = speed * 2;
-        changeActiveAnimation(getRunDownAnimation());
+        changeActiveAnimation(getRunDownAnimation(), true);
         direction = Direction.DOWN;
     }
     /********/
 
     public void attack()
     {
-        changeActiveAnimation(attackRight);
+        changeActiveAnimation(attackRight, true);
     }
 
     /* Method used to determine if a character is able to move in the current situation
@@ -493,6 +494,17 @@ public abstract class GameCharacter extends GameObject
                 break;
         }
         return handled;
+    }
+
+    public void update(GameObjects objects)
+    {
+        // handle some jumping mechanics for characters here (for the time being)
+        if (isJumping() && curAnimation.isPaused())
+        {
+            changeActiveAnimation(getIdleAnimation(), true);
+        }
+
+        super.update(objects);
     }
 
 }
