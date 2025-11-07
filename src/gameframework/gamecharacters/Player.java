@@ -86,7 +86,7 @@ public abstract class Player extends GameCharacter
     public void dash()
     {
         long now = System.currentTimeMillis();
-
+        System.out.println(now-lastDashTime);
         if (now-lastDashTime>DASH_COOL_DOWN)
         {
             lastDashTime = now;
