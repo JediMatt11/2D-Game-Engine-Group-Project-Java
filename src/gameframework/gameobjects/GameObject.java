@@ -418,6 +418,11 @@ public abstract class GameObject
             if (go == this)
                 continue;
 
+            //Ignore objects that should not collide with this one
+            if (this.shouldIgnoreCollisionWith(go) || go.shouldIgnoreCollisionWith(this))
+                continue;
+
+
             // ignore objects that are acting as a platform for this one
             // as those are handled by the platforming handler
             if (isPlacedOnTopOf(go))
@@ -561,4 +566,9 @@ public abstract class GameObject
         if (backgroundAreas != null && !backgroundAreas.isEmpty())
             this.backgroundAreas = backgroundAreas;
     }
+
+    public boolean shouldIgnoreCollisionWith(GameObject other) {
+        return false;  // default behavior
+    }
+
 }
