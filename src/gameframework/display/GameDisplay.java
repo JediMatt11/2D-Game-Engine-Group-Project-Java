@@ -225,7 +225,7 @@ public class GameDisplay extends JFrame
     {
         BufferedImage cameraScreen =
                 createCameraScreen();
-        g.drawImage(cameraScreen, cameraOrigin.x, cameraOrigin.y,  displayWidth, displayHeight, null);
+        g.drawImage(cameraScreen, cameraOrigin.x-50, cameraOrigin.y,  displayWidth, displayHeight, null);
 
     }
 

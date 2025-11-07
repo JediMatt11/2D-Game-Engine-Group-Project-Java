@@ -14,6 +14,8 @@ public abstract class Player extends GameCharacter
     private static final ArrayList<Player> availablePlayers = new ArrayList<Player>();
     private static int curPlayerIndex;
     private static double maximumXSpeed;
+    private static final long DASH_COOL_DOWN = 5000;
+    private static long lastDashTime;
 
     public Player(String name, int x, int y,
                   int scaleWidth, int scaleHeight)
@@ -23,6 +25,7 @@ public abstract class Player extends GameCharacter
         lives = totalLives;
         curPlayerIndex = 0;
         maximumXSpeed = runRight.getSpeed()*1.5;
+        lastDashTime = 0;
     }
 
     public static void addPlayer(Player player, boolean activePlayer )
@@ -78,8 +81,21 @@ public abstract class Player extends GameCharacter
         setInMidAir(true);
 
         //System.out.println("Player jumped");
-    }
 
+    }
+    public void dash()
+    {
+        long now = System.currentTimeMillis();
+
+        if (now-lastDashTime>DASH_COOL_DOWN)
+        {
+            lastDashTime = now;
+            velX*=4;
+            while(velX>maximumXSpeed)
+                velX*=.5;
+        }
+
+    }
 
 
 

@@ -46,6 +46,7 @@ public class KeyboardHandler implements KeyListener
     public static final int HANDLER_GAME_PAUSED = 24;
     public static final int HANDLER_BOUNDSONLY_MODE = 25;
     public static final int HANDLER_BORDERSONLY_MODE = 26;
+    public static final int HANDLER_DASH= 27;
 
     private boolean pressedLeft = false;
     private boolean pressedRight = false;
@@ -86,7 +87,7 @@ public class KeyboardHandler implements KeyListener
                 keyPressedActionHandler(HANDLER_ATTACK, ke, keyHeldId);
                 break;
             case KeyEvent.VK_SHIFT:
-                keyPressedActionHandler(HANDLER_JUMP, ke, keyHeldId);
+                keyPressedActionHandler(HANDLER_DASH, ke, keyHeldId);
                 break;
             case KeyEvent.VK_A:
                 keyPressedActionHandler(HANDLER_ATTACK_LEFT, ke, keyHeldId);
@@ -231,6 +232,9 @@ public class KeyboardHandler implements KeyListener
                 break;
             case HANDLER_JUMP:
                 player.jump();
+                break;
+            case HANDLER_DASH:
+                player.dash();
                 break;
             case HANDLER_OBJECT_ACTION:
                 break;
