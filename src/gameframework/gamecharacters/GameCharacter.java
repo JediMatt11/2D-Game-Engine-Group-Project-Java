@@ -443,6 +443,7 @@ public abstract class GameCharacter extends GameObject
      * can move in response to an input event.*/
     public boolean isAbleToMove()
     {
+
         boolean ableToMove = false;
 
         //Can't move if player is dead

@@ -6,6 +6,7 @@ import gameframework.gameobjects.GameObject;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashSet;
 
 /*
  * This is class is used to handle all keyboard events to the game window, most are used to control
@@ -46,6 +47,11 @@ public class KeyboardHandler implements KeyListener
     public static final int HANDLER_GAME_PAUSED = 24;
     public static final int HANDLER_BOUNDSONLY_MODE = 25;
     public static final int HANDLER_BORDERSONLY_MODE = 26;
+    public HashSet<Integer> keysHeld;
+
+    public KeyboardHandler() {
+        keysHeld = new HashSet<>();
+    }
 
     @Override
     public void keyTyped(KeyEvent e)
@@ -57,6 +63,7 @@ public class KeyboardHandler implements KeyListener
     public void keyPressed(KeyEvent ke)
     {
         int keyCode = ke.getKeyCode();
+        keysHeld.add(keyCode);
         Player player = Player.getActivePlayer();
         int keyHeldId = -1;
 
@@ -153,6 +160,7 @@ public class KeyboardHandler implements KeyListener
     public void keyReleased(KeyEvent e)
     {
         int keyCode = e.getKeyCode();
+        keysHeld.remove(keyCode);
 
         switch (keyCode)
         {
@@ -276,16 +284,20 @@ public class KeyboardHandler implements KeyListener
         switch (action)
         {
             case HANDLER_MOVE_RIGHT:
-                player.stopX();
+                if (!keysHeld.contains(HANDLER_MOVE_LEFT)) //Make sure player isn't trying to move in the opposite direction
+                    player.stopX();
                 break;
             case HANDLER_MOVE_LEFT:
-                player.stopX();
+                if (!keysHeld.contains(HANDLER_MOVE_RIGHT)) //Make sure player isn't trying to move in the opposite direction
+                    player.stopX();
                 break;
             case HANDLER_MOVE_UP:
-                player.stopY();
+                if (!keysHeld.contains(HANDLER_MOVE_DOWN)) //Make sure player isn't trying to move in the opposite direction
+                    player.stopY();
                 break;
             case HANDLER_MOVE_DOWN:
-                player.stopY();
+                if (!keysHeld.contains(HANDLER_MOVE_UP)) //Make sure player isn't trying to move in the opposite direction
+                    player.stopY();
                 break;
         }
     }
