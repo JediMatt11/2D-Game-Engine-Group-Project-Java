@@ -13,9 +13,11 @@ public abstract class Player extends GameCharacter
     protected int lives;
     private static final ArrayList<Player> availablePlayers = new ArrayList<Player>();
     private static int curPlayerIndex;
-    private static double maximumXSpeed;
+    private static double dashSpeed;
     private static final long DASH_COOL_DOWN = 5000;
     private static long lastDashTime;
+    private static boolean isDashing;
+    private static boolean dashSlowDown;
 
     public Player(String name, int x, int y,
                   int scaleWidth, int scaleHeight)
@@ -23,8 +25,8 @@ public abstract class Player extends GameCharacter
         super(name, GameObjectType.PLAYER, x, y, scaleWidth, scaleHeight);
         totalLives = DEFAULT_TOTAL_LIVES;
         lives = totalLives;
+        isDashing=false;
         curPlayerIndex = 0;
-        maximumXSpeed = runRight.getSpeed()*1.5;
         lastDashTime = 0;
     }
 
@@ -58,46 +60,50 @@ public abstract class Player extends GameCharacter
     public void specialActionC(boolean startingAction) {};
 
     public void jump()
-    {
-        /* For the time being the engine doesn't allow jumping in midair
-         * or during another jump, we might later allow double jumps. Note
-         * that isInMidAir() only works for games that enable gravity so we need
-         * also the other test to prevent double jumps in all other games.
-         */
-        if (isInMidAir() || isInTheMiddleOfJump())
-            return;
-
-        changeActiveAnimation(getJumpAnimation(), true);
-
-        //the character speed gets multiplied when jumping
-        //depending on the jumping impulse attribute
-        if (gravity > 0)
-            velY = -speed;
-        velY =  (int)Math.round(velY * jumpImpulseY);
-        if (velX<maximumXSpeed)
-            velX = (int)Math.round(velX*jumpImpulseX);
+    {}
 
 
-        setInMidAir(true);
-
-        //System.out.println("Player jumped");
-
-    }
     public void dash()
     {
-        long now = System.currentTimeMillis();
-        System.out.println(now-lastDashTime);
-        if (now-lastDashTime>DASH_COOL_DOWN)
+        if (isMoving())
         {
-            lastDashTime = now;
-            velX*=4;
-            while(velX>maximumXSpeed)
-                velX*=.5;
-        }
+            dashSpeed = speed * 6;
+            System.out.println("This is speed " + speed);
+            System.out.println("This is dashSpeed " + dashSpeed);
+            long now = System.currentTimeMillis();
+            if (now < 5000)
+                now = 5001;
 
+            if (!isDashing && (now - lastDashTime > DASH_COOL_DOWN))
+                isDashing = true;
+            System.out.println(isDashing);
+        }
     }
 
+    public void update(GameObjects objects)
+    {
 
+        if (isDashing)
+        {
+            velX*=1.2;
+            System.out.println("updated speed " + velX);
+            if (Math.abs(velX)>dashSpeed)
+            {
+                isDashing = false;
+                dashSlowDown=true;
+                System.out.println("Max Speed Reached, Slowing Down");
+            }
+        }
+        if (dashSlowDown && Math.abs(velX)> Math.abs(runRight.getSpeed()))
+        {
+            velX*=.8;
+            System.out.println("updated speed "+velX);
+        }
+        else dashSlowDown=false;
+
+        super.update(objects);
+        System.out.println("Current X And Y: "+getPosition());
+    }
 
 
 }
