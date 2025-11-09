@@ -101,8 +101,8 @@ public class PlatformingHandler
         {
             platformObject = null;
 
-            /* Steve: temporary quick fix to handle the issue of a platform consisting of multiple tiles
-             * that are aligned together. This is not yet fully verified (might cause performance issues)! */
+            /* If a platform consists of multiple tiles aligned together, when we detach to a tile, we must immediately
+             * latch to the next to give the impression of it being just one platform object. */
             boolean foundPlatform = relatchToAdjacentPlatform(objects);
             if (!foundPlatform)
                     System.out.println("Object: " + mainObject.getName() + " detached from platform.");

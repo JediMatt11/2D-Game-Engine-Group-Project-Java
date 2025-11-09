@@ -30,6 +30,7 @@ public abstract class GameObject
     protected int scaleWidth;
     protected int scaleHeight;
 
+    private static final double DEFAULT_GRAVITY = 0.3;
     protected double gravity;
 
     protected Animation curAnimation;
@@ -69,7 +70,7 @@ public abstract class GameObject
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
         velX = velY = 0;
-        gravity = 0;
+        gravity = DEFAULT_GRAVITY;
 
         // initialize collision handler
         collisionHandler = new CollisionHandler(this);

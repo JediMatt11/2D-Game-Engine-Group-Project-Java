@@ -45,11 +45,12 @@ public abstract class GameCharacter extends GameObject
     //Attributes for all game characters like health and speed
     private static final int DEFAULT_TOTAL_HEALTH = 100;
     private static final int DEFAULT_SPEED = 2;
+    private static final int DEFAULT_JUMP_IMPULSE = -10;
 
     private int totalHealth;
     private int curHealth;
     protected int speed;
-    protected int jumpHeight;
+    protected int jumpImpulse;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -59,8 +60,7 @@ public abstract class GameCharacter extends GameObject
         totalHealth = DEFAULT_TOTAL_HEALTH;
         curHealth = totalHealth;
         speed = DEFAULT_SPEED;
-        jumpHeight = -10;
-        gravity = 0.3;
+        jumpImpulse = DEFAULT_JUMP_IMPULSE;
 
         initializeAnimations();
         initializeStatus();
@@ -396,10 +396,24 @@ public abstract class GameCharacter extends GameObject
     public void stopX()
     {
         velX = 0;
+        // Only reset to idle if there's no vertical motion (so we don't stop mid-jump)
+        if (velY == 0)
+        {
+            if (isMoving())
+                changeActiveAnimation(getIdleAnimation(), true);
+            direction = Direction.NONE;
+        }
     }
     public void stopY()
     {
         velY = 0;
+        // Only reset to idle if not moving horizontally
+        if (velX == 0)
+        {
+            if (isMoving())
+                changeActiveAnimation(getIdleAnimation(), true);
+            direction = Direction.NONE;
+        }
     }
 
     /* These methods change the speed, direction and animation of a character
@@ -503,6 +517,18 @@ public abstract class GameCharacter extends GameObject
         // handle some jumping mechanics for characters here (for the time being)
         if (isJumping() && curAnimation.isPaused())
         {
+            /* Switch to idle animation if the jump is done and we're not moving horizontally
+             * otherwise switch to the proper movement animation. */
+            if (velX == 0)
+                changeActiveAnimation(getIdleAnimation(), true);
+            else if (velX > 0)
+                changeActiveAnimation(getMoveRightAnimation(), true);
+            else if (velX < 0)
+                changeActiveAnimation(getMoveLeftAnimation(), true);
+        }
+        else if (!isInMidAir() && velX == 0 && isMoving())
+        {
+            // If we’re on the ground, not moving horizontally, and still showing a walk/run animation — fix it by going idle
             changeActiveAnimation(getIdleAnimation(), true);
         }
 

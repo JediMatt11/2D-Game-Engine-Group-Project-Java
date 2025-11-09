@@ -49,7 +49,8 @@ public class KeyboardHandler implements KeyListener
     public static final int HANDLER_BORDERSONLY_MODE = 26;
     public HashSet<Integer> keysHeld;
 
-    public KeyboardHandler() {
+    public KeyboardHandler()
+    {
         keysHeld = new HashSet<>();
     }
 
