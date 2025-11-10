@@ -23,8 +23,8 @@ public abstract class Weapon extends InanimateObject
     public Weapon(String name, GameCharacter weaponHolder, int damage, int width, int height)
     {
 
-        int x = weaponHolder.getX() + 500;
-        int y = weaponHolder.getY() - 100;
+        int x = weaponHolder.getX() * 3;
+        int y = weaponHolder.getY() / 2;
 
         super(name, x, y, 1, width, height);
 
@@ -74,7 +74,8 @@ public abstract class Weapon extends InanimateObject
         //check collision
         for(GameObject obj :  objects){
             //make sure to not compare hitbox and weaponHolder
-            if(obj != this.weaponHolder){
+            //only checking for npcs for testing
+            if(obj != this.weaponHolder && obj.getType() != 3){
                 checkCollision(obj);
             }
         }
