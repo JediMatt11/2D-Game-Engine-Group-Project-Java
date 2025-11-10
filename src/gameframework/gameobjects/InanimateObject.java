@@ -11,7 +11,7 @@ public class InanimateObject extends GameObject
                            int x, int y, int z,
                            int scaleWidth, int scaleHeight)
     {
-        super(name, GameObjectType.INANIMATE, x, y, 4,
+        super(name, GameObjectType.INANIMATE, x, y, z,
                 scaleWidth, scaleHeight);
         BufferedImage image = GameThread.resourceManager.loadImageResource(name, GameThread.getCurrentLevel().getName());
         initializeBaseAnimation(image);
@@ -43,6 +43,16 @@ public class InanimateObject extends GameObject
 
         changeActiveAnimation(inanimate);
 
+    }
+
+    //these methods are used in the weapons class to get the gameObject's scaleWidth and height
+    public int getScaleWidth()
+    {
+        return scaleWidth;
+    }
+    public int getScaleHeight()
+    {
+        return scaleHeight;
     }
 
     @Override
