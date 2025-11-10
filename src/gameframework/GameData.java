@@ -72,7 +72,9 @@ public class GameData
     private void performPostUpdateTasks()
     {
         // If any objects were queued for addition or removal, perform the actions at this stage
-        objects.addAll(addAfterUpdate);
+        for (GameObject gameObject : addAfterUpdate)
+            objects.add(gameObject);
+        //objects.addAll(addAfterUpdate); Note: We cannot use addAll, because the add method in GameObjects handles z order
         addAfterUpdate.clear();
 
         for (GameObject gameObject : removeAfterUpdate)

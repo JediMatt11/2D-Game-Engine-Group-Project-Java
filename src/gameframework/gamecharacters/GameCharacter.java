@@ -4,6 +4,7 @@ import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
+import gameframework.gameobjects.GameObjects;
 
 
 /**
@@ -45,12 +46,12 @@ public abstract class GameCharacter extends GameObject
     //Attributes for all game characters like health and speed
     private static final int DEFAULT_TOTAL_HEALTH = 100;
     private static final int DEFAULT_SPEED = 2;
+    private static final int DEFAULT_JUMP_IMPULSE = -10;
 
     private int totalHealth;
     private int curHealth;
     protected int speed;
-    protected double jumpImpulseX;
-    protected double jumpImpulseY;
+    protected int jumpImpulse;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -60,7 +61,7 @@ public abstract class GameCharacter extends GameObject
         totalHealth = DEFAULT_TOTAL_HEALTH;
         curHealth = totalHealth;
         speed = DEFAULT_SPEED;
-        jumpImpulseX = jumpImpulseY = 1;
+        jumpImpulse = DEFAULT_JUMP_IMPULSE;
 
         initializeAnimations();
         initializeStatus();
@@ -101,23 +102,6 @@ public abstract class GameCharacter extends GameObject
     public void setSpeed(int speed)
     {
         this.speed = speed;
-    }
-
-    public double getJumpImpulse(boolean xOrY)
-    {
-        return xOrY ? jumpImpulseX : jumpImpulseY;
-    }
-
-    public void setJumpImpulse(double jumpImpulse, boolean xOrY)
-    {
-        if (jumpImpulse > 0)
-        {
-            if (xOrY)
-                jumpImpulseX = jumpImpulse;
-            else
-                jumpImpulseY = jumpImpulse;
-        }
-
     }
 
     // Returns the animation used when determining if a character is latched to a platform or not
@@ -354,7 +338,7 @@ public abstract class GameCharacter extends GameObject
             runRight();
             return;
         }
-        changeActiveAnimation(getMoveRightAnimation());
+        changeActiveAnimation(getMoveRightAnimation(), true);
         direction = Direction.RIGHT;
         velX = speed;
     }
@@ -369,7 +353,7 @@ public abstract class GameCharacter extends GameObject
             runLeft();
             return;
         }
-        changeActiveAnimation(getMoveLeftAnimation());
+        changeActiveAnimation(getMoveLeftAnimation(), true);
         direction = Direction.LEFT;
         velX = -speed;
     }
@@ -384,7 +368,7 @@ public abstract class GameCharacter extends GameObject
             runUp();
             return;
         }
-        changeActiveAnimation(getMoveUpAnimation());
+        changeActiveAnimation(getMoveUpAnimation(), true);
         direction = Direction.UP;
         velY = -speed;
     }
@@ -399,7 +383,7 @@ public abstract class GameCharacter extends GameObject
             runDown();
             return;
         }
-        changeActiveAnimation(getMoveDownAnimation());
+        changeActiveAnimation(getMoveDownAnimation(), true);
         direction = Direction.DOWN;
         velY = speed;
     }
@@ -407,9 +391,31 @@ public abstract class GameCharacter extends GameObject
     public void stop()
     {
         if (isMoving())
-            changeActiveAnimation(getIdleAnimation());
+            changeActiveAnimation(getIdleAnimation(), true);
         direction = Direction.NONE;
         velX = velY = 0;
+    }
+    public void stopX()
+    {
+        velX = 0;
+        // Only reset to idle if there's no vertical motion (so we don't stop mid-jump)
+        if (velY == 0)
+        {
+            if (isMoving())
+                changeActiveAnimation(getIdleAnimation(), true);
+            direction = Direction.NONE;
+        }
+    }
+    public void stopY()
+    {
+        velY = 0;
+        // Only reset to idle if not moving horizontally
+        if (velX == 0)
+        {
+            if (isMoving())
+                changeActiveAnimation(getIdleAnimation(), true);
+            direction = Direction.NONE;
+        }
     }
 
     /* These methods change the speed, direction and animation of a character
@@ -418,35 +424,35 @@ public abstract class GameCharacter extends GameObject
     private void runRight()
     {
         velX = speed * 2;
-        changeActiveAnimation(getRunRightAnimation());
+        changeActiveAnimation(getRunRightAnimation(), true);
         direction = Direction.RIGHT;
     }
 
     private void runLeft()
     {
         velX = -speed * 2;
-        changeActiveAnimation(getRunLeftAnimation());
+        changeActiveAnimation(getRunLeftAnimation(), true);
         direction = Direction.LEFT;
     }
 
     private void runUp()
     {
         velY = -speed * 2;
-        changeActiveAnimation(getRunUpAnimation());
+        changeActiveAnimation(getRunUpAnimation(), true);
         direction = Direction.UP;
     }
 
     private void runDown()
     {
         velY = speed * 2;
-        changeActiveAnimation(getRunDownAnimation());
+        changeActiveAnimation(getRunDownAnimation(), true);
         direction = Direction.DOWN;
     }
     /********/
 
     public void attack()
     {
-        changeActiveAnimation(attackRight);
+        changeActiveAnimation(attackRight, true);
     }
 
     /* Method used to determine if a character is able to move in the current situation
@@ -454,10 +460,11 @@ public abstract class GameCharacter extends GameObject
      * can move in response to an input event.*/
     public boolean isAbleToMove()
     {
+
         boolean ableToMove = false;
 
-        //Can't move if player is dead or while falling
-        if (isDead() || isFalling())
+        //Can't move if player is dead
+        if (isDead())
             return false;
         else if (curAnimation == getIdleAnimation()
                 || isMoving() )
@@ -505,6 +512,29 @@ public abstract class GameCharacter extends GameObject
                 break;
         }
         return handled;
+    }
+
+    public void update(GameObjects objects)
+    {
+        // handle some jumping mechanics for characters here (for the time being)
+        if (isJumping() && curAnimation.isPaused())
+        {
+            /* Switch to idle animation if the jump is done and we're not moving horizontally
+             * otherwise switch to the proper movement animation. */
+            if (velX == 0)
+                changeActiveAnimation(getIdleAnimation(), true);
+            else if (velX > 0)
+                changeActiveAnimation(getMoveRightAnimation(), true);
+            else if (velX < 0)
+                changeActiveAnimation(getMoveLeftAnimation(), true);
+        }
+        else if (!isInMidAir() && velX == 0 && isMoving())
+        {
+            // If we’re on the ground, not moving horizontally, and still showing a walk/run animation — fix it by going idle
+            changeActiveAnimation(getIdleAnimation(), true);
+        }
+
+        super.update(objects);
     }
 
 }

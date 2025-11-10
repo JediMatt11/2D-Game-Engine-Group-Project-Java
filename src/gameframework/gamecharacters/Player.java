@@ -61,14 +61,12 @@ public abstract class Player extends GameCharacter
         if (/*isInMidAir() ||*/ isInTheMiddleOfJump())
             return;
 
-        changeActiveAnimation(getJumpAnimation());
+        changeActiveAnimation(getJumpAnimation(), true);
 
-        //the character speed gets multiplied when jumping
-        //depending on the jumping impulse attribute
-        velX = (int)Math.round(velX * jumpImpulseX);
-        if (gravity > 0)
-            velY = -speed;
-        velY =  (int)Math.round(velY * jumpImpulseY);
+        /* Apply an initial upward impulse to start the jump.
+         * Gravity (a small positive value added each frame) will gradually counteract
+         * this impulse until the character stops rising and begins to fall. */
+        velY = jumpImpulse;
 
         setInMidAir(true);
 
