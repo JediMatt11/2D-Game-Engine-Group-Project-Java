@@ -22,15 +22,16 @@ public abstract class GameObject
     private int y;
     private int z;
 
-    protected int velX;
-    protected int velY;
+    protected double velX;
+    protected double velY;
 
     protected Direction direction;
 
     protected int scaleWidth;
     protected int scaleHeight;
 
-    protected int gravity;
+    private static final double DEFAULT_GRAVITY = 0.3;
+    protected double gravity;
 
     protected Animation curAnimation;
 
@@ -69,7 +70,7 @@ public abstract class GameObject
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
         velX = velY = 0;
-        gravity = 0;
+        gravity = DEFAULT_GRAVITY;
 
         // initialize collision handler
         collisionHandler = new CollisionHandler(this);
@@ -240,7 +241,7 @@ public abstract class GameObject
         gameObjects.updateSpatialCells(this);
     }
 
-    public int getGravity()
+    public double getGravity()
     {
         return gravity;
     }
@@ -262,12 +263,7 @@ public abstract class GameObject
 
         if (isInMidAir())
         {
-            if (isFalling())
-            {
-                velY = getEffectiveGravity();
-                velX = 0;
-                direction = Direction.DOWN;
-            }
+            velY += gravity;
         }
         else
         {
@@ -280,7 +276,7 @@ public abstract class GameObject
      * the object's gravity but also surface resistance (if standing on a platform) and
      * maybe even other forces (like an anti gravity field, etc).
      */
-    private int getEffectiveGravity()
+    private double getEffectiveGravity()
     {
         return platformingHandler.getEffectiveGravity();
     }
@@ -341,7 +337,7 @@ public abstract class GameObject
          * computational overhead. */
         if ( !isUnmovable() )
         {
-            setPosition(getX() + velX, getY() + velY);
+            setPosition(getX() + (int)velX, getY() + (int)velY);
             collision(objects);
         }
     }
@@ -421,6 +417,11 @@ public abstract class GameObject
 
             if (go == this)
                 continue;
+
+            //Ignore objects that should not collide with this one
+            if (this.shouldIgnoreCollisionWith(go) || go.shouldIgnoreCollisionWith(this))
+                continue;
+
 
             // ignore objects that are acting as a platform for this one
             // as those are handled by the platforming handler
@@ -565,4 +566,9 @@ public abstract class GameObject
         if (backgroundAreas != null && !backgroundAreas.isEmpty())
             this.backgroundAreas = backgroundAreas;
     }
+
+    public boolean shouldIgnoreCollisionWith(GameObject other) {
+        return false;  // default behavior
+    }
+
 }

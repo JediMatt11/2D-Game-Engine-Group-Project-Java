@@ -17,6 +17,8 @@ public class GameObjectFactory
     protected String subtype;
     protected int scaleWidth;
     protected int scaleHeight;
+    protected boolean thrownByPlayer;
+    protected GameObject owner;
 
     public GameObject createGameObject(String objectStr)
     {

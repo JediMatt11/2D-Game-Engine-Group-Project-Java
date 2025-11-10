@@ -1,7 +1,6 @@
 package gameframework.gamecharacters;
 
 import gameframework.gameobjects.GameObjectType;
-import gameframework.gameobjects.GameObjects;
 
 import java.util.ArrayList;
 
@@ -64,12 +63,10 @@ public abstract class Player extends GameCharacter
 
         changeActiveAnimation(getJumpAnimation(), true);
 
-        //the character speed gets multiplied when jumping
-        //depending on the jumping impulse attribute
-        velX = (int)Math.round(velX * jumpImpulseX);
-        if (gravity > 0)
-            velY = -speed;
-        velY =  (int)Math.round(velY * jumpImpulseY);
+        /* Apply an initial upward impulse to start the jump.
+         * Gravity (a small positive value added each frame) will gradually counteract
+         * this impulse until the character stops rising and begins to fall. */
+        velY = jumpImpulse;
 
         setInMidAir(true);
 
