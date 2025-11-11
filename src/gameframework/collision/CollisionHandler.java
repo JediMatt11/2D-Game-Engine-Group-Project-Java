@@ -216,8 +216,11 @@ public class CollisionHandler
     /* Determine the direction in which a collision occurs with respect to
      * the object being tracked. This method assumes that a collision has
      * already been detected between the two objects. */
-    private Direction determineCollisionDirection(GameObject collidingObject)
+   /* private Direction determineCollisionDirection(GameObject collidingObject)
     {
+
+        if (objectTracked.isNinja())
+            collidingObject = collidingObject;
         Rectangle objectBounds = objectTracked.getCollisionBounds();
         Rectangle otherObjectBounds = collidingObject.getCollisionBounds();
         Rectangle boundsIntersection = objectBounds.intersection(otherObjectBounds);
@@ -245,6 +248,43 @@ public class CollisionHandler
         {
             return (dy < 0) ? Direction.UP : Direction.DOWN;
         }
+    }
+*/
+    /* Determine the collision direction from the collision bounds intersection, this is
+     * more accurate in most cases than relying on the objects's movement direction (because
+     * of changes of animation and animation frames while an object is moving). */
+    private Direction determineCollisionDirection(GameObject collidingObject)
+    {
+        Direction direction = Direction.NONE;
+
+        Rectangle objectBounds = objectTracked.getCollisionBounds();
+        Rectangle otherObjectBounds = collidingObject.getCollisionBounds();
+        Rectangle boundsIntersection = objectBounds.intersection(otherObjectBounds);
+
+        /* We determine the direction of the collision by finding the largest metric in
+         * the intersection bounds rect, if the height is larger then its a collision in
+         * a horizontal direction and if the width is larger then its a vertical collision. */
+        if (boundsIntersection.height > boundsIntersection.width)
+        {
+            /* The collision is in a horizontal direction, now determine
+             * if its left or right based which side of the tracked object's
+             * collision bounds the intersection bounds align with. */
+            if (boundsIntersection.x == objectBounds.x)
+                direction = Direction.LEFT;
+            else
+                direction = Direction.RIGHT;
+        }
+        else if (boundsIntersection.height < boundsIntersection.width)
+        {
+            /* The collision is in a vertical direction, now determine
+             * if its up or down based on which side of the tracked object's
+             * collision bounds the intersection bounds align with. */
+            if (boundsIntersection.y == objectBounds.y)
+                direction = Direction.UP;
+            else
+                direction = Direction.DOWN;
+        }
+        return direction;
     }
 
     /* Adjust the position of an object by shifting to the opposite direction in
