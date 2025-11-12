@@ -104,7 +104,7 @@ public class PlatformingHandler
             /* If a platform consists of multiple tiles aligned together, when we detach to a tile, we must immediately
              * latch to the next to give the impression of it being just one platform object. */
             boolean foundPlatform = relatchToAdjacentPlatform(objects);
-            if (!foundPlatform)
+            if (!foundPlatform && mainObject.isNinja())
                     System.out.println("Object: " + mainObject.getName() + " detached from platform.");
             /****/
         }
@@ -156,7 +156,7 @@ public class PlatformingHandler
          * ground by a larger distance in the same animation). */
 
         /* temporary for debugging*/
-        if (mainObject instanceof Player)
+        if (mainObject.isNinja())
             detached = detached;
 
         // Save active animation, and also the current frame in the reference animation
@@ -170,7 +170,7 @@ public class PlatformingHandler
 
         // We use setY in this case instead of setPosition to change the object position, because we are
         // only changing the position temporarily to test, our intention isn't to really change the object
-        // position in the game.,
+        // position in the game.
         mainObject.setY(mainObject.getY() + PLATFORM_LATCH_OFFSET + 1);
 
         if (mainObject.collidesWith(platformObject))
@@ -224,7 +224,7 @@ public class PlatformingHandler
         attachToPlatform();
         mainObject.setInMidAir(false);
 
-        System.out.println("Object: " + mainObject.getName() + " latched to platform " + platformObject.getName());
+        //System.out.println("Object: " + mainObject.getName() + " latched to platform " + platformObject.getName());
         return true;
     }
 

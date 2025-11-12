@@ -363,6 +363,10 @@ public abstract class GameCharacter extends GameObject
         if (!isAbleToMove())
             return;
 
+        // Prevent vertical movement while gravity is active
+        if (getGravity() > 0)
+            return;
+
         if (running)
         {
             runUp();
@@ -376,6 +380,10 @@ public abstract class GameCharacter extends GameObject
     public void moveDown(boolean running)
     {
         if (!isAbleToMove())
+            return;
+
+        // Prevent vertical movement while gravity is active
+        if (getGravity() > 0)
             return;
 
         if (running)
