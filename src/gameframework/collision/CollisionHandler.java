@@ -23,6 +23,7 @@ public class CollisionHandler
     //attributes related to how we resolve collisions
     private Direction collisionDirection;      //direction of the collision (need to move to the opposite direction to resolv
     private static final int COLLISION_RESOLVE_TRIES = 20;   //number of attempts to be performed to resolve a collision
+    private boolean alwaysUseRectBoarders = false;
 
     public CollisionHandler(GameObject object)
     {
@@ -69,7 +70,12 @@ public class CollisionHandler
                 if (borders == null || otherBorders == null)
                     objectsCollide = true;
                 else
-                    objectsCollide = borders.bordersIntersect(otherBorders);
+                {
+                    if (otherObject.alwaysUseRectCollision == false)
+                        objectsCollide = borders.bordersIntersect(otherBorders);
+                    else
+                        objectsCollide = borders.borderIntersectWithRect(otherBorders);
+                }
             }
             else
                 objectsCollide = true;
