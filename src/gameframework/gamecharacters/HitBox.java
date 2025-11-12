@@ -1,14 +1,8 @@
 package gameframework.gamecharacters;
-
-
-import gameframework.animations.BorderPoint;
-import gameframework.animations.SpriteBorder;
 import gameframework.gameobjects.GameObject;
-import gameframework.supportfunctions.GraphicsLibrary;
-
 import java.awt.*;
 
-import static gameframework.gameobjects.GameObject.drawBoundsRect;
+
 
 public class HitBox
 {
@@ -16,9 +10,7 @@ public class HitBox
     private int y;
     private int width;
     private int height;
-    private int range;
     private Rectangle hb;
-    private Color testColor;
 
 
 
@@ -45,18 +37,6 @@ public class HitBox
     public Rectangle getBounds(){
         return hb;
     }
-
-
-
-
-
-
-//make sure that character's box is not made outside of map
-
-
-    //TODO
-    //handle collision in other class
-    //check if any rectangle intersects with hitbox rectangle and if its a hurtbox
 
 
     public int getX() {

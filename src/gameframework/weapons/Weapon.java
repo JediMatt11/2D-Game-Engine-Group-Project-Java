@@ -10,16 +10,13 @@ import java.awt.*;
 
 public abstract class Weapon extends InanimateObject
 {
-//    private int x;
-//    private int y;
-//    private int width;
-//    private int height;
+
     private int damage;
     private HitBox hb;
     private GameCharacter weaponHolder;
 
 
-
+//need to pass in hitbox
     public Weapon(String name, GameCharacter weaponHolder, int damage, int width, int height)
     {
 
@@ -33,7 +30,6 @@ public abstract class Weapon extends InanimateObject
 
         //create weapon's hitbox
         setHb(new HitBox(weaponHolder.getX(), weaponHolder.getY(), width, height));
-
 
     }
 
@@ -65,10 +61,20 @@ public abstract class Weapon extends InanimateObject
 
         super.update(objects);
 
-
         setPosition(weaponHolder.getX(), weaponHolder.getY());
 
+        //keep track of direction of gameCharacter
+        if(weaponHolder.isMovingLeft()){
 
+            setPosition(weaponHolder.getX(), weaponHolder.getY() + 70 );
+        }
+        else if(weaponHolder.isMovingRight()){
+            setPosition(weaponHolder.getX() + 50, weaponHolder.getY() + 70);
+
+        }
+        else{
+            setPosition(weaponHolder.getX() + 50, weaponHolder.getY() + 70);
+        }
         updateHitBox();
 
         //check collision
@@ -80,15 +86,12 @@ public abstract class Weapon extends InanimateObject
             }
         }
 
-
-        System.out.println("WEAPON UPDATING. . .");
     }
 
 
 
     public void updateHitBox()
     {
-
         hb.update(getX(),getY(),getScaleWidth(),getScaleHeight());
     }
 
