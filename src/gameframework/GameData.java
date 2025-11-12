@@ -1,5 +1,6 @@
 package gameframework;
 
+import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjects;
@@ -55,14 +56,29 @@ public class GameData
         return success;
     }
 
-    /*This method is trigger during each update of the game loop, it iterates through the whole list of
-      objects and allows them to use a fraction of the time to do their tasks and update themselves..*/
-    public synchronized void update()
+    /*This method is triggered during each update of the game loop, it iterates through the whole list of
+      objects and allows them to use a fraction of the time to do their tasks and update themselves. */
+    public synchronized void update(int tickNumber)
     {
-        GameObjects objectsToUpdate = objects.getUpdateObjects();
+        /*GameObjects objectsToUpdate = objects.getUpdateObjects();
         for (GameObject go : objectsToUpdate)
-            go.update(objects);
+            go.update(objects);*/
 
+        GameObjects objectsToUpdate = objects.getUpdateObjects();
+
+        for (GameObject go : objectsToUpdate)
+        {
+            if (GameDisplay.objectWithinCameraView(go))
+            {
+                go.update(objects);
+            }
+            else
+            {
+                // Update off-screen objects less frequently
+                if (tickNumber % GameThread.OFFSCREEN_OBJECTS_UPDATE_INTERVAL == 0)
+                    go.update(objects);
+            }
+        }
         performPostUpdateTasks();
     }
 

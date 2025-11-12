@@ -56,6 +56,10 @@ public abstract class GameObject
      * the engine. */
     private ArrayList<Point> backgroundAreas;
 
+    /* temporary, only for debugging!!!!*/
+    public boolean isNinja() { return false;}
+    /****/
+
     public GameObject(String name, int type,
                       int x, int y, int z,
                       int scaleWidth, int scaleHeight
@@ -122,6 +126,12 @@ public abstract class GameObject
     public int getType()
     {
         return type;
+    }
+
+    public void setType(int type)
+    {
+        if (type >= 0)
+            this.type = type;
     }
 
     public Direction getDirection()
@@ -406,6 +416,7 @@ public abstract class GameObject
     {
         // Loop through all other objects and handle any collisions between this object
         // and any other one
+        final int TOLERANCE_PIXELS = 10;
 
         // Retrieve only the objects that are in the same area(s) of the screen as this object and
         // therefore could potentially collide.
@@ -419,13 +430,14 @@ public abstract class GameObject
                 continue;
 
             //Ignore objects that should not collide with this one
-            if (this.shouldIgnoreCollisionWith(go) || go.shouldIgnoreCollisionWith(this))
+            if (shouldIgnoreCollisionWith(go) || go.shouldIgnoreCollisionWith(this))
                 continue;
-
 
             // ignore objects that are acting as a platform for this one
             // as those are handled by the platforming handler
-            if (isPlacedOnTopOf(go))
+            if (isPlacedOnTopOf(go) ||
+                // objects vertically aligned with this object's platform could be sections of the same platform
+                go.isAtSimilarHeightAs(platformingHandler.getPlatformObject(), TOLERANCE_PIXELS))
                 continue;
 
             // Handle collision here for any objects that require some action
@@ -567,8 +579,21 @@ public abstract class GameObject
             this.backgroundAreas = backgroundAreas;
     }
 
-    public boolean shouldIgnoreCollisionWith(GameObject other) {
+    public boolean shouldIgnoreCollisionWith(GameObject other)
+    {
         return false;  // default behavior
     }
 
+    /**
+     * Checks if this object is at a similar vertical (Y) position as another object.
+     * This can be useful for determining if two objects are roughly on the same platform
+     * or ground level. The comparison uses a small tolerance (in pixels) to allow for minor
+     * differences.
+     **/
+    public boolean isAtSimilarHeightAs(GameObject otherObject, int tolerance)
+    {
+        if (otherObject == null)
+            return false;
+        return Math.abs(getY() - otherObject.getY()) <= tolerance;
+    }
 }
