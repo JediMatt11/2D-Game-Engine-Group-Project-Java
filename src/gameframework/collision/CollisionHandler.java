@@ -216,7 +216,7 @@ public class CollisionHandler
     /* Determine the direction in which a collision occurs with respect to
      * the object being tracked. This method assumes that a collision has
      * already been detected between the two objects. */
-   /* private Direction determineCollisionDirection(GameObject collidingObject)
+    private Direction determineCollisionDirection(GameObject collidingObject)
     {
 
         if (objectTracked.isNinja())
@@ -249,11 +249,10 @@ public class CollisionHandler
             return (dy < 0) ? Direction.UP : Direction.DOWN;
         }
     }
-*/
     /* Determine the collision direction from the collision bounds intersection, this is
      * more accurate in most cases than relying on the objects's movement direction (because
      * of changes of animation and animation frames while an object is moving). */
-    private Direction determineCollisionDirection(GameObject collidingObject)
+    private Direction determineCollisionDirection_(GameObject collidingObject)
     {
         Direction direction = Direction.NONE;
 
