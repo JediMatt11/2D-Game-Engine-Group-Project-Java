@@ -36,6 +36,13 @@ public class GameThread
 
     /* Information for tuning different optimizations in the game */
 
+    /* This constant can be setup by game designers and determines how often we update offscreen objects, for
+     * example if we set it to 3, then characters and objects outside camera view that require updates, only
+     * get updated every three update cycles instead of every cycle. Game designers can tune this depending on
+     * the needs of their game to boost performance.
+     */
+    public static int OFFSCREEN_OBJECTS_UPDATE_INTERVAL = 1;  //default is update every cycle!
+
     /* To optimize collision and interaction with other objects in general we can divide the list of objects into
      * different sublists representing different areas of the game background, the amount of areas can be set up
      * by game developers using this tuning constants (width and height of the grid of sections/areas into which
@@ -136,10 +143,17 @@ public class GameThread
             display.changeKeyboardHandler(newKeyboardHandler);
     }
 
-    // This method triggers the update of every object in the game
-    public void update()
+    /* This method triggers the update of every object in the game.
+     * Receives the current tick number within an update interval
+     * (a second of running time is divided into update intervals),
+     * an update interval corresponds to one run of the game main loop.
+     * Knowing the current tick number allows the engine to do specific
+     * performance optimizations like disable some object's update on
+     * certain ticks.
+     */
+    public void update(int tickNumber)
     {
-        data.update();
+        data.update(tickNumber);
     }
 
     // This method triggers the rendering of every object in the game
@@ -186,7 +200,7 @@ public class GameThread
                 while (elapsedTime >= updateInterval)
                 {
                     // Perform as many updates as needed if we’ve fallen behind
-                    update();
+                    update(updates);
                     updates++;
                     refresh = true;
                     elapsedTime -= updateInterval;
