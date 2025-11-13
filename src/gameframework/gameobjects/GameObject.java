@@ -31,7 +31,9 @@ public abstract class GameObject
     protected int scaleHeight;
 
     private static final double DEFAULT_GRAVITY = 0.3;
+    private static final double DEFAULT_TERMINAL_VELOCITY = 10;
     protected double gravity;
+    protected double terminal_velocity;
 
     protected Animation curAnimation;
 
@@ -49,6 +51,7 @@ public abstract class GameObject
     // internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
     // internal object attribute used to manage all platforming for this object
+    public boolean alwaysUseRectCollision = false;
     private PlatformingHandler platformingHandler;
 
     /* This attribute is used to keep track of which area or areas of the background a
@@ -75,6 +78,7 @@ public abstract class GameObject
         this.scaleWidth = scaleWidth;
         velX = velY = 0;
         gravity = DEFAULT_GRAVITY;
+        terminal_velocity = DEFAULT_TERMINAL_VELOCITY;
 
         // initialize collision handler
         collisionHandler = new CollisionHandler(this);
@@ -270,6 +274,8 @@ public abstract class GameObject
         if (isInMidAir())
         {
             velY += gravity;
+            if (velY > terminal_velocity && terminal_velocity >= 0)
+                velY = DEFAULT_TERMINAL_VELOCITY;
         }
         else
         {
@@ -389,6 +395,7 @@ public abstract class GameObject
         {
             // unmovable objects are automatically repositioned by the engine at load time for performance
             // reasons, so we ignore any further repositioning requests
+
             spriteBorders = curAnimation.getCurrentFrameBorders(x, y, !isUnmovable() && reposition);
         }
         return spriteBorders;
