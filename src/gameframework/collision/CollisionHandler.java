@@ -1,6 +1,6 @@
 package gameframework.collision;
 
-import gameframework.animations.BorderPoint;
+
 import gameframework.gamecharacters.GameCharacter;
 import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
@@ -46,7 +46,6 @@ public class CollisionHandler
 
     // This method returns true if the object tracked collides with the given object
     // or false otherwise.
-    /*
     public boolean checkCollision(GameObject otherObject)
     {
         boolean objectsCollide = false;
@@ -67,7 +66,7 @@ public class CollisionHandler
                 otherBorders = otherObject.getSpriteBorders(true);
 
                 /* If this object's sprite borders couldn't be computed then just
-                 * base the collision on bounds rect and return true.
+                 * base the collision on bounds rect and return true.*/
                 if (borders == null || otherBorders == null)
                     objectsCollide = true;
                 else
@@ -78,21 +77,8 @@ public class CollisionHandler
         }
         return objectsCollide;
     }
-    */
-    public boolean checkCollision(GameObject other) {
-        // Early exit
-        if (disableCollisions || other == null) return false;
-        //bounding box collision
-        if (!checkBoundsCollision(other)) return false;
-        if (enableBordersCollision && other.isSpriteBordersCollisionEnabled()) {
-            SpriteBorder thisBorders = objectTracked.getSpriteBorders(true);
-            SpriteBorder otherBorders = other.getSpriteBorders(true);
-            if (thisBorders == null || otherBorders == null)
-                return true;
-            return thisBorders.bordersIntersect(otherBorders);
-        }
-        return true;
-    }
+
+
 
     /* Check if the bound rectangles of two objects collide. Note this is not a final collision
      * test since the objects might not intersect at the sprite borders level despite the bound
@@ -265,59 +251,6 @@ public class CollisionHandler
         {
             return (dy < 0) ? Direction.UP : Direction.DOWN;
         }
-    }
-    /* Determine the collision direction from the collision bounds intersection, this is
-     * more accurate in most cases than relying on the objects's movement direction (because
-     * of changes of animation and animation frames while an object is moving). */
-    private Direction determineCollisionDirection_(GameObject collidingObject)
-    {
-        Direction direction = Direction.NONE;
-
-        //Getting the sprite borders of the object we track and the object it collides with
-        SpriteBorder objectTrackedBorder = objectTracked.getSpriteBorders(true);
-        SpriteBorder collidingObBorder = collidingObject.getSpriteBorders(true);
-
-        //Save time and if there is no sprite border direction is none
-        if (objectTrackedBorder == null || collidingObBorder == null)
-            return direction;
-
-        //Get the borders rectangle for the sprites and if there is no intersection get out
-        Rectangle objectBorderRect = objectTrackedBorder.getBordersRectangle();
-        Rectangle collidingBorderRect = collidingObBorder.getBordersRectangle();
-        if (!objectBorderRect.intersects(collidingBorderRect))
-            return Direction.NONE;
-
-        //Getting the boundary points (very left, very right, highest, lowest) of the object tracking sprite
-        BorderPoint leftObj = objectTrackedBorder.getBoundPoint(Direction.LEFT);
-        BorderPoint rightObj = objectTrackedBorder.getBoundPoint(Direction.RIGHT);
-        BorderPoint topObj = objectTrackedBorder.getBoundPoint(Direction.UP);
-        BorderPoint bottomObj = objectTrackedBorder.getBoundPoint(Direction.DOWN);
-
-        //Boundary points of colliding object
-        BorderPoint leftColl = collidingObBorder.getBoundPoint(Direction.LEFT);
-        BorderPoint rightColl = collidingObBorder.getBoundPoint(Direction.RIGHT);
-        BorderPoint topColl = collidingObBorder.getBoundPoint(Direction.UP);
-        BorderPoint bottomColl = collidingObBorder.getBoundPoint(Direction.DOWN);
-
-        //Getting the minimum overlap on each side of the two sprites to see what is the colliding direction
-        int overlapRight = rightObj.x - leftColl.x;
-        int overlapLeft  = rightColl.x - leftObj.x;
-        int overlapDown  = bottomObj.y - topColl.y;
-        int overlapUp    = bottomColl.y - topObj.y;
-
-        //Getting the minimum overlap to find the main collision direction
-        int minOverlap = Math.min(Math.min(Math.abs(overlapRight), Math.abs(overlapLeft)),
-                Math.min(Math.abs(overlapDown), Math.abs(overlapUp)));
-
-        //Return direction based on which overlap was the smallest (large means they align, small is some penetration
-        if (minOverlap == Math.abs(overlapRight)) direction = Direction.RIGHT;
-        else if (minOverlap == Math.abs(overlapLeft)) direction = Direction.LEFT;
-        else if (minOverlap == Math.abs(overlapDown)) direction = Direction.DOWN;
-        else if (minOverlap == Math.abs(overlapUp)) direction = Direction.UP;
-
-        //Doesn't fully handle if a collision resolution leads to another
-
-        return direction;
     }
 
     /* Adjust the position of an object by shifting to the opposite direction in

@@ -1,5 +1,6 @@
 package gameframework;
 
+import gameframework.collision.CollisionManager;
 import gameframework.display.GameDisplay;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
@@ -14,12 +15,13 @@ public class GameData
     // auxiliary lists used to keep track of objects that must be added/removed after an update
     private GameObjects addAfterUpdate;
     private GameObjects removeAfterUpdate;
+    private CollisionManager collisionManager;
 
     public GameData()
     {
         //initialize game objects list
         objects = new GameObjects(true);
-
+        collisionManager = new CollisionManager(objects);
         //create auxiliary lists
         addAfterUpdate = new GameObjects(false);
         removeAfterUpdate = new GameObjects(false);
@@ -75,10 +77,12 @@ public class GameData
             else
             {
                 // Update off-screen objects less frequently
-                if (tickNumber % GameThread.OFFSCREEN_OBJECTS_UPDATE_INTERVAL == 0)
+                if (tickNumber % GameThread.OFFSCREEN_OBJECTS_UPDATE_INTERVAL == 0) {
                     go.update(objects);
+                }
             }
         }
+        collisionManager.resolveGlobalCollisions();
         performPostUpdateTasks();
     }
 
