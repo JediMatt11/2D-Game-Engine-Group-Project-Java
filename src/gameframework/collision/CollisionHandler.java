@@ -1,6 +1,5 @@
 package gameframework.collision;
 
-
 import gameframework.gamecharacters.GameCharacter;
 import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
@@ -77,8 +76,6 @@ public class CollisionHandler
         }
         return objectsCollide;
     }
-
-
 
     /* Check if the bound rectangles of two objects collide. Note this is not a final collision
      * test since the objects might not intersect at the sprite borders level despite the bound
@@ -201,7 +198,7 @@ public class CollisionHandler
             if (!handled)
             {
                 System.out.println("failed to latch to platform " + collidingObject.getName());
-                //System.out.println("Try setting a higher latching intensity level.");
+                System.out.println("Try setting a higher latching intensity level.");
             }
         }
         else
@@ -222,8 +219,6 @@ public class CollisionHandler
     private Direction determineCollisionDirection(GameObject collidingObject)
     {
 
-        if (objectTracked.isNinja())
-            collidingObject = collidingObject;
         Rectangle objectBounds = objectTracked.getCollisionBounds();
         Rectangle otherObjectBounds = collidingObject.getCollisionBounds();
         Rectangle boundsIntersection = objectBounds.intersection(otherObjectBounds);
@@ -261,7 +256,6 @@ public class CollisionHandler
     public boolean getClosestValidPosition(int range, GameObject collidingObject,
                                            Direction direction, int variation)
     {
-        // Initialize the current position//
         boolean success = false;
         Point curPos = objectTracked.getPosition();
         //if no direction is supplied, then use the object's moving direction
