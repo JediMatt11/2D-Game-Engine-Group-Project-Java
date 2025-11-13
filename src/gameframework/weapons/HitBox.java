@@ -1,4 +1,4 @@
-package gameframework.gamecharacters;
+package gameframework.weapons;
 import gameframework.gameobjects.GameObject;
 import java.awt.*;
 
@@ -6,23 +6,16 @@ import java.awt.*;
 
 public class HitBox
 {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
     private Rectangle hb;
-
-
 
     public HitBox(int x, int y, int width, int height)
     {
-
         setHb(new Rectangle(x,y,width,height));
 
     }
 
-
     //used to check if current hitbox overlaps another
+    //use this in weapons class
     public boolean intersects(GameObject object){
         return hb.intersects(object.getBounds());
     }
@@ -39,37 +32,7 @@ public class HitBox
     }
 
 
-    public int getX() {
-        return x;
-    }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
 
     public Rectangle getHb() {
         return hb;

@@ -1,7 +1,6 @@
 package gameframework.weapons;
 
 import gameframework.gamecharacters.GameCharacter;
-import gameframework.gamecharacters.HitBox;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjects;
 import gameframework.gameobjects.InanimateObject;
@@ -10,7 +9,6 @@ import java.awt.*;
 
 public abstract class Weapon extends InanimateObject
 {
-
     private int damage;
     private HitBox hb;
     private GameCharacter weaponHolder;
