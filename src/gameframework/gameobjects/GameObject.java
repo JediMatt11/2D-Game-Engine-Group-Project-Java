@@ -236,7 +236,7 @@ public abstract class GameObject
 
     public Point getPosition()
     {
-        return new Point(x,y);
+        return new Point((int)x,(int)y);
     }
 
     /* This method should be the only way used to change positions, because it
@@ -372,7 +372,7 @@ public abstract class GameObject
     // and scaling width and height factors.
     public Rectangle getBounds()
     {
-        Rectangle boundsRect = new Rectangle(x, y, scaleWidth,
+        Rectangle boundsRect = new Rectangle((int)x, (int)y, scaleWidth,
                 scaleHeight);
         return boundsRect;
     }
@@ -396,7 +396,7 @@ public abstract class GameObject
             // unmovable objects are automatically repositioned by the engine at load time for performance
             // reasons, so we ignore any further repositioning requests
 
-            spriteBorders = curAnimation.getCurrentFrameBorders(x, y, !isUnmovable() && reposition);
+            spriteBorders = curAnimation.getCurrentFrameBorders((int)x, (int)y, !isUnmovable() && reposition);
         }
         return spriteBorders;
     };
@@ -599,4 +599,30 @@ public abstract class GameObject
             return false;
         return Math.abs(getY() - otherObject.getY()) <= tolerance;
     }
+
+    /* These methods are used to reposition objects at the collision bounds
+     * level rather than the general object bounds. They will reposition the
+     * object so that the bounds of the current animation frame (collision
+     * bounds) will start at the given position.
+     */
+    public void setCollisionX(int x)
+    {
+        Rectangle bounds = getBounds();
+        Rectangle collisionBounds = getCollisionBounds();
+
+        int differenceX = collisionBounds.x - bounds.x;
+
+        setPosition(x - differenceX, y);
+    }
+
+    public void setCollisionY(int y)
+    {
+        Rectangle bounds = getBounds();
+        Rectangle collisionBounds = getCollisionBounds();
+
+        int differenceY = collisionBounds.y - bounds.y;
+
+        setPosition(x,y - differenceY);
+    }
+    /**/
 }

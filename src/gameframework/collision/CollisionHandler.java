@@ -214,7 +214,17 @@ public class CollisionHandler
             /* Collision with an object either to the right or left
              * while falling, we resolve it by repositioning the
              * collision bounds of the character.*/
+            Rectangle bounds = getCollisionBounds();
+            Rectangle otherBounds = collidingObject.getCollisionBounds();
 
+            int objectLeft = bounds.x, objectRight = objectLeft + bounds.width;
+            int collidingObjectLeft = otherBounds.x;
+            int collidingObjectRight = collidingObjectLeft + otherBounds.width;
+
+            if (objectLeft > collidingObjectLeft) //collision on the left
+                objectTracked.setCollisionX(collidingObjectRight);
+            else                                  //collision on the right
+                objectTracked.setCollisionX(collidingObjectLeft - bounds.width);
         }
         return handled;
     }
