@@ -544,8 +544,7 @@ public abstract class GameCharacter extends GameObject
         super.update(objects);
     }
 
-
-    public void Knockback(boolean right)
+    public void knockback(boolean right)
     {
         velX += right ? knockbackImpulse : -knockbackImpulse;
     }
@@ -553,7 +552,6 @@ public abstract class GameCharacter extends GameObject
     {
         return knockbackImpulse;
     }
-
     public void setKnockbackImpulse(int newKnockbackImpulse) {
         knockbackImpulse = newKnockbackImpulse;
     }
