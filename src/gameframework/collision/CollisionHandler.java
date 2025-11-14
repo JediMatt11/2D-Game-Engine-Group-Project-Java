@@ -23,6 +23,7 @@ public class CollisionHandler
     //attributes related to how we resolve collisions
     private Direction collisionDirection;      //direction of the collision (need to move to the opposite direction to resolv
     private static final int COLLISION_RESOLVE_TRIES = 20;   //number of attempts to be performed to resolve a collision
+    private boolean alwaysUseRectBoarders = false;
 
     public CollisionHandler(GameObject object)
     {
@@ -69,7 +70,12 @@ public class CollisionHandler
                 if (borders == null || otherBorders == null)
                     objectsCollide = true;
                 else
-                    objectsCollide = borders.bordersIntersect(otherBorders);
+                {
+                    if (otherObject.alwaysUseRectCollision == false)
+                        objectsCollide = borders.bordersIntersect(otherBorders);
+                    else
+                        objectsCollide = borders.borderIntersectWithRect(otherBorders);
+                }
             }
             else
                 objectsCollide = true;
@@ -208,7 +214,17 @@ public class CollisionHandler
             /* Collision with an object either to the right or left
              * while falling, we resolve it by repositioning the
              * collision bounds of the character.*/
+            Rectangle bounds = getCollisionBounds();
+            Rectangle otherBounds = collidingObject.getCollisionBounds();
 
+            int objectLeft = bounds.x, objectRight = objectLeft + bounds.width;
+            int collidingObjectLeft = otherBounds.x;
+            int collidingObjectRight = collidingObjectLeft + otherBounds.width;
+
+            if (objectLeft > collidingObjectLeft) //collision on the left
+                objectTracked.setCollisionX(collidingObjectRight);
+            else                                  //collision on the right
+                objectTracked.setCollisionX(collidingObjectLeft - bounds.width);
         }
         return handled;
     }

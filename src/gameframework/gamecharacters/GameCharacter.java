@@ -51,6 +51,7 @@ public abstract class GameCharacter extends GameObject
     private int curHealth;
     protected int speed;
     protected int jumpImpulse;
+    private int knockbackImpulse;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -543,4 +544,15 @@ public abstract class GameCharacter extends GameObject
         super.update(objects);
     }
 
+    public void knockback(boolean right)
+    {
+        velX += right ? knockbackImpulse : -knockbackImpulse;
+    }
+    public int getKnockbackImpulse()
+    {
+        return knockbackImpulse;
+    }
+    public void setKnockbackImpulse(int newKnockbackImpulse) {
+        knockbackImpulse = newKnockbackImpulse;
+    }
 }

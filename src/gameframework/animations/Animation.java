@@ -21,7 +21,7 @@ public class Animation
     private int timesToRun;
     private int runsCounter;
 
-    public Animation(Spritesheet spritesheet, int scaleWidth, int scaleHeight )
+    public Animation(Spritesheet spritesheet, int scaleWidth, int scaleHeight)
     {
         name = spritesheet.getName();
         frames = spritesheet.convertToImageArray();

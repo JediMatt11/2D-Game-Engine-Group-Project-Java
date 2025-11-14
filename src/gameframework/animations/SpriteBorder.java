@@ -160,6 +160,16 @@ public class SpriteBorder extends TreeSet<BorderPoint>
         return false;
     }
 
+    public boolean borderIntersectWithRect(SpriteBorder otherSpriteBorders) {
+        //Get rect of other object and check if contains point
+        Rectangle rect = otherSpriteBorders.getBordersRectangle();
+        for (BorderPoint p : this) {
+            if (rect.contains(p))
+                return true;
+        }
+        return false;
+    }
+
 
     /* Returns all points that surround an actual sprite, these are the real borders of the sprite
      * that should be used for most accurate collision detection rather than the bounds rectangle.

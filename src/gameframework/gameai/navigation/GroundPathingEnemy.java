@@ -77,12 +77,12 @@ public abstract class GroundPathingEnemy extends GameCharacter implements EnemyP
                 returningToPatrol = false;
             } else if (getX() < originalX) {
                 // Move right toward patrol center
-                setX(getX() + speed);
+                //setX(getX() + speed);
                 movingRight = true;
                 moveRight(false);
             } else if (getX() > originalX) {
                 // Move left toward patrol center
-                setX(getX() - speed);
+                //setX(getX() - speed);
                 movingRight = false;
                 moveLeft(false);
             }
@@ -96,10 +96,10 @@ public abstract class GroundPathingEnemy extends GameCharacter implements EnemyP
 
         // Move enemy based on current direction
         if (movingRight) {
-            setX(getX() + speed);
+            //setX(getX() + speed);
             moveRight(false); // Update animation (false = not chasing)
         } else {
-            setX(getX() - speed);
+            //setX(getX() - speed);
             moveLeft(false);
         }
     }
