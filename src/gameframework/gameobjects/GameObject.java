@@ -30,10 +30,7 @@ public abstract class GameObject
     protected int scaleWidth;
     protected int scaleHeight;
 
-    private static final double DEFAULT_GRAVITY = 0.3;
-    private static final double DEFAULT_TERMINAL_VELOCITY = 10;
-    protected double gravity;
-    protected double terminal_velocity;
+    protected int gravity;
 
     protected Animation curAnimation;
 
@@ -51,17 +48,12 @@ public abstract class GameObject
     // internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
     // internal object attribute used to manage all platforming for this object
-    public boolean alwaysUseRectCollision = false;
     private PlatformingHandler platformingHandler;
 
     /* This attribute is used to keep track of which area or areas of the background a
      * given object is currently in, this is used for optimizing collision handling in
      * the engine. */
     private ArrayList<Point> backgroundAreas;
-
-    /* temporary, only for debugging!!!!*/
-    public boolean isNinja() { return false;}
-    /****/
 
     public GameObject(String name, int type,
                       int x, int y, int z,
@@ -77,8 +69,7 @@ public abstract class GameObject
         this.scaleHeight = scaleHeight;
         this.scaleWidth = scaleWidth;
         velX = velY = 0;
-        gravity = DEFAULT_GRAVITY;
-        terminal_velocity = DEFAULT_TERMINAL_VELOCITY;
+        gravity = 0;
 
         // initialize collision handler
         collisionHandler = new CollisionHandler(this);
@@ -126,12 +117,6 @@ public abstract class GameObject
     public int getType()
     {
         return type;
-    }
-
-    public void setType(int type)
-    {
-        if (type >= 0)
-            this.type = type;
     }
 
     public Direction getDirection()
@@ -236,22 +221,22 @@ public abstract class GameObject
 
     public Point getPosition()
     {
-        return new Point((int)x,(int)y);
+        return new Point(x,y);
     }
 
     /* This method should be the only way used to change positions, because it
      * internally updates important data structures used for collision optimization,
      * and in order to easily trace position changes while debugging the game.*/
-    public void setPosition(int x, int y)
+    public void setPosition(double x, double y)
     {
-        this.x = x;
-        this.y = y;
+        this.x =(int) x;
+        this.y =(int) y;
 
         GameObjects gameObjects = GameThread.data.getObjects();
         gameObjects.updateSpatialCells(this);
     }
 
-    public double getGravity()
+    public int getGravity()
     {
         return gravity;
     }
@@ -273,9 +258,11 @@ public abstract class GameObject
 
         if (isInMidAir())
         {
-            velY += gravity;
-            if (velY > terminal_velocity && terminal_velocity >= 0)
-                velY = DEFAULT_TERMINAL_VELOCITY;
+            if (isFalling())
+            {
+                velY = getEffectiveGravity();
+                direction = Direction.DOWN;
+            }
         }
         else
         {
@@ -288,7 +275,7 @@ public abstract class GameObject
      * the object's gravity but also surface resistance (if standing on a platform) and
      * maybe even other forces (like an anti gravity field, etc).
      */
-    private double getEffectiveGravity()
+    private int getEffectiveGravity()
     {
         return platformingHandler.getEffectiveGravity();
     }
@@ -349,7 +336,7 @@ public abstract class GameObject
          * computational overhead. */
         if ( !isUnmovable() )
         {
-            setPosition(getX() + (int)velX, getY() + (int)velY);
+            setPosition(getX() + velX, getY() + velY);
             collision(objects);
         }
     }
@@ -372,7 +359,7 @@ public abstract class GameObject
     // and scaling width and height factors.
     public Rectangle getBounds()
     {
-        Rectangle boundsRect = new Rectangle((int)x, (int)y, scaleWidth,
+        Rectangle boundsRect = new Rectangle(x, y, scaleWidth,
                 scaleHeight);
         return boundsRect;
     }
@@ -395,8 +382,7 @@ public abstract class GameObject
         {
             // unmovable objects are automatically repositioned by the engine at load time for performance
             // reasons, so we ignore any further repositioning requests
-
-            spriteBorders = curAnimation.getCurrentFrameBorders((int)x, (int)y, !isUnmovable() && reposition);
+            spriteBorders = curAnimation.getCurrentFrameBorders(x, y, !isUnmovable() && reposition);
         }
         return spriteBorders;
     };
@@ -419,7 +405,6 @@ public abstract class GameObject
     {
         // Loop through all other objects and handle any collisions between this object
         // and any other one
-        final int TOLERANCE_PIXELS = 10;
 
         // Retrieve only the objects that are in the same area(s) of the screen as this object and
         // therefore could potentially collide.
@@ -432,15 +417,9 @@ public abstract class GameObject
             if (go == this)
                 continue;
 
-            //Ignore objects that should not collide with this one
-            if (shouldIgnoreCollisionWith(go) || go.shouldIgnoreCollisionWith(this))
-                continue;
-
             // ignore objects that are acting as a platform for this one
             // as those are handled by the platforming handler
-            if (isPlacedOnTopOf(go) ||
-                // objects vertically aligned with this object's platform could be sections of the same platform
-                go.isAtSimilarHeightAs(platformingHandler.getPlatformObject(), TOLERANCE_PIXELS))
+            if (isPlacedOnTopOf(go))
                 continue;
 
             // Handle collision here for any objects that require some action
@@ -581,48 +560,4 @@ public abstract class GameObject
         if (backgroundAreas != null && !backgroundAreas.isEmpty())
             this.backgroundAreas = backgroundAreas;
     }
-
-    public boolean shouldIgnoreCollisionWith(GameObject other)
-    {
-        return false;  // default behavior
-    }
-
-    /**
-     * Checks if this object is at a similar vertical (Y) position as another object.
-     * This can be useful for determining if two objects are roughly on the same platform
-     * or ground level. The comparison uses a small tolerance (in pixels) to allow for minor
-     * differences.
-     **/
-    public boolean isAtSimilarHeightAs(GameObject otherObject, int tolerance)
-    {
-        if (otherObject == null)
-            return false;
-        return Math.abs(getY() - otherObject.getY()) <= tolerance;
-    }
-
-    /* These methods are used to reposition objects at the collision bounds
-     * level rather than the general object bounds. They will reposition the
-     * object so that the bounds of the current animation frame (collision
-     * bounds) will start at the given position.
-     */
-    public void setCollisionX(int x)
-    {
-        Rectangle bounds = getBounds();
-        Rectangle collisionBounds = getCollisionBounds();
-
-        int differenceX = collisionBounds.x - bounds.x;
-
-        setPosition(x - differenceX, y);
-    }
-
-    public void setCollisionY(int y)
-    {
-        Rectangle bounds = getBounds();
-        Rectangle collisionBounds = getCollisionBounds();
-
-        int differenceY = collisionBounds.y - bounds.y;
-
-        setPosition(x,y - differenceY);
-    }
-    /**/
 }
