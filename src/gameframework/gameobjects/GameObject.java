@@ -50,6 +50,7 @@ public abstract class GameObject
 
     // internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
+    private boolean disableCollision;
     // internal object attribute used to manage all platforming for this object
     public boolean alwaysUseRectCollision = false;
     private PlatformingHandler platformingHandler;
@@ -82,6 +83,13 @@ public abstract class GameObject
 
         // initialize collision handler
         collisionHandler = new CollisionHandler(this);
+        //disable collision
+        System.out.println(name);
+        if (GameThread.disableCollisionNames.contains(name))
+        {
+            disableCollision = true;
+            System.out.println("Disabled collision for " + name);
+        }
         //initialize platforming handler
         platformingHandler = new PlatformingHandler(this, null);
 
@@ -433,7 +441,7 @@ public abstract class GameObject
                 continue;
 
             //Ignore objects that should not collide with this one
-            if (shouldIgnoreCollisionWith(go) || go.shouldIgnoreCollisionWith(this))
+            if (shouldIgnoreCollisionWith(go) || go.shouldIgnoreCollisionWith(this) || go.isDisableCollision())
                 continue;
 
             // ignore objects that are acting as a platform for this one
@@ -623,6 +631,16 @@ public abstract class GameObject
         int differenceY = collisionBounds.y - bounds.y;
 
         setPosition(x,y - differenceY);
+    }
+
+    public boolean isDisableCollision()
+    {
+        return disableCollision;
+    }
+
+    public void setDisableCollision(boolean disableCollision)
+    {
+        this.disableCollision = disableCollision;
     }
     /**/
 }
