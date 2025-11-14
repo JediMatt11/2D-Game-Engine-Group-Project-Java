@@ -114,10 +114,13 @@ public abstract class Player extends GameCharacter
     public static void collectCoin()
     {
         score+=100;
+        System.out.println("Collected a Coin");
     }
     public static void collectKey(Collectible key)
     {
         keyList.add(key);
+        System.out.println("Collected a Key");
+
     }
     public static boolean useKey()
     {
