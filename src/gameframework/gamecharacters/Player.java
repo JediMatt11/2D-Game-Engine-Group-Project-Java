@@ -1,5 +1,6 @@
 package gameframework.gamecharacters;
 
+import gameframework.gameobjects.Collectible;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.gameobjects.GameObjects;
 
@@ -18,6 +19,8 @@ public abstract class Player extends GameCharacter
     private static long lastDashTime;
     private static boolean isDashing;
     private static boolean dashSlowDown;
+    private static int score;
+    private static GameObjects keyList;
 
     public Player(String name, int x, int y,
                   int scaleWidth, int scaleHeight)
@@ -28,6 +31,9 @@ public abstract class Player extends GameCharacter
         isDashing=false;
         curPlayerIndex = 0;
         lastDashTime = 0;
+        score=0;
+        if (keyList==null)
+            keyList=new GameObjects(false);
     }
 
     public static void addPlayer(Player player, boolean activePlayer )
@@ -104,6 +110,25 @@ public abstract class Player extends GameCharacter
         super.update(objects);
         System.out.println("Current X And Y: "+getPosition());
     }
+
+    public static void collectCoin()
+    {
+        score+=100;
+    }
+    public static void collectKey(Collectible key)
+    {
+        keyList.add(key);
+    }
+    public static boolean useKey()
+    {
+        if (!keyList.isEmpty())
+        {
+            keyList.removeFirst();
+            return true;
+        }
+        return false;
+    }
+
 
 
 }
