@@ -1,5 +1,7 @@
 package gameframework.collision;
 
+import gameframework.display.GameDisplay;
+import gameframework.gamecharacters.GameCharacter;
 import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjects;
@@ -30,19 +32,64 @@ public class CollisionManager {
 
                 if (objectFirst == objectTwo) continue;
                 if (objectFirst.isUnmovable() && objectTwo.isUnmovable()) continue;
+                if ((objectFirst instanceof GameCharacter && ((GameCharacter) objectFirst).isFalling()) ||
+                        (objectTwo instanceof GameCharacter && ((GameCharacter) objectTwo).isFalling()))
+                    continue;
 
-
+                // Skip completely off-screen objects (optional, but helps runtime)
+                if (!GameDisplay.objectWithinCameraView(objectFirst) &&
+                        !GameDisplay.objectWithinCameraView(objectTwo))
+                    continue;
+                if (objectFirst.shouldIgnoreCollisionWith(objectTwo)
+                        || objectTwo.shouldIgnoreCollisionWith(objectFirst))
+                    continue;
                 if (objectFirst.collidesWith(objectTwo)) {
-                    resolveOverlapAxis(objectFirst, objectTwo, true);
-                    resolveOverlapAxis(objectFirst, objectTwo, false);
+                    //resolveOverlapAxis(objectFirst, objectTwo, true);
+                    //resolveOverlapAxis(objectFirst, objectTwo, false);
+                    resolve(objectFirst, objectTwo);
                 }
+            }
+        }
+    }
+    private void resolve(GameObject a, GameObject b) {
+
+        Rectangle A = a.getCollisionBounds();
+        Rectangle B = b.getCollisionBounds();
+
+        int overlapX = Math.min(A.x + A.width, B.x + B.width) - Math.max(A.x, B.x);
+        int overlapY = Math.min(A.y + A.height, B.y + B.height) - Math.max(A.y, B.y);
+
+        if (overlapX <= 0 || overlapY <= 0)
+            return;
+
+        boolean aMov = !a.isUnmovable();
+        boolean bMov = !b.isUnmovable();
+
+        // Horizontal resolution
+        if (overlapX < overlapY) {
+            if (A.x < B.x) {
+                if (aMov) a.setCollisionX(B.x - A.width);
+                else if (bMov) b.setCollisionX(A.x + A.width);
+            } else {
+                if (aMov) a.setCollisionX(B.x + B.width);
+                else if (bMov) b.setCollisionX(A.x - B.width);
+            }
+        }
+        // Vertical resolution
+        else {
+            if (A.y < B.y) {
+                if (aMov) a.setCollisionY(B.y - A.height);
+                else if (bMov) b.setCollisionY(A.y + A.height);
+            } else {
+                if (aMov) a.setCollisionY(B.y + B.height);
+                else if (bMov) b.setCollisionY(A.y - B.height);
             }
         }
     }
 
     /*
     Resolves overlaps depending on if it is coming from a horizontal and vertical direction separately.
-     */
+
     private void resolveOverlapAxis(GameObject objectFirst, GameObject objectSecond, boolean horizontal) {
         //Get collision bounds for the first object and the second object it is colliding with
         Rectangle objectFirstBounds = objectFirst.getCollisionBounds();
@@ -101,4 +148,7 @@ public class CollisionManager {
             }
         }
     }
+
+     */
+
 }
