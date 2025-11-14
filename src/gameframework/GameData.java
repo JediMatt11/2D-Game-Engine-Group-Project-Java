@@ -82,8 +82,9 @@ public class GameData
                 }
             }
         }
-        collisionManager.resolveGlobalCollisions();
+        //collisionManager.resolveGlobalCollisions();
         performPostUpdateTasks();
+        collisionManager.resolveGlobalCollisions();
     }
 
     /* Perform any tasks in this method that can't be performed during the update cycle. For example
