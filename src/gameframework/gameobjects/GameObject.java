@@ -31,7 +31,9 @@ public abstract class GameObject
     protected int scaleHeight;
 
     private static final double DEFAULT_GRAVITY = 0.3;
+    private static final double DEFAULT_TERMINAL_VELOCITY = 10;
     protected double gravity;
+    protected double terminal_velocity;
 
     protected Animation curAnimation;
 
@@ -49,6 +51,7 @@ public abstract class GameObject
     // internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
     // internal object attribute used to manage all platforming for this object
+    public boolean alwaysUseRectCollision = false;
     private PlatformingHandler platformingHandler;
 
     /* This attribute is used to keep track of which area or areas of the background a
@@ -75,6 +78,7 @@ public abstract class GameObject
         this.scaleWidth = scaleWidth;
         velX = velY = 0;
         gravity = DEFAULT_GRAVITY;
+        terminal_velocity = DEFAULT_TERMINAL_VELOCITY;
 
         // initialize collision handler
         collisionHandler = new CollisionHandler(this);
@@ -236,7 +240,7 @@ public abstract class GameObject
 
     public Point getPosition()
     {
-        return new Point(x,y);
+        return new Point((int)x,(int)y);
     }
 
     /* This method should be the only way used to change positions, because it
@@ -274,6 +278,8 @@ public abstract class GameObject
         if (isInMidAir())
         {
             velY += gravity;
+            if (velY > terminal_velocity && terminal_velocity >= 0)
+                velY = DEFAULT_TERMINAL_VELOCITY;
         }
         else
         {
@@ -370,7 +376,7 @@ public abstract class GameObject
     // and scaling width and height factors.
     public Rectangle getBounds()
     {
-        Rectangle boundsRect = new Rectangle(x, y, scaleWidth,
+        Rectangle boundsRect = new Rectangle((int)x, (int)y, scaleWidth,
                 scaleHeight);
         return boundsRect;
     }
@@ -393,7 +399,8 @@ public abstract class GameObject
         {
             // unmovable objects are automatically repositioned by the engine at load time for performance
             // reasons, so we ignore any further repositioning requests
-            spriteBorders = curAnimation.getCurrentFrameBorders(x, y, !isUnmovable() && reposition);
+
+            spriteBorders = curAnimation.getCurrentFrameBorders((int)x, (int)y, !isUnmovable() && reposition);
         }
         return spriteBorders;
     };
@@ -596,4 +603,30 @@ public abstract class GameObject
             return false;
         return Math.abs(getY() - otherObject.getY()) <= tolerance;
     }
+
+    /* These methods are used to reposition objects at the collision bounds
+     * level rather than the general object bounds. They will reposition the
+     * object so that the bounds of the current animation frame (collision
+     * bounds) will start at the given position.
+     */
+    public void setCollisionX(int x)
+    {
+        Rectangle bounds = getBounds();
+        Rectangle collisionBounds = getCollisionBounds();
+
+        int differenceX = collisionBounds.x - bounds.x;
+
+        setPosition(x - differenceX, y);
+    }
+
+    public void setCollisionY(int y)
+    {
+        Rectangle bounds = getBounds();
+        Rectangle collisionBounds = getCollisionBounds();
+
+        int differenceY = collisionBounds.y - bounds.y;
+
+        setPosition(x,y - differenceY);
+    }
+    /**/
 }

@@ -66,6 +66,7 @@ public abstract class Player extends GameCharacter
         /* Apply an initial upward impulse to start the jump.
          * Gravity (a small positive value added each frame) will gradually counteract
          * this impulse until the character stops rising and begins to fall. */
+        //velX = 0;
         velY = jumpImpulse;
 
         setInMidAir(true);

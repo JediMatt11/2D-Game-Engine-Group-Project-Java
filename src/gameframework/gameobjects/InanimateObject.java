@@ -19,6 +19,7 @@ public class InanimateObject extends GameObject
 
         //disable frequent updates for inanimate objects
         requiresUpdating = false;
+        alwaysUseRectCollision = true;
     }
 
 
