@@ -52,6 +52,9 @@ public abstract class GameCharacter extends GameObject
     protected int speed;
     protected int jumpImpulse;
     private int knockbackImpulse;
+    private boolean shouldKnockback;
+    private int knockbackFrames = 0;
+    private int framesUntilStopKnockback;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -556,5 +559,36 @@ public abstract class GameCharacter extends GameObject
 
     public void setKnockbackImpulse(int newKnockbackImpulse) {
         knockbackImpulse = newKnockbackImpulse;
+    }
+
+    public boolean getShouldKnockback()
+    {
+        return shouldKnockback;
+    }
+
+    public void setShouldKnockback(boolean newShouldKnockback) {
+        shouldKnockback = newShouldKnockback;
+    }
+
+    public void isKnockingBack()
+    {
+        if (!shouldKnockback)
+        {
+            return;
+        }
+        knockbackFrames++;
+        if (knockbackFrames >= framesUntilStopKnockback)
+        {
+            shouldKnockback = false;
+            knockbackFrames = 0;
+        }
+    }
+
+    public int getFramesUntilStopKnockback() {
+        return framesUntilStopKnockback;
+    }
+
+    public void setFramesUntilStopKnockback(int newFramesUntilStopKnockback) {
+        framesUntilStopKnockback = newFramesUntilStopKnockback;
     }
 }
