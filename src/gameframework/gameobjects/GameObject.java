@@ -256,7 +256,7 @@ public abstract class GameObject
         return gravity;
     }
 
-    public void setGravity(int gravity)
+    public void setGravity(double gravity)
     {
         // For the time being assume gravity must be positive
         if (gravity >= 0)
