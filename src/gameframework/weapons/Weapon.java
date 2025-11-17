@@ -9,6 +9,7 @@ import java.awt.*;
 
 public abstract class Weapon extends InanimateObject
 {
+    private HitBoxStrategy strategy;
     private int damage;
     private HitBox hb;
     private GameCharacter weaponHolder;
@@ -59,6 +60,7 @@ public abstract class Weapon extends InanimateObject
 
         super.update(objects);
 
+        //copy weapon holder's position
         setPosition(weaponHolder.getX(), weaponHolder.getY());
 
         //keep track of direction of gameCharacter
@@ -127,5 +129,11 @@ public abstract class Weapon extends InanimateObject
     }
 
 
+    public HitBoxStrategy getStrategy() {
+        return strategy;
+    }
 
+    public void setStrategy(HitBoxStrategy strategy) {
+        this.strategy = strategy;
+    }
 }

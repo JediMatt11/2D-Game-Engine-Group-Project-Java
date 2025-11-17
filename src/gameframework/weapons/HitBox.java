@@ -8,6 +8,7 @@ public class HitBox
 {
     private Rectangle hb;
 
+
     public HitBox(int x, int y, int width, int height)
     {
         setHb(new Rectangle(x,y,width,height));
