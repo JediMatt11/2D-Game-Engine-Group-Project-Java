@@ -50,7 +50,7 @@ public abstract class GameObject
 
     // internal object attribute used to handle collisions
     private CollisionHandler collisionHandler;
-    private boolean disableCollision;
+    protected boolean disableCollision;
     // internal object attribute used to manage all platforming for this object
     public boolean alwaysUseRectCollision = false;
     private PlatformingHandler platformingHandler;
@@ -83,7 +83,9 @@ public abstract class GameObject
 
         // initialize collision handler
         collisionHandler = new CollisionHandler(this);
-        //disable collision
+        //enable collision by default (child classes can override it), but disable collision for
+        //predefined objects determined by the game developer
+        disableCollision = false;
         System.out.println(name);
         if (GameThread.disableCollisionNames.contains(name))
         {

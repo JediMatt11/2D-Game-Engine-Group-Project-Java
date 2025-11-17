@@ -211,6 +211,17 @@ public class CollisionHandler
         {
             //Handle all other falling collision cases here
 
+            /* Its possible that this object might have just started to fall after colliding with a
+             * platform above, we handle this case here.
+             */
+            if (collidingObject.encompasses(objectTracked, 'H', 0.30) &&
+                collidingObject.getY() < objectTracked.getY())
+            {
+                resolveCollision(collidingObject, Direction.UP);
+                return handled;
+            }
+            /****/
+
             /* Collision with an object either to the right or left
              * while falling, we resolve it by repositioning the
              * collision bounds of the character.*/
@@ -352,6 +363,18 @@ public class CollisionHandler
         //System.out.println("Resolving collision " + collisionDirection );
         success = getClosestValidPosition(COLLISION_RESOLVE_TRIES, collidingObject,
                 collisionDirection, ((GameCharacter)objectTracked).getSpeed());
+        return success;
+
+    }
+
+    public boolean resolveCollision(GameObject collidingObject, Direction direction)
+    {
+        //Resolve the collision using the current applicable method
+        boolean success = true;
+
+        //System.out.println("Resolving collision " + collisionDirection );
+        success = getClosestValidPosition(COLLISION_RESOLVE_TRIES, collidingObject,
+                direction, ((GameCharacter)objectTracked).getSpeed());
         return success;
 
     }
