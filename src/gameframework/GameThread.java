@@ -8,6 +8,7 @@ import gameframework.inputhandlers.KeyboardHandler;
 import gameframework.resourcemanagement.ResourceManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /*
  * This class contains the functionality to start and run the engine. All games based on the engine must implement
@@ -22,6 +23,7 @@ public class GameThread
        Ideally we want the frame rate to match this, render after every update, but it is not always possible.
        For the time being Game Developers can only fine tune this if they have access to the source code. */
     public final static int UPDATES_PER_SECOND = 60;
+    public final static HashSet<String> disableCollisionNames = new HashSet<String>();
 
     public static GameData data;
     public static GameDisplay display;
