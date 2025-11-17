@@ -129,13 +129,14 @@ public class GameThread
             /* Player changes are usually triggered from input event threads, so make sure to
              * use thread safe methods */
             //gameObjects.remove(player);
-            data.removeObject(player);        //thread safe method
+            data.removeObjectWhenSafe(player);        //concurrency modification and thread safe method
             player = Player.nextPlayer();
             //gameObjects.add(player);
-            data.addObject(player);           //thread safe method
+            data.addObjectWhenSafe(player);           //concurrency modification and thread safe method
             player.setPosition(x, y);
         }
     }
+
 
     public static void changeKeyboardHandler(KeyboardHandler newKeyboardHandler)
     {
