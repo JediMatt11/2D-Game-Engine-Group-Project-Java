@@ -335,10 +335,10 @@ public abstract class GameCharacter extends GameObject
     public boolean isFalling()
     {
         //If we are in mid air and not in the middle of a jump then we are falling.
-        return (isInMidAir() && !(isInTheMiddleOfJump()));
+        return (isInMidAir() && !(isInTheMiddleOfJump()) && velY > 0 );
     }
 
-    //Disable atomatic nearby tile relatching for characters that are jumping
+    //Disable automatic nearby tile relatching for characters that are jumping
     public boolean disableAutoRelatching() { return isJumping(); }
 
     /* These methods change the speed, direction and animation of a character

@@ -64,8 +64,6 @@ public class KeyboardHandler implements KeyListener
     public void keyPressed(KeyEvent ke)
     {
         int keyCode = ke.getKeyCode();
-        keysHeld.add(keyCode);
-        Player player = Player.getActivePlayer();
         int keyHeldId = -1;
 
         switch (keyCode)
@@ -161,7 +159,6 @@ public class KeyboardHandler implements KeyListener
     public void keyReleased(KeyEvent e)
     {
         int keyCode = e.getKeyCode();
-        keysHeld.remove(keyCode);
 
         switch (keyCode)
         {
@@ -187,6 +184,9 @@ public class KeyboardHandler implements KeyListener
     {
         //Handle corresponding input command
         Player player = Player.getActivePlayer();
+
+        //Previously was getting the keycode for the input, which was not the same as the int assigned to each input type
+        keysHeld.add(action);
 
         switch (action)
         {
@@ -285,23 +285,36 @@ public class KeyboardHandler implements KeyListener
     protected void keyReleasedActionHandler(int action)
     {
         Player player = Player.getActivePlayer();
+
+        keysHeld.remove(action);
+
         switch (action)
         {
             case HANDLER_MOVE_RIGHT:
                 if (!keysHeld.contains(HANDLER_MOVE_LEFT)) //Make sure player isn't trying to move in the opposite direction
                     player.stopX();
+                else
+                    player.moveLeft(/*player.isRunning()*/false);
                 break;
             case HANDLER_MOVE_LEFT:
                 if (!keysHeld.contains(HANDLER_MOVE_RIGHT)) //Make sure player isn't trying to move in the opposite direction
                     player.stopX();
+                else
+                    player.moveRight(/*player.isRunning()*/false);
                 break;
             case HANDLER_MOVE_UP:
-                if (!keysHeld.contains(HANDLER_MOVE_DOWN)) //Make sure player isn't trying to move in the opposite direction
-                    player.stopY();
+                // Since right now we have no upward movement, commenting this stops the player's movement from stuttering
+                // when the UP key is pressed.
+
+                /*if (!keysHeld.contains(HANDLER_MOVE_DOWN)) //Make sure player isn't trying to move in the opposite direction
+                    player.stopY();*/
                 break;
             case HANDLER_MOVE_DOWN:
-                if (!keysHeld.contains(HANDLER_MOVE_UP)) //Make sure player isn't trying to move in the opposite direction
-                    player.stopY();
+                // Same reasoning as the previous, pressing this key currently causes a movement stutter.
+                // Can be revisited when increased fall speed is implemented
+
+                /*if (!keysHeld.contains(HANDLER_MOVE_UP)) //Make sure player isn't trying to move in the opposite direction
+                    player.stopY();*/
                 break;
         }
     }
