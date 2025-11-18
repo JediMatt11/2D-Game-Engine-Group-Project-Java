@@ -1,6 +1,8 @@
 package gameframework.animations;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -224,5 +226,47 @@ public class Animation
         this.timesToRun = timesToRun;
     }
 
+    public BufferedImage[] HorizontalFlip(){
+        BufferedImage[] reverseFrames = new BufferedImage[frames.length];
 
+        for(int i = 0; i < frames.length; i++){
+            int w = frames[i].getWidth();
+            int h = frames[i].getHeight();
+            BufferedImage flipped = new BufferedImage(w,
+                    h, frames[i].getType());
+            Graphics2D g = flipped.createGraphics();
+
+            AffineTransform tx = AffineTransform.getScaleInstance(-1,1);
+            tx.translate(-w, 0);
+
+            g.drawImage(frames[i], tx, null);
+            g.dispose();
+
+            reverseFrames[i] = flipped;
+        }
+
+        return reverseFrames;
+    }
+
+    public BufferedImage[] VerticalFlip(){
+        BufferedImage[] reverseFrames = new BufferedImage[frames.length];
+
+        for(int i = 0; i < frames.length; i++){
+            int w = frames[i].getWidth();
+            int h = frames[i].getHeight();
+            BufferedImage flipped = new BufferedImage(w,
+                    h, frames[i].getType());
+            Graphics2D g = flipped.createGraphics();
+
+            AffineTransform tx = AffineTransform.getScaleInstance(1,-1);
+            tx.translate(0, -h);
+
+            g.drawImage(frames[i], tx, null);
+            g.dispose();
+
+            reverseFrames[i] = flipped;
+        }
+
+        return reverseFrames;
+    }
 }
