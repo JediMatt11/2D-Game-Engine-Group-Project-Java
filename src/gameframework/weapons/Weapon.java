@@ -14,8 +14,10 @@ public abstract class Weapon extends InanimateObject
     private HitBox hb;
     private GameCharacter weaponHolder;
 
+    private Projectile projectile;
 
-//need to pass in hitbox
+
+
     public Weapon(String name, GameCharacter weaponHolder, int damage, int width, int height)
     {
 
@@ -31,6 +33,7 @@ public abstract class Weapon extends InanimateObject
         setHb(new HitBox(weaponHolder.getX(), weaponHolder.getY(), width, height));
 
     }
+
 
     @Override
     public void render(Graphics g){
@@ -63,7 +66,7 @@ public abstract class Weapon extends InanimateObject
         //copy weapon holder's position
         setPosition(weaponHolder.getX(), weaponHolder.getY());
 
-        //keep track of direction of gameCharacter
+        //keep track of direction of weapon holder
         if(weaponHolder.isMovingLeft()){
 
             setPosition(weaponHolder.getX(), weaponHolder.getY() + 70 );
@@ -85,6 +88,13 @@ public abstract class Weapon extends InanimateObject
                 checkCollision(obj);
             }
         }
+
+    }
+
+    //method for firing projectiles
+
+    public Projectile fire(){
+
 
     }
 
