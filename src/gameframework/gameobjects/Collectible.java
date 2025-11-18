@@ -19,18 +19,11 @@ public class Collectible extends GameObject
 
     protected void initializeBaseAnimation(BufferedImage image)
     {
-        Animation inanimate = new Animation(image, getName(), scaleWidth, scaleHeight);
+        Animation collectible = new Animation(image, getName(), scaleWidth, scaleHeight);
 
-        /* If these borders will apply to an inanimate object that won't
-         * ever be moving then its a good idea to adjust the border points
-         * positions in the animation to reflect directly their final
-         * positions on the screen, otherwise we have to recalculate the
-         * positions on the fly every time while the game is running which
-         * will (needlessly) affect performance.
-         */
-        if (!inanimate.getCurrentFrameBorders(0, 0, false).verifyBoundPoints())
+        if (!collectible.getCurrentFrameBorders(0, 0, false).verifyBoundPoints())
             System.out.println("Unable to verify bound points for " + getName());
-        changeActiveAnimation(inanimate, true);
+        changeActiveAnimation(collectible, true);
     }
 
 
@@ -55,8 +48,8 @@ public class Collectible extends GameObject
 
     public void collect()
     {
-        System.out.println(this+" COLLECTED");
-        GameThread.data.removeObject(this);
+        System.out.println(this+" COLLECTED "+getName());
+        GameThread.data.removeObjectWhenSafe(this);
     }
 
 
