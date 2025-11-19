@@ -18,8 +18,8 @@ public abstract class GameObject
 {
     private String name;
     private int type;
-    private int x;
-    private int y;
+    protected int x;
+    protected int y;
     private int z;
 
     protected double velX;

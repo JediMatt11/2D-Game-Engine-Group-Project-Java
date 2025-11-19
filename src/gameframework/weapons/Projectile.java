@@ -11,8 +11,7 @@ public class Projectile extends InanimateObject {
     private boolean thrownByPlayer;
     private GameObject owner;
 
-    private int velocityX;
-    private int velocityY;
+
 
     private RangedHitBoxStrategy hitboxStrategy;
     private HitBox hitbox;
@@ -21,8 +20,9 @@ public class Projectile extends InanimateObject {
     public Projectile(String name, int x, int y, int vx, int vy, int scaleWidth, int scaleHeight,
                         boolean thrownByPlayer, GameObject owner) {
         super(name, x, y, 1, scaleWidth, scaleHeight);
-        velocityX = vx;
-        velocityY = vy;
+        velX = vx;
+        velY = vy;
+
 
         this.setThrownByPlayer(thrownByPlayer);
         this.setOwner(owner);
@@ -44,13 +44,18 @@ public class Projectile extends InanimateObject {
     @Override
     public void update(GameObjects objects) {
         super.update(objects);
+        x += velX;
+        y += velY;
+
+        updateHitBox();
 
 
-
-        hitbox = hitboxStrategy.updateProjectileHitBox(this);
+        //hitbox = hitboxStrategy.updateProjectileHitBox(this);
     }
 
-
+    public void updateHitBox(){
+        setHitbox(x,y,scaleWidth,scaleHeight);
+    }
 
 
 
@@ -93,21 +98,6 @@ public class Projectile extends InanimateObject {
         this.owner = owner;
     }
 
-    public int getVelocityX() {
-        return velocityX;
-    }
-
-    public void setVelocityX(int velocityX) {
-        this.velocityX = velocityX;
-    }
-
-    public int getVelocityY() {
-        return velocityY;
-    }
-
-    public void setVelocityY(int velocityY) {
-        this.velocityY = velocityY;
-    }
 
     public RangedHitBoxStrategy getStrategy() {
         return hitboxStrategy;
@@ -115,5 +105,13 @@ public class Projectile extends InanimateObject {
 
     public void setStrategy(RangedHitBoxStrategy strategy) {
         this.hitboxStrategy = strategy;
+    }
+
+    public HitBox getHitbox() {
+        return hitbox;
+    }
+
+    public void setHitbox(int x, int y, int scaleWidth, int scaleHeight) {
+        this.hitbox = new HitBox(x, y, scaleWidth, scaleHeight);
     }
 }

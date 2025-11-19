@@ -7,7 +7,7 @@ import gameframework.gameobjects.InanimateObject;
 
 import java.awt.*;
 
-public abstract class Weapon extends InanimateObject
+public class Weapon extends InanimateObject
 {
     private HitBoxStrategy strategy;
     private int damage;
@@ -93,10 +93,6 @@ public abstract class Weapon extends InanimateObject
 
     //method for firing projectiles
 
-    public Projectile fire(){
-
-
-    }
 
 
 
