@@ -53,6 +53,10 @@ public abstract class GameCharacter extends GameObject
     protected int jumpImpulse;
     private int knockbackImpulse;
 
+    // Double-jump support: number of jumps allowed (including the ground jump)
+    protected int maxJumps = 2; // default: double jump (2 total jumps)
+    protected int remainingJumps; // jumps remaining in current air sequence
+
     public GameCharacter(String name, int type,
                          int x, int y,
                          int scaleWidth, int scaleHeight)
@@ -62,6 +66,8 @@ public abstract class GameCharacter extends GameObject
         curHealth = totalHealth;
         speed = DEFAULT_SPEED;
         jumpImpulse = DEFAULT_JUMP_IMPULSE;
+        // initialize jump counters
+        remainingJumps = maxJumps;
 
         initializeAnimations();
         initializeStatus();
@@ -318,7 +324,7 @@ public abstract class GameCharacter extends GameObject
     @Override
     public boolean isFalling()
     {
-        //If we are in mid air and not in the middle of a jump then we are falling.
+        //If we are in midair and not in the middle of a jump then we are falling.
         return (isInMidAir() && !(isInTheMiddleOfJump()) && velY > 0 );
     }
 
@@ -526,7 +532,7 @@ public abstract class GameCharacter extends GameObject
         // handle some jumping mechanics for characters here (for the time being)
         if (isJumping() && curAnimation.isPaused())
         {
-            /* Switch to idle animation if the jump is done and we're not moving horizontally
+            /* Switch to idle animation if the jump is done, and we're not moving horizontally
              * otherwise switch to the proper movement animation. */
             if (velX == 0)
                 changeActiveAnimation(getIdleAnimation(), true);
@@ -554,5 +560,25 @@ public abstract class GameCharacter extends GameObject
     }
     public void setKnockbackImpulse(int newKnockbackImpulse) {
         knockbackImpulse = newKnockbackImpulse;
+    }
+
+    @Override
+    public void setInMidAir(boolean onAir)
+    {
+        super.setInMidAir(onAir);
+        // When landing (onAir == false) reset remaining jumps
+        if (!onAir)
+        {
+            this.remainingJumps = maxJumps;
+        }
+    }
+
+    /**
+     * Explicitly reset remaining jumps to the configured max. Useful when external code
+     * (e.g. platforming/physics handlers) want to force a reset when a landing is detected.
+     */
+    public void resetRemainingJumps()
+    {
+        this.remainingJumps = maxJumps;
     }
 }

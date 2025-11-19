@@ -10,7 +10,7 @@ public abstract class Player extends GameCharacter
 
     protected int totalLives;
     protected int lives;
-    private static final ArrayList<Player> availablePlayers = new ArrayList<Player>();
+    private static final ArrayList<Player> availablePlayers = new ArrayList<>();
     private static int curPlayerIndex;
 
     public Player(String name, int x, int y,
@@ -47,9 +47,9 @@ public abstract class Player extends GameCharacter
     /* The engine supports the triggering of special actions by pressing the right (A), middle (B) and
      * left (C) mouse buttons, by default these don't do anything, and developers must override these
      * method to implement their own functionality. */
-    public void specialActionA(boolean startingAction) {};
-    public void specialActionB(boolean startingAction) {};
-    public void specialActionC(boolean startingAction) {};
+    public void specialActionA(boolean startingAction) {}
+    public void specialActionB(boolean startingAction) {}
+    public void specialActionC(boolean startingAction) {}
 
     public void jump()
     {
@@ -58,22 +58,22 @@ public abstract class Player extends GameCharacter
          * that isInMidAir() only works for games that enable gravity so we need
          * also the other test to prevent double jumps in all other games.
          */
-        if (/*isInMidAir() ||*/ isInTheMiddleOfJump())
+
+        // Allow jump only if we have remaining jumps available
+        if (remainingJumps <= 0)
             return;
 
         changeActiveAnimation(getJumpAnimation(), true);
 
-        /* Apply an initial upward impulse to start the jump.
-         * Gravity (a small positive value added each frame) will gradually counteract
-         * this impulse until the character stops rising and begins to fall. */
-        //velX = 0;
+        // Apply upward impulse for the jump and mark as in midair
         velY = jumpImpulse;
-
         setInMidAir(true);
+
+        // Consume one jump
+        remainingJumps--;
 
         //System.out.println("Player jumped");
     }
-
 
 
 

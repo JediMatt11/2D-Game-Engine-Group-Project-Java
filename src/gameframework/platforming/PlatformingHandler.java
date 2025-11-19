@@ -1,6 +1,7 @@
 package gameframework.platforming;
 
 import gameframework.animations.Animation;
+import gameframework.gamecharacters.GameCharacter;
 import gameframework.gamecharacters.Player;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjects;
@@ -222,7 +223,11 @@ public class PlatformingHandler
     {
         this.platformObject = platformObject;
         attachToPlatform();
+        // mark as not in midair
         mainObject.setInMidAir(false);
+        // ensure jump counters are reset for characters
+        if (mainObject instanceof GameCharacter)
+            ((GameCharacter)mainObject).resetRemainingJumps();
 
         //System.out.println("Object: " + mainObject.getName() + " latched to platform " + platformObject.getName());
         return true;
@@ -230,7 +235,7 @@ public class PlatformingHandler
 
     /* returns the total effect of gravitational forces on this object, this includes
      * the object's gravity but also surface resistance (if standing on a platform) and
-     * maybe even other forces (like an anti gravity field, etc). This method is still
+     * maybe even other forces (like an antigravity field, etc.). This method is still
      * incomplete & pending, we will know better how to implement it as we develop more
      * games using the engine.
      */
@@ -257,4 +262,3 @@ public class PlatformingHandler
     }
 
 }
-
