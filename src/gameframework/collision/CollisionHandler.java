@@ -23,6 +23,7 @@ public class CollisionHandler
     //attributes related to how we resolve collisions
     private Direction collisionDirection;      //direction of the collision (need to move to the opposite direction to resolv
     private static final int COLLISION_RESOLVE_TRIES = 20;   //number of attempts to be performed to resolve a collision
+    private boolean alwaysUseRectBoarders = false;
 
     public CollisionHandler(GameObject object)
     {
@@ -69,7 +70,12 @@ public class CollisionHandler
                 if (borders == null || otherBorders == null)
                     objectsCollide = true;
                 else
-                    objectsCollide = borders.bordersIntersect(otherBorders);
+                {
+                    if (otherObject.alwaysUseRectCollision == false)
+                        objectsCollide = borders.bordersIntersect(otherBorders);
+                    else
+                        objectsCollide = borders.borderIntersectWithRect(otherBorders);
+                }
             }
             else
                 objectsCollide = true;
@@ -205,10 +211,31 @@ public class CollisionHandler
         {
             //Handle all other falling collision cases here
 
+            /* Its possible that this object might have just started to fall after colliding with a
+             * platform above, we handle this case here.
+             */
+            if (collidingObject.encompasses(objectTracked, 'H', 0.30) &&
+                collidingObject.getY() < objectTracked.getY())
+            {
+                resolveCollision(collidingObject, Direction.UP);
+                return handled;
+            }
+            /****/
+
             /* Collision with an object either to the right or left
              * while falling, we resolve it by repositioning the
              * collision bounds of the character.*/
+            Rectangle bounds = getCollisionBounds();
+            Rectangle otherBounds = collidingObject.getCollisionBounds();
 
+            int objectLeft = bounds.x, objectRight = objectLeft + bounds.width;
+            int collidingObjectLeft = otherBounds.x;
+            int collidingObjectRight = collidingObjectLeft + otherBounds.width;
+
+            if (objectLeft > collidingObjectLeft) //collision on the left
+                objectTracked.setCollisionX(collidingObjectRight);
+            else                                  //collision on the right
+                objectTracked.setCollisionX(collidingObjectLeft - bounds.width);
         }
         return handled;
     }
@@ -216,11 +243,8 @@ public class CollisionHandler
     /* Determine the direction in which a collision occurs with respect to
      * the object being tracked. This method assumes that a collision has
      * already been detected between the two objects. */
-    private Direction determineCollisionDirection(GameObject collidingObject)
+    private Direction determineCollisionDirection_(GameObject collidingObject)
     {
-
-        if (objectTracked.isNinja())
-            collidingObject = collidingObject;
         Rectangle objectBounds = objectTracked.getCollisionBounds();
         Rectangle otherObjectBounds = collidingObject.getCollisionBounds();
         Rectangle boundsIntersection = objectBounds.intersection(otherObjectBounds);
@@ -252,7 +276,7 @@ public class CollisionHandler
     /* Determine the collision direction from the collision bounds intersection, this is
      * more accurate in most cases than relying on the objects's movement direction (because
      * of changes of animation and animation frames while an object is moving). */
-    private Direction determineCollisionDirection_(GameObject collidingObject)
+    private Direction determineCollisionDirection(GameObject collidingObject)
     {
         Direction direction = Direction.NONE;
 
@@ -339,6 +363,18 @@ public class CollisionHandler
         //System.out.println("Resolving collision " + collisionDirection );
         success = getClosestValidPosition(COLLISION_RESOLVE_TRIES, collidingObject,
                 collisionDirection, ((GameCharacter)objectTracked).getSpeed());
+        return success;
+
+    }
+
+    public boolean resolveCollision(GameObject collidingObject, Direction direction)
+    {
+        //Resolve the collision using the current applicable method
+        boolean success = true;
+
+        //System.out.println("Resolving collision " + collisionDirection );
+        success = getClosestValidPosition(COLLISION_RESOLVE_TRIES, collidingObject,
+                direction, ((GameCharacter)objectTracked).getSpeed());
         return success;
 
     }

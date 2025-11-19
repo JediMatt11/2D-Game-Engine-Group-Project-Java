@@ -52,6 +52,7 @@ public abstract class GameCharacter extends GameObject
     private int curHealth;
     protected int speed;
     protected int jumpImpulse;
+    private int knockbackImpulse;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -320,10 +321,10 @@ public abstract class GameCharacter extends GameObject
     public boolean isFalling()
     {
         //If we are in mid air and not in the middle of a jump then we are falling.
-        return (isInMidAir() && !(isInTheMiddleOfJump()));
+        return (isInMidAir() && !(isInTheMiddleOfJump()) && velY > 0 );
     }
 
-    //Disable atomatic nearby tile relatching for characters that are jumping
+    //Disable automatic nearby tile relatching for characters that are jumping
     public boolean disableAutoRelatching() { return isJumping(); }
 
     /* These methods change the speed, direction and animation of a character
@@ -545,4 +546,15 @@ public abstract class GameCharacter extends GameObject
         super.update(objects);
     }
 
+    public void knockback(boolean right)
+    {
+        velX += right ? knockbackImpulse : -knockbackImpulse;
+    }
+    public int getKnockbackImpulse()
+    {
+        return knockbackImpulse;
+    }
+    public void setKnockbackImpulse(int newKnockbackImpulse) {
+        knockbackImpulse = newKnockbackImpulse;
+    }
 }
