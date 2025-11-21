@@ -360,6 +360,14 @@ public class CollisionHandler
          * not necessarily the collision direction, for example character can be moving
          * up and rub a wall on its right. */
         collisionDirection = determineCollisionDirection(collidingObject);
+        // If collision is horizontal and the tracked object is a GameCharacter in mid-air,
+        // mark it as touching a wall for potential wall-jump behavior.
+        if ((collisionDirection == Direction.LEFT || collisionDirection == Direction.RIGHT) &&
+                objectTracked instanceof gameframework.gamecharacters.GameCharacter &&
+                ((gameframework.gamecharacters.GameCharacter)objectTracked).isInMidAir())
+        {
+            ((gameframework.gamecharacters.GameCharacter)objectTracked).setWallContact(collisionDirection);
+        }
         //System.out.println("Resolving collision " + collisionDirection );
         success = getClosestValidPosition(COLLISION_RESOLVE_TRIES, collidingObject,
                 collisionDirection, ((GameCharacter)objectTracked).getSpeed());
@@ -372,6 +380,14 @@ public class CollisionHandler
         //Resolve the collision using the current applicable method
         boolean success = true;
 
+        // If requested direction is horizontal and the tracked object is a GameCharacter in mid-air,
+        // mark wall contact as well.
+        if ((direction == Direction.LEFT || direction == Direction.RIGHT) &&
+                objectTracked instanceof gameframework.gamecharacters.GameCharacter &&
+                ((gameframework.gamecharacters.GameCharacter)objectTracked).isInMidAir())
+        {
+            ((gameframework.gamecharacters.GameCharacter)objectTracked).setWallContact(direction);
+        }
         //System.out.println("Resolving collision " + collisionDirection );
         success = getClosestValidPosition(COLLISION_RESOLVE_TRIES, collidingObject,
                 direction, ((GameCharacter)objectTracked).getSpeed());

@@ -1,5 +1,6 @@
 package gameframework.gamecharacters;
 
+import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObjectType;
 
 import java.util.ArrayList;
@@ -53,29 +54,44 @@ public abstract class Player extends GameCharacter
 
     public void jump()
     {
-        /* For the time being the engine doesn't allow jumping in midair
-         * or during another jump, we might later allow double jumps. Note
-         * that isInMidAir() only works for games that enable gravity so we need
-         * also the other test to prevent double jumps in all other games.
-         */
-
-        // Allow jump only if we have remaining jumps available
-        if (remainingJumps <= 0)
+        // Normal jump if we have remaining jumps
+        if (remainingJumps > 0)
+        {
+            changeActiveAnimation(getJumpAnimation(), true);
+            // Apply upward impulse for the jump and mark as in midair
+            velY = jumpImpulse;
+            setInMidAir(true);
+            // Consume one jump
+            remainingJumps--;
             return;
+        }
 
-        changeActiveAnimation(getJumpAnimation(), true);
+        // If out of jumps but touching a wall while airborne, allow a wall-jump
+        if (touchingWall)
+        {
+            changeActiveAnimation(getJumpAnimation(), true);
+            // Upward impulse
+            velY = jumpImpulse;
+            // Apply horizontal push away from wall
+            if (touchingWallSide == Direction.LEFT)
+                velX = wallJumpHorizontalImpulse; // push right
+            else if (touchingWallSide == Direction.RIGHT)
+                velX = -wallJumpHorizontalImpulse; // push left
 
-        // Apply upward impulse for the jump and mark as in midair
-        velY = jumpImpulse;
-        setInMidAir(true);
-
-        // Consume one jump
-        remainingJumps--;
-
-        //System.out.println("Player jumped");
+            setInMidAir(true);
+            // After wall-jumping, restore some air jumps so player can follow up
+            remainingJumps = Math.max(0, maxJumps - 1);
+            // Clear wall contact so we don't repeatedly wall-jump
+            touchingWall = false;
+            touchingWallSide = gameframework.gameobjects.Direction.NONE;
+            return;
+        }
     }
 
-
-
-
+    @Override
+    protected void performJump()
+    {
+        // Delegate to the Player.jump() method that implements jumping/wall-jump logic
+        this.jump();
+    }
 }

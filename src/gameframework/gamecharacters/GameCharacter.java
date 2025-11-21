@@ -57,6 +57,35 @@ public abstract class GameCharacter extends GameObject
     protected int maxJumps = 2; // default: double jump (2 total jumps)
     protected int remainingJumps; // jumps remaining in current air sequence
 
+    // Wall-jump support
+    protected boolean touchingWall = false;
+    protected gameframework.gameobjects.Direction touchingWallSide = gameframework.gameobjects.Direction.NONE;
+    protected int wallJumpHorizontalImpulse =  (int)(DEFAULT_SPEED * 2); // configurable horizontal impulse for wall-jump
+
+    // Movement smoothing
+    protected double targetVelX = 0.0;     // desired horizontal velocity
+    protected double accel = 0.6;          // pixels/frame^2 when accelerating toward target
+    protected double decel = 0.8;          // pixels/frame^2 when decelerating toward zero
+    protected double airControlMultiplier = 0.6; // reduce horizontal control when airborne
+
+    // Coyote time and jump buffering (frames)
+    protected int coyoteTimeFrames = 6;    // frames after leaving ground during which jump is allowed
+    protected int coyoteTimer = 0;
+    protected int jumpBufferFrames = 6;    // frames to buffer jump input
+    protected int jumpBufferedTimer = 0;
+
+    // Wall slide
+    protected double wallSlideSpeed = 2.0; // max fall speed when sliding on wall
+
+    // Jump hold (variable jump height)
+    protected boolean jumpHeld = false;
+    protected int maxJumpHoldFrames = 12; // how many frames jump can be extended by holding
+    protected int jumpHoldTimer = 0;
+
+    // Wall stick (small grace period when contacting wall to make wall-jumps easier)
+    protected int wallStickFrames = 6;
+    protected int wallStickTimer = 0;
+
     public GameCharacter(String name, int type,
                          int x, int y,
                          int scaleWidth, int scaleHeight)
@@ -345,7 +374,7 @@ public abstract class GameCharacter extends GameObject
         }
         changeActiveAnimation(getMoveRightAnimation(), true);
         direction = Direction.RIGHT;
-        velX = speed;
+        targetVelX = speed;
     }
 
     public void moveLeft(boolean running)
@@ -360,7 +389,7 @@ public abstract class GameCharacter extends GameObject
         }
         changeActiveAnimation(getMoveLeftAnimation(), true);
         direction = Direction.LEFT;
-        velX = -speed;
+        targetVelX = -speed;
     }
 
     public void moveUp(boolean running)
@@ -410,7 +439,8 @@ public abstract class GameCharacter extends GameObject
     }
     public void stopX()
     {
-        velX = 0;
+        // Smoothly decelerate to 0
+        targetVelX = 0;
         // Only reset to idle if there's no vertical motion (so we don't stop mid-jump)
         if (velY == 0)
         {
@@ -436,14 +466,14 @@ public abstract class GameCharacter extends GameObject
      * sets the speed to double the walking speed, for the time being). */
     private void runRight()
     {
-        velX = speed * 2;
+        targetVelX = speed * 2;
         changeActiveAnimation(getRunRightAnimation(), true);
         direction = Direction.RIGHT;
     }
 
     private void runLeft()
     {
-        velX = -speed * 2;
+        targetVelX = -speed * 2;
         changeActiveAnimation(getRunLeftAnimation(), true);
         direction = Direction.LEFT;
     }
@@ -529,56 +559,148 @@ public abstract class GameCharacter extends GameObject
 
     public void update(GameObjects objects)
     {
-        // handle some jumping mechanics for characters here (for the time being)
-        if (isJumping() && curAnimation.isPaused())
+        // Clear per-frame wall contact — collisions during this update will set it again if present
+        touchingWall = false;
+        touchingWallSide = gameframework.gameobjects.Direction.NONE;
+
+        // Step timers (coyote and jump buffer)
+        if (coyoteTimer > 0)
+            coyoteTimer--;
+        if (jumpBufferedTimer > 0)
+            jumpBufferedTimer--;
+
+        // If jump buffered and we can jump now (coyote, on ground, or touching wall) attempt jump
+        if (jumpBufferedTimer > 0)
         {
-            /* Switch to idle animation if the jump is done, and we're not moving horizontally
-             * otherwise switch to the proper movement animation. */
-            if (velX == 0)
-                changeActiveAnimation(getIdleAnimation(), true);
-            else if (velX > 0)
-                changeActiveAnimation(getMoveRightAnimation(), true);
-            else if (velX < 0)
-                changeActiveAnimation(getMoveLeftAnimation(), true);
-        }
-        else if (!isInMidAir() && velX == 0 && isMoving())
-        {
-            // If we’re on the ground, not moving horizontally, and still showing a walk/run animation — fix it by going idle
-            changeActiveAnimation(getIdleAnimation(), true);
-        }
+            boolean canJumpNow = (!isInMidAir()) || (coyoteTimer > 0) || touchingWall || remainingJumps > 0;
+            if (canJumpNow)
+            {
+                // Call performJump() hook which subclasses (e.g., Player) override to perform the actual jump
+                performJump();
+                // Clear buffer
+                jumpBufferedTimer = 0;
+            }
+         }
+
+        // Apply horizontal smoothing toward targetVelX before physics step
+        applyHorizontalSmoothing();
 
         super.update(objects);
-    }
 
-    public void knockback(boolean right)
-    {
-        velX += right ? knockbackImpulse : -knockbackImpulse;
-    }
-    public int getKnockbackImpulse()
-    {
-        return knockbackImpulse;
-    }
-    public void setKnockbackImpulse(int newKnockbackImpulse) {
-        knockbackImpulse = newKnockbackImpulse;
-    }
-
-    @Override
-    public void setInMidAir(boolean onAir)
-    {
-        super.setInMidAir(onAir);
-        // When landing (onAir == false) reset remaining jumps
-        if (!onAir)
+        // After physics and collision have run, if touching a wall while falling, apply wall-slide
+        if (touchingWall)
         {
-            this.remainingJumps = maxJumps;
+            if (wallStickTimer > 0)
+            {
+                // temporary stick: slow down fall more while just touching the wall
+                wallStickTimer--;
+                if (velY > wallSlideSpeed / 2.0)
+                    velY = wallSlideSpeed / 2.0;
+            }
+            else if (velY > wallSlideSpeed)
+            {
+                velY = wallSlideSpeed;
+            }
         }
+
+        // Variable jump height: while jump is held and character is rising, reduce effective gravity a bit
+        if (jumpHeld && velY < 0 && jumpHoldTimer > 0)
+        {
+            // partially cancel gravity to extend jump
+            velY += getGravity() * 0.5; // reduce downward acceleration while holding
+            jumpHoldTimer--;
+        }
+    }
+
+    protected void applyHorizontalSmoothing()
+    {
+        double current = velX;
+        double target = targetVelX;
+        // Choose accel or decel depending on whether we're speeding up or slowing down
+        double usedAccel;
+        boolean slowing = (Math.abs(target) < Math.abs(current)) || (Math.signum(target) != Math.signum(current));
+        usedAccel = slowing ? decel : accel;
+        if (isInMidAir())
+            usedAccel *= airControlMultiplier;
+
+        if (Math.abs(target - current) <= usedAccel)
+        {
+            velX = target;
+        }
+        else if (target > current)
+        {
+            velX = current + usedAccel;
+        }
+        else if (target < current)
+        {
+            velX = current - usedAccel;
+        }
+    }
+
+    // Buffer a jump input for a short period (jump buffering)
+    public void bufferJump()
+    {
+        jumpBufferedTimer = jumpBufferFrames;
+    }
+
+    // Cancel any buffered jump input
+    public void cancelJumpBuffer()
+    {
+        jumpBufferedTimer = 0;
+    }
+
+    // Allow external callers (input handlers) to set whether jump is held for variable jump height
+    public void setJumpHeld(boolean held)
+    {
+        this.jumpHeld = held;
+        if (held)
+            this.jumpHoldTimer = this.maxJumpHoldFrames;
+        else
+            this.jumpHoldTimer = 0;
+    }
+
+    // Reset the remaining jumps to the configured maximum (used when landing / latching to platform)
+    public void resetRemainingJumps()
+    {
+        this.remainingJumps = this.maxJumps;
+    }
+
+    // Mark that this character is touching a wall on the given side (used by collision handler)
+    public void setWallContact(Direction side)
+    {
+        if (side == null)
+            return;
+        if (side == Direction.LEFT || side == Direction.RIGHT)
+        {
+            this.touchingWall = true;
+            this.touchingWallSide = side;
+            this.wallStickTimer = this.wallStickFrames;
+        }
+    }
+
+    // Allow external code to set knockback impulse applied to this character when knocked back
+    public void setKnockbackImpulse(int impulse)
+    {
+        this.knockbackImpulse = impulse;
+    }
+
+    // Apply a knockback impulse to this character. If toLeft is true, push left, otherwise push right.
+    public void knockback(boolean toLeft)
+    {
+        int horiz = toLeft ? -Math.abs(knockbackImpulse) : Math.abs(knockbackImpulse);
+        // Apply horizontal knockback and a small upward knock
+        this.velX = horiz;
+        this.velY = -Math.max(2, Math.abs(knockbackImpulse) / 2);
+        // Mark as in mid-air so physics/coyote/jump logic behaves correctly
+        setInMidAir(true);
     }
 
     /**
-     * Explicitly reset remaining jumps to the configured max. Useful when external code
-     * (e.g. platforming/physics handlers) want to force a reset when a landing is detected.
+     * Hook invoked when the character should perform a jump (called from coyote/jump-buffer logic).
+     * Subclasses (like Player) should override this to invoke their jump behavior.
      */
-    public void resetRemainingJumps()
+    protected void performJump()
     {
-        this.remainingJumps = maxJumps;
+        // default: no-op. Player overrides this.
     }
 }
