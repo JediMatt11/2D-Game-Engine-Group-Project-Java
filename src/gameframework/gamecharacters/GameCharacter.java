@@ -5,6 +5,7 @@ import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
 import gameframework.gameobjects.GameObjects;
+import gameframework.weapons.Weapon;
 
 
 /**
@@ -53,6 +54,7 @@ public abstract class GameCharacter extends GameObject
     protected int speed;
     protected int jumpImpulse;
     private int knockbackImpulse;
+    private Weapon weapon;
 
     public GameCharacter(String name, int type,
                          int x, int y,
@@ -462,6 +464,9 @@ public abstract class GameCharacter extends GameObject
     public void attack()
     {
         changeActiveAnimation(attackRight, true);
+        weapon.attack();
+
+
     }
 
     /* Method used to determine if a character is able to move in the current situation
@@ -544,6 +549,7 @@ public abstract class GameCharacter extends GameObject
         }
 
         super.update(objects);
+
     }
 
     public void knockback(boolean right)
@@ -556,5 +562,13 @@ public abstract class GameCharacter extends GameObject
     }
     public void setKnockbackImpulse(int newKnockbackImpulse) {
         knockbackImpulse = newKnockbackImpulse;
+    }
+
+    public Weapon getWeapon() {
+        return weapon;
+    }
+
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
     }
 }

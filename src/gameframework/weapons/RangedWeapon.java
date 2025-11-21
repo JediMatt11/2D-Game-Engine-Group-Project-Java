@@ -12,18 +12,34 @@ import java.awt.*;
 
 public abstract class RangedWeapon extends Weapon
 {
-    private ProjectileStrategy projectileStrategy;
+
 
     //pass hitbox into weapon constructor
     public RangedWeapon(String name, GameCharacter weaponHolder, int damage, int width, int height) {
         super(name, weaponHolder, damage, width, height);
     }
 
-    public void fire() {
-        Projectile p = projectileStrategy.createProjectile(this);
+
+    @Override
+    public void attack(){
+        Projectile p = createProjectile();
         GameThread.data.addObject(p);
     }
 
+
+    @Override
+    public void update(GameObjects objects){
+        setPosition(getWeaponHolder().getX(), getWeaponHolder().getY());
+        super.update(objects);
+
+    }
+
+    //update method to be called from update
+    public void rangedUpdate(){
+
+    }
+
+    protected abstract Projectile createProjectile();
 
 
 }

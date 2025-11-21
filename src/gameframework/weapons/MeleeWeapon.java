@@ -20,5 +20,8 @@ public abstract class MeleeWeapon extends Weapon
 
     }
 
+    public void meleeUpdate(){
+
+    }
 
 }

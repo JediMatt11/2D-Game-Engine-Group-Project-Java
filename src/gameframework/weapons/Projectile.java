@@ -10,10 +10,6 @@ public class Projectile extends InanimateObject {
 
     private boolean thrownByPlayer;
     private GameObject owner;
-
-
-
-    private RangedHitBoxStrategy hitboxStrategy;
     private HitBox hitbox;
 
 
@@ -26,9 +22,12 @@ public class Projectile extends InanimateObject {
 
         this.setThrownByPlayer(thrownByPlayer);
         this.setOwner(owner);
-        this.hitboxStrategy = new RangedHitBoxStrategy();
 
         hitbox = new HitBox(x, y, scaleWidth, scaleHeight);
+
+    }
+
+    public void createProjectile(){
 
     }
 
@@ -48,6 +47,17 @@ public class Projectile extends InanimateObject {
         y += velY;
 
         updateHitBox();
+
+        for (GameObject obj : objects) {
+            if (obj == owner) continue;
+
+            if (hitbox.intersects(obj)) {
+                System.out.println("Projectile hit: " + obj.getName());
+                obj.handleObjectCollision(this);
+                objects.remove(this);
+                break;
+            }
+        }
 
 
         //hitbox = hitboxStrategy.updateProjectileHitBox(this);
@@ -99,13 +109,6 @@ public class Projectile extends InanimateObject {
     }
 
 
-    public RangedHitBoxStrategy getStrategy() {
-        return hitboxStrategy;
-    }
-
-    public void setStrategy(RangedHitBoxStrategy strategy) {
-        this.hitboxStrategy = strategy;
-    }
 
     public HitBox getHitbox() {
         return hitbox;

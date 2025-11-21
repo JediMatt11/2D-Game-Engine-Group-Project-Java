@@ -7,14 +7,11 @@ import gameframework.gameobjects.InanimateObject;
 
 import java.awt.*;
 
-public class Weapon extends InanimateObject
+public abstract class Weapon extends InanimateObject
 {
-    private HitBoxStrategy strategy;
     private int damage;
     private HitBox hb;
     private GameCharacter weaponHolder;
-
-    private Projectile projectile;
 
 
 
@@ -57,6 +54,8 @@ public class Weapon extends InanimateObject
         }
     }
 
+
+    public abstract void attack();
     //keep track of weapon on weapon holder
     @Override
     public void update(GameObjects objects){
@@ -134,12 +133,4 @@ public class Weapon extends InanimateObject
         this.hb = hb;
     }
 
-
-    public HitBoxStrategy getStrategy() {
-        return strategy;
-    }
-
-    public void setStrategy(HitBoxStrategy strategy) {
-        this.strategy = strategy;
-    }
 }
