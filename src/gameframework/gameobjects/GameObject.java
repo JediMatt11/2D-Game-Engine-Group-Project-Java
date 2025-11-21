@@ -234,6 +234,9 @@ public abstract class GameObject
                 return;
 
             //System.out.println("Old animation was: " + (curAnimation != null ? curAnimation.getName() : "None"));
+            //stop old animation completely
+            if (curAnimation != null)
+                curAnimation.stop();
             curAnimation = newAnimation;
             if (reset)
                 curAnimation.reset(); //reset the new animation
