@@ -275,6 +275,7 @@ public class KeyboardHandler implements KeyListener
                 break;
             case HANDLER_ENABLE_SOUNDEFFECTS:
                 //Enable/Disable sound effects
+                GameThread.enableSoundEffects = !GameThread.enableSoundEffects;
                 break;
         }
     }

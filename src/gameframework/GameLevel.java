@@ -13,6 +13,7 @@ public class GameLevel
     private String background;
     private String theme;
     private Point playerStartPos;
+    private boolean playThemeOnLoad;
 
     public GameLevel(String initName, int initNumber, String initBackground,
                      String initTheme,
@@ -23,6 +24,7 @@ public class GameLevel
         background = initBackground;
         theme = initTheme;
         playerStartPos = initPlayerStartPos;
+        playThemeOnLoad = /*true*/ false;
     }
 
     public String getName()
@@ -85,7 +87,26 @@ public class GameLevel
             player.setPosition(playerStartPos.x, playerStartPos.y);
             gameObjects.add(player);
         }
-        return true;
 
+        //set level theme
+        GameThread.gameAudio.setMainTheme(theme);
+        if (playThemeOnLoad())
+            GameThread.gameAudio.playMainTheme(false);
+        else
+            GameThread.gameAudio.stopMainTheme(true);
+
+        return true;
     }
+
+    public boolean playThemeOnLoad()
+    {
+        return playThemeOnLoad;
+    }
+
+    // enable/disable automatic playing of the level theme tune
+    public void setPlayThemeOnLoad(boolean playThemeOnLoad)
+    {
+        this.playThemeOnLoad = playThemeOnLoad;
+    }
+
 }

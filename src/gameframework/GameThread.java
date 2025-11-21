@@ -6,7 +6,12 @@ import gameframework.gameobjects.GameObjectFactory;
 import gameframework.gameobjects.GameObjects;
 import gameframework.inputhandlers.KeyboardHandler;
 import gameframework.resourcemanagement.ResourceManager;
+import gameframework.sound.GameAudio;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -27,9 +32,11 @@ public class GameThread
 
     public static GameData data;
     public static GameDisplay display;
+    public static GameAudio gameAudio;
     public static ResourceManager resourceManager = new ResourceManager();
     public static GameObjectFactory gameObjectFactory;
     public static volatile boolean displayFrameUpdateRate;
+    public static volatile boolean enableSoundEffects;
     private boolean gameOver;
 
     // Information for levels in the game
@@ -71,6 +78,8 @@ public class GameThread
 
         //initialize resource loader/manager
         resourceManager = new ResourceManager();
+        //initialize audio manager
+        gameAudio = new GameAudio();
 
         //initialize data and display window
         initializeGameDisplay();
@@ -79,6 +88,7 @@ public class GameThread
 
         curLevelNumber = 0;
         displayFrameUpdateRate = false;
+        enableSoundEffects = true;
     }
 
     private boolean initializeGameDisplay()
@@ -247,5 +257,49 @@ public class GameThread
             e.printStackTrace();
         }
     }
+
+   /* public static void main(String[] args)
+    {
+        try
+        {
+            File file = new File("C:\\Users\\steve\\IdeaProjects\\myninjagame\\assets\\sounds\\game-over.wav");
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+
+            System.out.println("Press ENTER to play the sound...");
+            System.in.read();
+            clip.start();
+
+            Thread.sleep(5000);  // wait 5 seconds so the clip can finish playing
+
+            System.out.println("Press ENTER to replay the sound...");
+            System.in.read();
+            clip.start();
+
+            Thread.sleep(5000);  // wait 5 seconds so the clip can finish playing
+
+            System.out.println("Press ENTER to properly replay the sound...");
+            System.in.read();
+            clip.stop();
+            clip.flush();
+            clip.setFramePosition(0);
+            clip.start();
+            //clip.stop();
+
+            Thread.sleep(5000);  // wait 5 seconds so the clip can finish playing
+            System.out.println("Press ENTER to replay the sound 3 times...");
+            clip.stop();
+            clip.setFramePosition(0);
+            clip.loop(2);
+            clip.start();
+
+            Thread.sleep(5000);  // wait 5 seconds so the clip can finish playing
+        }
+        catch (Exception e)
+        {
+            System.out.println("Unable to load clip!");
+        }
+    }*/
 
 }
