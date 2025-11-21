@@ -1,6 +1,8 @@
 package gameframework.gamecharacters;
 
+import gameframework.gameobjects.Collectible;
 import gameframework.gameobjects.GameObjectType;
+import gameframework.gameobjects.GameObjects;
 
 import java.util.ArrayList;
 
@@ -12,6 +14,13 @@ public abstract class Player extends GameCharacter
     protected int lives;
     private static final ArrayList<Player> availablePlayers = new ArrayList<Player>();
     private static int curPlayerIndex;
+    private static double dashSpeed;
+    private static final long DASH_COOL_DOWN = 5000;
+    private static long lastDashTime;
+    private static boolean isDashing;
+    private static boolean dashSlowDown;
+    private static int score;
+    private static GameObjects keyList;
 
     public Player(String name, int x, int y,
                   int scaleWidth, int scaleHeight)
@@ -19,7 +28,12 @@ public abstract class Player extends GameCharacter
         super(name, GameObjectType.PLAYER, x, y, scaleWidth, scaleHeight);
         totalLives = DEFAULT_TOTAL_LIVES;
         lives = totalLives;
+        isDashing=false;
         curPlayerIndex = 0;
+        lastDashTime = 0;
+        score=0;
+        if (keyList==null)
+            keyList=new GameObjects(false);
     }
 
     public static void addPlayer(Player player, boolean activePlayer )
@@ -74,7 +88,68 @@ public abstract class Player extends GameCharacter
         //System.out.println("Player jumped");
     }
 
+    public void dash()
+    {
+        if (isMoving())
+        {
+            dashSpeed = speed * 6;
+            System.out.println("This is speed " + speed);
+            System.out.println("This is dashSpeed " + dashSpeed);
+            long now = System.currentTimeMillis();
+            if (now < 5000)
+                now = 5001;
 
+            if (!isDashing && (now - lastDashTime > DASH_COOL_DOWN))
+                isDashing = true;
+            System.out.println(isDashing);
+        }
+    }
+
+    public void update(GameObjects objects)
+    {
+
+        if (isDashing)
+        {
+            velX*=1.2;
+            System.out.println("updated speed " + velX);
+            if (Math.abs(velX)>dashSpeed)
+            {
+                isDashing = false;
+                dashSlowDown=true;
+                System.out.println("Max Speed Reached, Slowing Down");
+            }
+        }
+        if (dashSlowDown && Math.abs(velX)> Math.abs(runRight.getSpeed()))
+        {
+            velX*=.8;
+            System.out.println("updated speed "+velX);
+        }
+        else dashSlowDown=false;
+
+        super.update(objects);
+        System.out.println("Current X And Y: "+getPosition());
+    }
+
+    public static void collectCoin()
+    {
+        score+=100;
+        System.out.println("Collected a Coin");
+    }
+    public static void collectKey(Collectible key)
+    {
+        keyList.add(key);
+        System.out.println("Collected a Key");
+
+    }
+    public static boolean useKey()
+    {
+        if (!keyList.isEmpty())
+        {
+            keyList.removeFirst();
+            return true;
+        }
+        return false;
+    }
 
 
 
