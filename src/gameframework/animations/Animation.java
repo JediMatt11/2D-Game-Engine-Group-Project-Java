@@ -1,5 +1,7 @@
 package gameframework.animations;
 
+import gameframework.GameThread;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -22,6 +24,7 @@ public class Animation
     private boolean runOnlyOnce;
     private int timesToRun;
     private int runsCounter;
+    private String soundEffect;
 
     public Animation(Spritesheet spritesheet, int scaleWidth, int scaleHeight)
     {
@@ -38,6 +41,7 @@ public class Animation
         runOnlyOnce = false;
         runsCounter = 0;
         timesToRun = -1; //set by default to -1 which means run indefinitely
+        soundEffect = "";
         initializeFrameBorders();
     }
 
@@ -56,6 +60,7 @@ public class Animation
         runOnlyOnce = false;
         runsCounter = 0;
         timesToRun = -1; //set by default to -1 which means run indefinitely
+        soundEffect = "";
         initializeFrameBorders();
     }
 
@@ -92,6 +97,22 @@ public class Animation
     {
         if (scaleHeight > 0)
             this.scaleHeight = scaleHeight;
+    }
+
+    /*
+     * Link a sound effect that gets played whenever this animation starts.
+     * If the effect is fully synchronized then it stops as soon as the animation
+     * ends, otherwise it finishes playback after the animation has ended.
+     */
+    public void linkSoundEffect(String soundEffect, boolean fullySynchronized,
+                                boolean allowPlayRestart)
+    {
+        if (!soundEffect.isEmpty())
+        {
+            this.soundEffect = soundEffect;
+            GameThread.gameAudio.addSoundClip(soundEffect, fullySynchronized ? false : true,
+                    allowPlayRestart);
+        }
     }
 
     /*
@@ -156,6 +177,10 @@ public class Animation
         if (isPaused())
             return;
 
+        //If a sound effect is linked to the animation, play when it starts
+        if (curFrameIndex == 0 && speedCounter == 0)
+            playSoundEffect();
+
         speedCounter++;
 
         if (speedCounter == getSpeed())
@@ -209,6 +234,13 @@ public class Animation
         return curFrameIndex == frameCount - 1;
     }
 
+    //reset and stop all side effects from the animation like any playing sound effects
+    public void stop()
+    {
+        //reset();
+        stopSoundEffect();
+    }
+
     public void resume()
     {
         paused = false;
@@ -226,7 +258,7 @@ public class Animation
         this.timesToRun = timesToRun;
     }
 
-    public BufferedImage[] HorizontalFlip(){
+    private BufferedImage[] HorizontalFlip(){
         BufferedImage[] reverseFrames = new BufferedImage[frames.length];
 
         for(int i = 0; i < frames.length; i++){
@@ -248,7 +280,7 @@ public class Animation
         return reverseFrames;
     }
 
-    public BufferedImage[] VerticalFlip(){
+    private BufferedImage[] VerticalFlip(){
         BufferedImage[] reverseFrames = new BufferedImage[frames.length];
 
         for(int i = 0; i < frames.length; i++){
@@ -269,4 +301,17 @@ public class Animation
 
         return reverseFrames;
     }
+
+    private void stopSoundEffect()
+    {
+        if (!soundEffect.isEmpty())
+            GameThread.gameAudio.stopClip(soundEffect);
+    }
+
+    private void playSoundEffect()
+    {
+        if (!soundEffect.isEmpty())
+            GameThread.gameAudio.playClip(soundEffect);
+    }
+
 }

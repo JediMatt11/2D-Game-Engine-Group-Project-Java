@@ -1,5 +1,10 @@
 package gameframework.resourcemanagement;
+import gameframework.sound.GameClip;
+
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -79,6 +84,25 @@ public class ResourceManager
             }
         });
 
+    }
+
+    public GameClip loadAudioResource(String name,
+                                      String levelName,
+                                      boolean finishAfterStop,
+                                      boolean allowInterrupt)
+    {
+        return (GameClip) loadGeneralResource(name, levelName, new ResourceProcessor() {
+            @Override
+            public Object process(InputStream resourceStream) throws Exception
+            {
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(resourceStream);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                return new GameClip(clip, finishAfterStop, allowInterrupt);
+            }
+        });
     }
 
     /* Returns true if a resource has already been loaded from file and
