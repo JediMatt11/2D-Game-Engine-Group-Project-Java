@@ -45,6 +45,25 @@ public class Animation
         initializeFrameBorders();
     }
 
+    public Animation(String name, BufferedImage[] frames, int scaleWidth, int scaleHeight)
+    {
+        this.name = name;
+        this.frames = frames;
+        frameCount = frames.length;
+        curFrameIndex = 0;
+        curFrame = frames[curFrameIndex];
+        this.scaleHeight = scaleHeight;
+        this.scaleWidth = scaleWidth;
+        speed = 1;
+        speedCounter = 0;
+        paused = false;
+        runOnlyOnce = false;
+        runsCounter = 0;
+        timesToRun = -1; //set by default to -1 which means run indefinitely
+        soundEffect = "";
+        initializeFrameBorders();
+    }
+
     public Animation(BufferedImage image, String name,  int scaleWidth, int scaleHeight)
     {
         this.name = name;
@@ -63,6 +82,7 @@ public class Animation
         soundEffect = "";
         initializeFrameBorders();
     }
+
 
     public void reset()
     {
@@ -258,7 +278,7 @@ public class Animation
         this.timesToRun = timesToRun;
     }
 
-    private BufferedImage[] HorizontalFlip(){
+    public Animation HorizontalFlip(){
         BufferedImage[] reverseFrames = new BufferedImage[frames.length];
 
         for(int i = 0; i < frames.length; i++){
@@ -277,10 +297,10 @@ public class Animation
             reverseFrames[i] = flipped;
         }
 
-        return reverseFrames;
+        return new Animation(name, reverseFrames, scaleWidth, scaleHeight);
     }
 
-    private BufferedImage[] VerticalFlip(){
+    public Animation VerticalFlip(){
         BufferedImage[] reverseFrames = new BufferedImage[frames.length];
 
         for(int i = 0; i < frames.length; i++){
@@ -299,7 +319,7 @@ public class Animation
             reverseFrames[i] = flipped;
         }
 
-        return reverseFrames;
+        return new Animation(name, reverseFrames, scaleWidth, scaleHeight);
     }
 
     private void stopSoundEffect()
