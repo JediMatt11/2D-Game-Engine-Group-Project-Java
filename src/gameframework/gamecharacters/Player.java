@@ -1,5 +1,6 @@
 package gameframework.gamecharacters;
 
+import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObjectType;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ public abstract class Player extends GameCharacter
 
     protected int totalLives;
     protected int lives;
-    private static final ArrayList<Player> availablePlayers = new ArrayList<Player>();
+    private static final ArrayList<Player> availablePlayers = new ArrayList<>();
     private static int curPlayerIndex;
 
     public Player(String name, int x, int y,
@@ -47,35 +48,50 @@ public abstract class Player extends GameCharacter
     /* The engine supports the triggering of special actions by pressing the right (A), middle (B) and
      * left (C) mouse buttons, by default these don't do anything, and developers must override these
      * method to implement their own functionality. */
-    public void specialActionA(boolean startingAction) {};
-    public void specialActionB(boolean startingAction) {};
-    public void specialActionC(boolean startingAction) {};
+    public void specialActionA(boolean startingAction) {}
+    public void specialActionB(boolean startingAction) {}
+    public void specialActionC(boolean startingAction) {}
 
     public void jump()
     {
-        /* For the time being the engine doesn't allow jumping in midair
-         * or during another jump, we might later allow double jumps. Note
-         * that isInMidAir() only works for games that enable gravity so we need
-         * also the other test to prevent double jumps in all other games.
-         */
-        if (/*isInMidAir() ||*/ isInTheMiddleOfJump())
+        // Normal jump if we have remaining jumps
+        if (remainingJumps > 0)
+        {
+            changeActiveAnimation(getJumpAnimation(), true);
+            // Apply upward impulse for the jump and mark as in midair
+            velY = jumpImpulse;
+            setInMidAir(true);
+            // Consume one jump
+            remainingJumps--;
             return;
+        }
 
-        changeActiveAnimation(getJumpAnimation(), true);
+        // If out of jumps but touching a wall while airborne, allow a wall-jump
+        if (touchingWall)
+        {
+            changeActiveAnimation(getJumpAnimation(), true);
+            // Upward impulse
+            velY = jumpImpulse;
+            // Apply horizontal push away from wall
+            if (touchingWallSide == Direction.LEFT)
+                velX = wallJumpHorizontalImpulse; // push right
+            else if (touchingWallSide == Direction.RIGHT)
+                velX = -wallJumpHorizontalImpulse; // push left
 
-        /* Apply an initial upward impulse to start the jump.
-         * Gravity (a small positive value added each frame) will gradually counteract
-         * this impulse until the character stops rising and begins to fall. */
-        //velX = 0;
-        velY = jumpImpulse;
-
-        setInMidAir(true);
-
-        //System.out.println("Player jumped");
+            setInMidAir(true);
+            // After wall-jumping, restore some air jumps so player can follow up
+            remainingJumps = Math.max(0, maxJumps - 1);
+            // Clear wall contact so we don't repeatedly wall-jump
+            touchingWall = false;
+            touchingWallSide = gameframework.gameobjects.Direction.NONE;
+            return;
+        }
     }
 
-
-
-
-
+    @Override
+    protected void performJump()
+    {
+        // Delegate to the Player.jump() method that implements jumping/wall-jump logic
+        this.jump();
+    }
 }

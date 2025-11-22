@@ -156,6 +156,12 @@ public class GameThread
             display.changeKeyboardHandler(newKeyboardHandler);
     }
 
+    // Toggle display frame/update rate flag in a thread-safe manner
+    public static synchronized void toggleDisplayFrameUpdateRate()
+    {
+        displayFrameUpdateRate = !displayFrameUpdateRate;
+    }
+
     /* This method triggers the update of every object in the game.
      * Receives the current tick number within an update interval
      * (a second of running time is divided into update intervals),

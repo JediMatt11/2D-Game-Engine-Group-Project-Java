@@ -185,6 +185,9 @@ public class KeyboardHandler implements KeyListener
         //Handle corresponding input command
         Player player = Player.getActivePlayer();
 
+        if (player == null)
+            return; // no active player yet
+
         //Previously was getting the keycode for the input, which was not the same as the int assigned to each input type
         keysHeld.add(action);
 
@@ -226,7 +229,9 @@ public class KeyboardHandler implements KeyListener
                 //Toggle character inventory
                 break;
             case HANDLER_JUMP:
-                player.jump();
+                // buffer the jump input so timing is more forgiving (coyote time, jump buffering)
+                player.bufferJump();
+                player.setJumpHeld(true);
                 break;
             case HANDLER_OBJECT_ACTION:
                 break;
@@ -244,7 +249,7 @@ public class KeyboardHandler implements KeyListener
                 break;
             case HANDLER_DISPLAY_FRAMERATE:
                 //Activate/Deactivate display of frame rate and update rate
-                GameThread.displayFrameUpdateRate = !GameThread.displayFrameUpdateRate;
+                GameThread.toggleDisplayFrameUpdateRate();
                 break;
             case HANDLER_BOUNDSONLY_MODE:
                 //Display only collision bound rectangles mode
@@ -283,6 +288,8 @@ public class KeyboardHandler implements KeyListener
     protected void keyReleasedActionHandler(int action)
     {
         Player player = Player.getActivePlayer();
+        if (player == null)
+            return;
 
         keysHeld.remove(action);
 
@@ -313,6 +320,11 @@ public class KeyboardHandler implements KeyListener
 
                 /*if (!keysHeld.contains(HANDLER_MOVE_UP)) //Make sure player isn't trying to move in the opposite direction
                     player.stopY();*/
+                break;
+            case HANDLER_JUMP:
+                // Cancel any buffered jump input on release
+                player.cancelJumpBuffer();
+                player.setJumpHeld(false);
                 break;
         }
     }
