@@ -39,6 +39,10 @@ public class GameObjectFactory
             case GameObjectType.INANIMATE:
                 gameObject = new InanimateObject(subtype + ".png", posX, posY, 2, scaleWidth, scaleHeight);
                 break;
+            case GameObjectType.COLLECTIBLE:
+                gameObject = new Collectible(subtype + ".png", posX, posY, 2, scaleWidth, scaleHeight);
+                break;
+
         }
         return gameObject;
     }

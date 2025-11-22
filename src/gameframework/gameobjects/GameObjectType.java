@@ -11,5 +11,6 @@ public class GameObjectType
     /* Type numbers 0-9 are reserved for the engine */
     public static final int PLAYER = 0;
     public static final int NPC = 1;
+    public static final int COLLECTIBLE = 2;
     public static final int INANIMATE = 3;
 }

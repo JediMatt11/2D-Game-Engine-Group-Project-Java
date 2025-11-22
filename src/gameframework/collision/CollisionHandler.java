@@ -168,7 +168,7 @@ public class CollisionHandler
         /* When dealing with the player colliding with any other object or a non player
          * character colliding with the player or an npc colliding with any object, we
          * simply adjust the position of the tracked object to resolve the collision */
-         resolveCollision(collidingObject);
+        resolveCollision(collidingObject);
         return true;
     }
 
@@ -215,7 +215,7 @@ public class CollisionHandler
              * platform above, we handle this case here.
              */
             if (collidingObject.encompasses(objectTracked, 'H', 0.30) &&
-                collidingObject.getY() < objectTracked.getY())
+                    collidingObject.getY() < objectTracked.getY())
             {
                 resolveCollision(collidingObject, Direction.UP);
                 return handled;
