@@ -130,8 +130,8 @@ public class GameDisplay extends JFrame
     public void setMessageOffsets(int offsetX, int offsetY)
     {
         if (offsetX > 0 && offsetX < displayWidth &&
-            offsetY > 0 && offsetY < displayHeight
-           )
+                offsetY > 0 && offsetY < displayHeight
+        )
         {
             messageOffsetX = offsetX;
             messageOffsetY = offsetY;

@@ -67,7 +67,7 @@ public abstract class GameObject
     public GameObject(String name, int type,
                       int x, int y, int z,
                       int scaleWidth, int scaleHeight
-                      )
+    )
     {
         this.name = name;
         this.type = type;
@@ -341,7 +341,7 @@ public abstract class GameObject
     //This method is used for an object to attach to another and use it as a platform
     public boolean latch(GameObject platformObject)
     {
-       return  platformingHandler.latch(platformObject);
+        return  platformingHandler.latch(platformObject);
     }
 
     /* Every object must override and extend these methods in order to handle
@@ -452,8 +452,8 @@ public abstract class GameObject
             // ignore objects that are acting as a platform for this one
             // as those are handled by the platforming handler
             if (isPlacedOnTopOf(go) ||
-                // objects vertically aligned with this object's platform could be sections of the same platform
-                go.isAtSimilarHeightAs(platformingHandler.getPlatformObject(), TOLERANCE_PIXELS))
+                    // objects vertically aligned with this object's platform could be sections of the same platform
+                    go.isAtSimilarHeightAs(platformingHandler.getPlatformObject(), TOLERANCE_PIXELS))
                 continue;
 
             // Handle collision here for any objects that require some action
@@ -481,9 +481,9 @@ public abstract class GameObject
 
         if (
                 getX() + scaleWidth > bounds.x &&
-                getX() < bounds.x + bounds.width &&
-                getY() + scaleHeight > bounds.y &&
-                getY() < bounds.y + bounds.height
+                        getX() < bounds.x + bounds.width &&
+                        getY() + scaleHeight > bounds.y &&
+                        getY() < bounds.y + bounds.height
         )
             withinBounds = true;
 
