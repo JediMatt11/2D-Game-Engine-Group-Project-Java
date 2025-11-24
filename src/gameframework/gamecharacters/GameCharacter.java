@@ -5,6 +5,7 @@ import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
 import gameframework.gameobjects.GameObjects;
+import gameframework.weapons.Weapon;
 
 /**
  * This class handles general support for characters in the game.
@@ -52,6 +53,8 @@ public abstract class GameCharacter extends GameObject
     protected int speed;
     protected int jumpImpulse;
     private int knockbackImpulse;
+
+    private Weapon weapon;
 
     // Double-jump support: number of jumps allowed (including the ground jump)
     protected int maxJumps = 2; // default: double jump (2 total jumps)
@@ -496,6 +499,7 @@ public abstract class GameCharacter extends GameObject
     public void attack()
     {
         changeActiveAnimation(attackRight, true);
+        getWeapon().attack();
     }
 
     /* Method used to determine if a character is able to move in the current situation
@@ -702,5 +706,13 @@ public abstract class GameCharacter extends GameObject
     protected void performJump()
     {
         // default: no-op. Player overrides this.
+    }
+
+    public Weapon getWeapon() {
+        return weapon;
+    }
+
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
     }
 }
