@@ -1,9 +1,12 @@
 package gameframework.weapons;
 
+import gameframework.GameThread;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjects;
 import gameframework.gameobjects.InanimateObject;
 import gameobjects.ThrownWeapon;
+
+import java.awt.*;
 
 //copied this code from thrown weapon class in ninjaGame
 public class Projectile extends InanimateObject {
@@ -11,6 +14,8 @@ public class Projectile extends InanimateObject {
     private boolean thrownByPlayer;
     private GameObject owner;
     private HitBox hitbox;
+    private int vx;
+    private int vy;
 
 
     public Projectile(String name, int x, int y, int vx, int vy, int scaleWidth, int scaleHeight,
@@ -18,6 +23,8 @@ public class Projectile extends InanimateObject {
         super(name, x, y, 1, scaleWidth, scaleHeight);
         velX = vx;
         velY = vy;
+        this.x=x;
+        this.y=y;
 
 
         this.setThrownByPlayer(thrownByPlayer);
@@ -41,6 +48,19 @@ public class Projectile extends InanimateObject {
 
 
     @Override
+    public void render(Graphics g){
+        super.render(g);
+        if(hitbox != null){
+            Rectangle bounds = hitbox.getBounds();
+            Color oldColor = g.getColor();
+            g.setColor(Color.RED);
+            g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            g.setColor(oldColor);
+        }
+
+    }
+
+    @Override
     public void update(GameObjects objects) {
         super.update(objects);
         x += velX;
@@ -59,15 +79,21 @@ public class Projectile extends InanimateObject {
             }
         }
 
-
-        //hitbox = hitboxStrategy.updateProjectileHitBox(this);
     }
 
     public void updateHitBox(){
         setHitbox(x,y,scaleWidth,scaleHeight);
     }
 
-
+    @Override
+    public boolean handleCollision(GameObject collidingObject) {
+        if (!collidingObject.isInanimate()) {
+            GameThread.data.removeObjectWhenSafe(this);
+            return true;
+        }
+        else
+            return true;
+    }
 
     @Override
     public boolean handleObjectCollision(GameObject object) {

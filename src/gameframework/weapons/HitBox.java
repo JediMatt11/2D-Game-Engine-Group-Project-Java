@@ -18,6 +18,7 @@ public class HitBox
     //used to check if current hitbox overlaps another
     //use this in weapons class
     public boolean intersects(GameObject object){
+
         return hb.intersects(object.getBounds());
     }
 

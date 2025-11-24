@@ -19,11 +19,11 @@ public abstract class RangedWeapon extends Weapon
         super(name, weaponHolder, damage, width, height);
     }
 
-
+//override from weapon class
     @Override
     public void attack(){
         Projectile p = createProjectile();
-        GameThread.data.addObject(p);
+        GameThread.data.addObjectWhenSafe(p);
     }
 
 

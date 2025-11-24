@@ -90,7 +90,6 @@ public abstract class Weapon extends InanimateObject
 
     }
 
-    //method for firing projectiles
 
 
 

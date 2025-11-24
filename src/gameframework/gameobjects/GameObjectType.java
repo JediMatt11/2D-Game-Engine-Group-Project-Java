@@ -12,5 +12,4 @@ public class GameObjectType
     public static final int PLAYER = 0;
     public static final int NPC = 1;
     public static final int INANIMATE = 3;
-    public static final int WEAPON = 8;
 }
