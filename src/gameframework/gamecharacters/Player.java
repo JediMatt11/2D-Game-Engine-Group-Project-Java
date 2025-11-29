@@ -128,7 +128,6 @@ public abstract class Player extends GameCharacter
 
     public void update(GameObjects objects)
     {
-
         if (isDashing)
         {
             velX*=1.2;
