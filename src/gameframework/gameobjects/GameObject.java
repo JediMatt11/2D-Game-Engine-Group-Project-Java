@@ -27,6 +27,8 @@ public abstract class GameObject
 
     protected Direction direction;
 
+    private int damage;
+
     protected int scaleWidth;
     protected int scaleHeight;
 
@@ -651,6 +653,14 @@ public abstract class GameObject
     public void setDisableCollision(boolean disableCollision)
     {
         this.disableCollision = disableCollision;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
     }
     /**/
 }
