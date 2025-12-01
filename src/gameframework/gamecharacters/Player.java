@@ -20,6 +20,9 @@ public abstract class Player extends GameCharacter
     private static long lastDashTime;
     private static boolean isDashing;
     private static boolean dashSlowDown;
+    private static final double DASH_SPEED_UP_MULTIPLIER = 1.2;
+    private static final double DASH_SLOW_DOWN_MULTIPLIER = 0.8;
+    private static final double DASH_SPEED_MULTIPLIER = 6;
     private static int score;
     private static GameObjects keyList;
 
@@ -32,9 +35,7 @@ public abstract class Player extends GameCharacter
         isDashing=false;
         curPlayerIndex = 0;
         lastDashTime = 0;
-        score=0;
-        if (keyList==null)
-            keyList=new GameObjects(false);
+
     }
 
     public static void addPlayer(Player player, boolean activePlayer )
@@ -113,12 +114,12 @@ public abstract class Player extends GameCharacter
     {
         if (isMoving())
         {
-            dashSpeed = speed * 6;
+            dashSpeed = speed * DASH_SPEED_MULTIPLIER;
             System.out.println("This is speed " + speed);
             System.out.println("This is dashSpeed " + dashSpeed);
             long now = System.currentTimeMillis();
-            if (now < 5000)
-                now = 5001;
+            if (now < DASH_COOL_DOWN) //this check is to see if someone is playing at exactly midnight, they won't be able to dash unless this is added
+                now = DASH_COOL_DOWN+1;
 
             if (!isDashing && (now - lastDashTime > DASH_COOL_DOWN))
                 isDashing = true;
@@ -130,7 +131,7 @@ public abstract class Player extends GameCharacter
     {
         if (isDashing)
         {
-            velX*=1.2;
+            velX*=DASH_SPEED_UP_MULTIPLIER;
             System.out.println("updated speed " + velX);
             if (Math.abs(velX)>dashSpeed)
             {
@@ -141,35 +142,12 @@ public abstract class Player extends GameCharacter
         }
         if (dashSlowDown && Math.abs(velX)> Math.abs(runRight.getSpeed()))
         {
-            velX*=.8;
+            velX*=DASH_SLOW_DOWN_MULTIPLIER;
             System.out.println("updated speed "+velX);
         }
         else dashSlowDown=false;
 
         super.update(objects);
         System.out.println("Current X And Y: "+getPosition());
-    }
-
-    public static void collectCoin()
-    {
-        score+=100;
-        System.out.println("Collected a Coin");
-    }
-
-    public static void collectKey(Collectible key)
-    {
-        keyList.add(key);
-        System.out.println("Collected a Key");
-
-    }
-
-    public static boolean useKey()
-    {
-        if (!keyList.isEmpty())
-        {
-            keyList.removeFirst();
-            return true;
-        }
-        return false;
     }
 }
