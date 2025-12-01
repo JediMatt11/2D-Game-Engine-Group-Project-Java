@@ -105,7 +105,7 @@ public class PlatformingHandler
             /* If a platform consists of multiple tiles aligned together, when we detach to a tile, we must immediately
              * latch to the next to give the impression of it being just one platform object. */
             boolean foundPlatform = relatchToAdjacentPlatform(objects);
-            if (!foundPlatform /*&& mainObject.isNinja()* just for debugging */)
+            if (!foundPlatform /*&& mainObject.isNinja()  just for debugging */)
                     System.out.println("Object: " + mainObject.getName() + " detached from platform.");
             /****/
         }

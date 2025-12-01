@@ -258,6 +258,11 @@ public abstract class GameObject
     public void setPosition(int x, int y)
     {
         this.x = x;
+        if ( y > this.y && platformingHandler.getPlatformObject() != null)
+        {
+            //If an object is standing on a platform, its y coord should never increase
+            y = this.y;
+        }
         this.y = y;
 
         GameObjects gameObjects = GameThread.data.getObjects();
