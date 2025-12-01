@@ -27,7 +27,7 @@ public abstract class GameObject
 
     protected Direction direction;
 
-    private int damage;
+    private int damage = 0;
 
     protected int scaleWidth;
     protected int scaleHeight;
