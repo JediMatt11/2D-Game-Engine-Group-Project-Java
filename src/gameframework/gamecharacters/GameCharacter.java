@@ -52,6 +52,9 @@ public abstract class GameCharacter extends GameObject
     protected int speed;
     protected int jumpImpulse;
     private int knockbackImpulse;
+    private boolean shouldKnockback;
+    private int knockbackFrames = 0;
+    private int framesUntilStopKnockback;
 
     // Double-jump support: number of jumps allowed (including the ground jump)
     protected int maxJumps = 2; // default: double jump (2 total jumps)
@@ -702,5 +705,36 @@ public abstract class GameCharacter extends GameObject
     protected void performJump()
     {
         // default: no-op. Player overrides this.
+    }
+
+    public boolean getShouldKnockback()
+    {
+        return shouldKnockback;
+    }
+
+    public void setShouldKnockback(boolean newShouldKnockback) {
+        shouldKnockback = newShouldKnockback;
+    }
+
+    public void isKnockingBack()
+    {
+        if (!shouldKnockback)
+        {
+            return;
+        }
+        knockbackFrames++;
+        if (knockbackFrames >= framesUntilStopKnockback)
+        {
+            shouldKnockback = false;
+            knockbackFrames = 0;
+        }
+    }
+
+    public int getFramesUntilStopKnockback() {
+        return framesUntilStopKnockback;
+    }
+
+    public void setFramesUntilStopKnockback(int newFramesUntilStopKnockback) {
+        framesUntilStopKnockback = newFramesUntilStopKnockback;
     }
 }
