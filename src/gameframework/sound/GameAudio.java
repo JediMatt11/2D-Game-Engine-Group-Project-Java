@@ -1,7 +1,11 @@
 package gameframework.sound;
 
 import gameframework.GameThread;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 
 /**
  * This class manages all audio for the game, including music
@@ -22,8 +26,9 @@ public class GameAudio
         {
             if (!theme.isEmpty())
             {
-                mainTheme = GameThread.resourceManager.loadAudioResource(theme, GameThread.getCurrentLevel().getName(),
-                                                             false, false);
+                mainTheme = getClip(theme, false, false);
+//              mainTheme = GameThread.resourceManager.loadAudioResource(theme, GameThread.getCurrentLevel().getName(),
+//                                                             false, false);
             }
         }
         catch (Exception e)
@@ -63,8 +68,9 @@ public class GameAudio
         {
             /* if the clip isn't registered already then store the clip in a map so that it can be
              * retrieved easily in the future using the clip's name */
-            GameThread.resourceManager.loadAudioResource(clipName, GameThread.getCurrentLevel().getName(),
-                                                         keepPlayingAfterCommand, allowPlayRestart);
+              getClip(clipName, keepPlayingAfterCommand, allowPlayRestart);
+//            GameThread.resourceManager.loadAudioResource(clipName, GameThread.getCurrentLevel().getName(),
+//                                                         keepPlayingAfterCommand, allowPlayRestart);
         }
         catch (Exception e)
         {
@@ -97,9 +103,36 @@ public class GameAudio
         return success;
     }
 
-    private GameClip getClip(String clipName)
+    /*Now builds the GameClip object using the AudioData stored in the resource manager.
+    Because only the audio data is stored in the ResourceManager a GameClip will need to be
+    build and returned here so that other methods in the GameAudio class can use it*/
+    private GameClip getClip(String clipName, boolean finishAfterStop, boolean allowInterrupt)
     {
-        return GameThread.resourceManager.loadAudioResource(clipName, GameThread.getCurrentLevel().getName(), false, false);
+        AudioData audioData = GameThread.resourceManager.loadAudioResource(clipName, GameThread.getCurrentLevel().getName());
+
+        if (audioData != null)
+        {
+            Clip clip = null;
+            try
+            {
+                clip = AudioSystem.getClip();
+            }
+            catch (LineUnavailableException e)
+            {
+                throw new RuntimeException(e);
+            }
+            try
+            {
+                clip.open(audioData.getFormat(), audioData.getAudioBytes(), 0, audioData.getAudioBytes().length);
+                clip.start();
+            }
+            catch (LineUnavailableException e)
+            {
+                throw new RuntimeException(e);
+            }
+            return new GameClip(clip, finishAfterStop, allowInterrupt);
+        }
+        return null;
     }
 
     //This method plays the requested clip (must already be registered in the system)
@@ -108,7 +141,7 @@ public class GameAudio
         if (!GameThread.enableSoundEffects)
             return;
 
-        GameClip clip = getClip(clipName);
+        GameClip clip = getClip(clipName, false, true);
 
         if (clip != null)
         {
@@ -132,7 +165,7 @@ public class GameAudio
 
     public void stopClip(String clipName)
     {
-        GameClip clip = getClip(clipName);
+        GameClip clip = getClip(clipName, false, false);
 
         if (clip != null)
         {
@@ -146,7 +179,7 @@ public class GameAudio
         if (!GameThread.enableSoundEffects)
             return;
 
-        GameClip clip = getClip(clipName);
+        GameClip clip = getClip(clipName, false, false);
 
         if (clip != null)
         {

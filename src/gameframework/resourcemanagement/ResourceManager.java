@@ -1,7 +1,9 @@
 package gameframework.resourcemanagement;
-import gameframework.sound.GameClip;
 
+import gameframework.sound.AudioData;
+import gameframework.sound.GameClip;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -86,21 +88,22 @@ public class ResourceManager
 
     }
 
-    public GameClip loadAudioResource(String name,
-                                      String levelName,
-                                      boolean finishAfterStop,
-                                      boolean allowInterrupt)
+    public AudioData loadAudioResource(String name,
+                                      String levelName)
     {
-        return (GameClip) loadGeneralResource(name, levelName, new ResourceProcessor() {
+        return (AudioData) loadGeneralResource(name, levelName, new ResourceProcessor()
+        {
             @Override
             public Object process(InputStream resourceStream) throws Exception
             {
+                // Load the audio input stream (we only support raw audio, that is an uncompressed WAV )
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(resourceStream);
-
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioStream);
-
-                return new GameClip(clip, finishAfterStop, allowInterrupt);
+                // Get the audio format
+                AudioFormat format = audioStream.getFormat();
+                // Read all audio bytes into memory
+                byte[] audioBytes = audioStream.readAllBytes();
+                // Return the audio data container
+                return new AudioData(audioBytes, format);
             }
         });
     }

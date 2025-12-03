@@ -12,6 +12,8 @@ public class PatrolBehavior {
     private final Point rightBound;
     private final LedgeDetector ledgeDetector = new LedgeDetector();
     private boolean movingRight = true;
+    private int stuckFrames = 0;
+    private int lastX;
 
     public PatrolBehavior(GameCharacter enemy, Point leftBound, Point rightBound) {
         this.enemy = enemy;
@@ -19,21 +21,29 @@ public class PatrolBehavior {
         this.rightBound = rightBound;
     }
 
-    public boolean isMovingRight() {
-        return movingRight;
-    }
-
     public void patrol(GameObjects objects) {
+
+        // Detect if enemy is stuck (not moving)
+        if (enemy.getX() == lastX) {
+            stuckFrames++;
+        } else {
+            stuckFrames = 0;
+        }
+        lastX = enemy.getX();
+
+        // If stuck for 60 frames (1 sec), flip direction
+        if (stuckFrames > 60) {
+            movingRight = !movingRight;
+            stuckFrames = 0;
+        }
 
         boolean ledgeAhead = !ledgeDetector.hasFloorAhead(enemy, movingRight, objects);
 
         if (ledgeAhead) {
             movingRight = !movingRight;
-        }
-        else if (movingRight && enemy.getX() >= rightBound.x) {
+        } else if (movingRight && enemy.getX() >= rightBound.x) {
             movingRight = false;
-        }
-        else if (!movingRight && enemy.getX() <= leftBound.x) {
+        } else if (!movingRight && enemy.getX() <= leftBound.x) {
             movingRight = true;
         }
 
