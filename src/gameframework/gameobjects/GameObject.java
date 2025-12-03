@@ -663,5 +663,4 @@ public abstract class GameObject
     {
         this.damage = damage;
     }
-    /**/
 }
