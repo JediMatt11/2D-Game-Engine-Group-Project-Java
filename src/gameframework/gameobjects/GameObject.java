@@ -41,7 +41,7 @@ public abstract class GameObject
     protected boolean requiresUpdating;
 
     // if true object is not currently on top of a platform
-    private boolean inMidAir;
+    protected boolean inMidAir;
 
     protected boolean constrainToBackground;
 

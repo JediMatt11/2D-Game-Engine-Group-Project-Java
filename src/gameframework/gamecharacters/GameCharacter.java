@@ -60,7 +60,8 @@ public abstract class GameCharacter extends GameObject
     // Wall-jump support
     protected boolean touchingWall = false;
     protected gameframework.gameobjects.Direction touchingWallSide = gameframework.gameobjects.Direction.NONE;
-    protected int wallJumpHorizontalImpulse =  (int)(DEFAULT_SPEED * 2); // configurable horizontal impulse for wall-jump
+    protected int wallJumpHorizontalImpulse =  (int)(DEFAULT_SPEED * 5); // configurable horizontal impulse for wall-jump
+
 
     // Movement smoothing
     protected double targetVelX = 0.0;     // desired horizontal velocity
