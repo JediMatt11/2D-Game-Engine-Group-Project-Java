@@ -231,7 +231,9 @@ public class KeyboardHandler implements KeyListener
                 break;
             case HANDLER_JUMP:
                 // buffer the jump input so timing is more forgiving (coyote time, jump buffering)
-                player.bufferJump();
+                //player.bufferJump();
+                //change by Arthur
+                player.jump();
                 player.setJumpHeld(true);
                 break;
             case HANDLER_DASH:
