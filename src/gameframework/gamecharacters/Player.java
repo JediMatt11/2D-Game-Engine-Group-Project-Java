@@ -70,7 +70,7 @@ public abstract class Player extends GameCharacter
     public void jump()
     {
         // Normal jump if we have remaining jumps
-        if (remainingJumps > 0)
+        if ((remainingJumps > 0 && !inMidAir) || (remainingJumps == 1 && !touchingWall))
         {
             changeActiveAnimation(getJumpAnimation(), true);
             // Apply upward impulse for the jump and mark as in midair
@@ -86,7 +86,7 @@ public abstract class Player extends GameCharacter
         {
             changeActiveAnimation(getJumpAnimation(), true);
             // Upward impulse
-            velY = jumpImpulse;
+            velY = jumpImpulse * 1.25;
             // Apply horizontal push away from wall
             if (touchingWallSide == Direction.LEFT)
                 velX = wallJumpHorizontalImpulse; // push right
@@ -99,7 +99,6 @@ public abstract class Player extends GameCharacter
             // Clear wall contact so we don't repeatedly wall-jump
             touchingWall = false;
             touchingWallSide = gameframework.gameobjects.Direction.NONE;
-            return;
         }
     }
 
