@@ -148,6 +148,6 @@ public abstract class Player extends GameCharacter
         else dashSlowDown=false;
 
         super.update(objects);
-        System.out.println("Current X And Y: "+getPosition());
+       // System.out.println("Current X And Y: "+getPosition());
     }
 }
