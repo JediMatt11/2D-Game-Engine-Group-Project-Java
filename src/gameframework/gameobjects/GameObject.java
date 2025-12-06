@@ -22,8 +22,8 @@ public abstract class GameObject
     private int y;
     private int z;
 
-    protected double velX;
-    protected double velY;
+    private double velX;
+    private double velY;
 
     protected Direction direction;
     private int damage = 0;
@@ -127,6 +127,26 @@ public abstract class GameObject
     {
         if ( z >= 0 )
             this.z = z;
+    }
+
+    public double getVelX()
+    {
+        return velX;
+    }
+
+    public void setVelX(double velX)
+    {
+        this.velX = velX;
+    }
+
+    public double getVelY()
+    {
+        return velY;
+    }
+
+    public void setVelY(double velY)
+    {
+        this.velY = velY;
     }
 
     public String getName()

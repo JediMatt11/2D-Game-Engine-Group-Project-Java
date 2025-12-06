@@ -355,7 +355,7 @@ public abstract class GameCharacter extends GameObject
     public boolean isFalling()
     {
         //If we are in midair and not in the middle of a jump then we are falling.
-        return (isInMidAir() && !(isInTheMiddleOfJump()) && velY > 0 );
+        return (isInMidAir() && !(isInTheMiddleOfJump()) && getVelY() > 0 );
     }
 
     //Disable automatic nearby tile relatching for characters that are jumping
@@ -409,7 +409,7 @@ public abstract class GameCharacter extends GameObject
         }
         changeActiveAnimation(getMoveUpAnimation(), true);
         direction = Direction.UP;
-        velY = -speed;
+        setVelY(-speed);
     }
 
     public void moveDown(boolean running)
@@ -428,7 +428,7 @@ public abstract class GameCharacter extends GameObject
         }
         changeActiveAnimation(getMoveDownAnimation(), true);
         direction = Direction.DOWN;
-        velY = speed;
+        setVelY(speed);
     }
 
     public void stop()
@@ -436,14 +436,15 @@ public abstract class GameCharacter extends GameObject
         if (isMoving())
             changeActiveAnimation(getIdleAnimation(), true);
         direction = Direction.NONE;
-        velX = velY = 0;
+        setVelX(0);
+        setVelY(0);
     }
     public void stopX()
     {
         // Smoothly decelerate to 0
         targetVelX = 0;
         // Only reset to idle if there's no vertical motion (so we don't stop mid-jump)
-        if (velY == 0)
+        if (getVelY() == 0)
         {
             if (isMoving())
                 changeActiveAnimation(getIdleAnimation(), true);
@@ -452,9 +453,9 @@ public abstract class GameCharacter extends GameObject
     }
     public void stopY()
     {
-        velY = 0;
+        setVelY(0);
         // Only reset to idle if not moving horizontally
-        if (velX == 0)
+        if (getVelX() == 0)
         {
             if (isMoving())
                 changeActiveAnimation(getIdleAnimation(), true);
@@ -481,14 +482,14 @@ public abstract class GameCharacter extends GameObject
 
     private void runUp()
     {
-        velY = -speed * 2;
+        setVelY(-speed * 2);
         changeActiveAnimation(getRunUpAnimation(), true);
         direction = Direction.UP;
     }
 
     private void runDown()
     {
-        velY = speed * 2;
+        setVelY(speed * 2);
         changeActiveAnimation(getRunDownAnimation(), true);
         direction = Direction.DOWN;
     }
@@ -595,27 +596,27 @@ public abstract class GameCharacter extends GameObject
             {
                 // temporary stick: slow down fall more while just touching the wall
                 wallStickTimer--;
-                if (velY > wallSlideSpeed / 2.0)
-                    velY = wallSlideSpeed / 2.0;
+                if (getVelY() > wallSlideSpeed / 2.0)
+                    setVelY(wallSlideSpeed / 2.0);
             }
-            else if (velY > wallSlideSpeed)
+            else if (getVelY() > wallSlideSpeed)
             {
-                velY = wallSlideSpeed;
+                setVelY(wallSlideSpeed);
             }
         }
 
         // Variable jump height: while jump is held and character is rising, reduce effective gravity a bit
-        if (jumpHeld && velY < 0 && jumpHoldTimer > 0)
+        if (jumpHeld && getVelY() < 0 && jumpHoldTimer > 0)
         {
             // partially cancel gravity to extend jump
-            velY += getGravity() * 0.5; // reduce downward acceleration while holding
+            setVelY(getVelY() + getGravity() * 0.5); // reduce downward acceleration while holding
             jumpHoldTimer--;
         }
     }
 
     protected void applyHorizontalSmoothing()
     {
-        double current = velX;
+        double current = getVelX();
         double target = targetVelX;
         // Choose accel or decel depending on whether we're speeding up or slowing down
         double usedAccel;
@@ -626,15 +627,15 @@ public abstract class GameCharacter extends GameObject
 
         if (Math.abs(target - current) <= usedAccel)
         {
-            velX = target;
+            setVelX(target);
         }
         else if (target > current)
         {
-            velX = current + usedAccel;
+            setVelX(current + usedAccel);
         }
         else if (target < current)
         {
-            velX = current - usedAccel;
+            setVelX(current - usedAccel);
         }
     }
 
@@ -690,8 +691,8 @@ public abstract class GameCharacter extends GameObject
     {
         int horiz = toLeft ? -Math.abs(knockbackImpulse) : Math.abs(knockbackImpulse);
         // Apply horizontal knockback and a small upward knock
-        this.velX = horiz;
-        this.velY = -Math.max(2, Math.abs(knockbackImpulse) / 2);
+        setVelX(horiz);
+        setVelY(-Math.max(2, Math.abs(knockbackImpulse) / 2));
         // Mark as in mid-air so physics/coyote/jump logic behaves correctly
         setInMidAir(true);
     }
