@@ -232,7 +232,7 @@ public class KeyboardHandler implements KeyListener
             case HANDLER_JUMP:
                 // buffer the jump input so timing is more forgiving (coyote time, jump buffering)
                 //player.bufferJump();
-                //change by Arthur
+                //Change requested by Arthur to fix wall jumping
                 player.jump();
                 player.setJumpHeld(true);
                 break;
