@@ -17,14 +17,14 @@ public abstract class Player extends GameCharacter
     private static int curPlayerIndex;
     private static double dashSpeed;
     private static final long DASH_COOL_DOWN = 5000;
-    private static long lastDashTime;
-    private static boolean isDashing;
-    private static boolean dashSlowDown;
+    private long lastDashTime;
+    private boolean isDashing;
+    private boolean dashSlowDown;
     private static final double DASH_SPEED_UP_MULTIPLIER = 1.2;
     private static final double DASH_SLOW_DOWN_MULTIPLIER = 0.8;
     private static final double DASH_SPEED_MULTIPLIER = 6;
-    private static int score;
-    private static GameObjects keyList;
+    private int score;
+    private GameObjects keyList;
 
     public Player(String name, int x, int y,
                   int scaleWidth, int scaleHeight)
@@ -60,6 +60,17 @@ public abstract class Player extends GameCharacter
         return getActivePlayer();
     }
 
+    public int getScore()
+    {
+        return score;
+    }
+
+    public void setScore(int score)
+    {
+        if (score >= 0)
+            this.score = score;
+    }
+
     /* The engine supports the triggering of special actions by pressing the right (A), middle (B) and
      * left (C) mouse buttons, by default these don't do anything, and developers must override these
      * method to implement their own functionality. */
@@ -70,11 +81,11 @@ public abstract class Player extends GameCharacter
     public void jump()
     {
         // Normal jump if we have remaining jumps
-        if (remainingJumps > 0)
+        if ((remainingJumps > 0 && !inMidAir) || (remainingJumps == 1 && !touchingWall))
         {
             changeActiveAnimation(getJumpAnimation(), true);
             // Apply upward impulse for the jump and mark as in midair
-            velY = jumpImpulse;
+            setVelY(jumpImpulse);
             setInMidAir(true);
             // Consume one jump
             remainingJumps--;
@@ -86,12 +97,12 @@ public abstract class Player extends GameCharacter
         {
             changeActiveAnimation(getJumpAnimation(), true);
             // Upward impulse
-            velY = jumpImpulse;
+            setVelY(jumpImpulse * 1.25);
             // Apply horizontal push away from wall
             if (touchingWallSide == Direction.LEFT)
-                velX = wallJumpHorizontalImpulse; // push right
+                setVelX(wallJumpHorizontalImpulse); // push right
             else if (touchingWallSide == Direction.RIGHT)
-                velX = -wallJumpHorizontalImpulse; // push left
+                setVelX(-wallJumpHorizontalImpulse); // push left
 
             setInMidAir(true);
             // After wall-jumping, restore some air jumps so player can follow up
@@ -131,23 +142,23 @@ public abstract class Player extends GameCharacter
     {
         if (isDashing)
         {
-            velX*=DASH_SPEED_UP_MULTIPLIER;
-            System.out.println("updated speed " + velX);
-            if (Math.abs(velX)>dashSpeed)
+            setVelX(getVelX() * DASH_SPEED_UP_MULTIPLIER);
+            System.out.println("updated speed " + getVelX());
+            if (Math.abs(getVelX())>dashSpeed)
             {
                 isDashing = false;
                 dashSlowDown=true;
                 System.out.println("Max Speed Reached, Slowing Down");
             }
         }
-        if (dashSlowDown && Math.abs(velX)> Math.abs(runRight.getSpeed()))
+        if (dashSlowDown && Math.abs(getVelX())> Math.abs(runRight.getSpeed()))
         {
-            velX*=DASH_SLOW_DOWN_MULTIPLIER;
-            System.out.println("updated speed "+velX);
+            setVelX(getVelX() * DASH_SLOW_DOWN_MULTIPLIER);
+            System.out.println("updated speed " + getVelX());
         }
         else dashSlowDown=false;
 
         super.update(objects);
-       // System.out.println("Current X And Y: "+getPosition());
+        //System.out.println("Current X And Y: "+getPosition());
     }
 }

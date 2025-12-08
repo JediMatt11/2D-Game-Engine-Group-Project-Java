@@ -22,8 +22,8 @@ public abstract class GameObject
     private int y;
     private int z;
 
-    protected double velX;
-    protected double velY;
+    private double velX;
+    private double velY;
 
     protected Direction direction;
     private int damage = 0;
@@ -41,7 +41,7 @@ public abstract class GameObject
     protected boolean requiresUpdating;
 
     // if true object is not currently on top of a platform
-    private boolean inMidAir;
+    protected boolean inMidAir;
 
     protected boolean constrainToBackground;
 
@@ -127,6 +127,37 @@ public abstract class GameObject
     {
         if ( z >= 0 )
             this.z = z;
+    }
+
+    public double getVelX()
+    {
+        return velX;
+    }
+
+    public void setVelX(double velX)
+    {
+        this.velX = velX;
+    }
+
+    public double getVelY()
+    {
+        return velY;
+    }
+
+    public void setVelY(double velY)
+    {
+        this.velY = velY;
+    }
+
+    //these methods are used in the weapons class to get the gameObject's scaleWidth and height - DV
+    public int getScaleWidth()
+    {
+        return scaleWidth;
+    }
+
+    public int getScaleHeight()
+    {
+        return scaleHeight;
     }
 
     public String getName()

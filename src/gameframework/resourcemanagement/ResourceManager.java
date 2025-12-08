@@ -7,6 +7,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -104,6 +105,21 @@ public class ResourceManager
                 byte[] audioBytes = audioStream.readAllBytes();
                 // Return the audio data container
                 return new AudioData(audioBytes, format);
+            }
+        });
+    }
+
+    public Font loadFontResource(String name, float size)
+    {
+        return (Font) loadGeneralResource(name, "", new ResourceProcessor() {
+            @Override
+            public Object process(InputStream resourceStream) throws Exception
+            {
+                // Create the font from the resource stream
+                Font font = Font.createFont(Font.TRUETYPE_FONT, resourceStream);
+
+                // Derive it to the size you want
+                return font.deriveFont(size);
             }
         });
     }

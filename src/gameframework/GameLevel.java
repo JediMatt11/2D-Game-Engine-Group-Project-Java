@@ -24,7 +24,7 @@ public class GameLevel
         background = initBackground;
         theme = initTheme;
         playerStartPos = initPlayerStartPos;
-        playThemeOnLoad = /*true*/ false;
+        playThemeOnLoad = true /*false*/;
     }
 
     public String getName()

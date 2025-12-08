@@ -1,18 +1,19 @@
 package gameframework.gamecharacters;
 
+import gameframework.GameThread;
 import gameframework.gameobjects.Direction;
 import gameframework.gameobjects.GameObject;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.animations.Animation;
 import gameframework.gameobjects.GameObjects;
+import gameframework.weapons.Weapon;
 
 /**
  * This class handles general support for characters in the game.
  * Everything in this class applies to any kind of character including
  * player characters, friendly NPCs and enemy characters.
  */
-public abstract class GameCharacter extends GameObject
-{
+public abstract class GameCharacter extends GameObject {
 
     //Attributes representing all different animations a character should ideally support.
     protected Animation idle;
@@ -57,10 +58,14 @@ public abstract class GameCharacter extends GameObject
     protected int maxJumps = 2; // default: double jump (2 total jumps)
     protected int remainingJumps; // jumps remaining in current air sequence
 
+    //DV
+    private Weapon weapon;
+
     // Wall-jump support
     protected boolean touchingWall = false;
     protected gameframework.gameobjects.Direction touchingWallSide = gameframework.gameobjects.Direction.NONE;
-    protected int wallJumpHorizontalImpulse =  (int)(DEFAULT_SPEED * 2); // configurable horizontal impulse for wall-jump
+    protected int wallJumpHorizontalImpulse = (int) (DEFAULT_SPEED * 5); // configurable horizontal impulse for wall-jump
+
 
     // Movement smoothing
     protected double targetVelX = 0.0;     // desired horizontal velocity
@@ -88,8 +93,7 @@ public abstract class GameCharacter extends GameObject
 
     public GameCharacter(String name, int type,
                          int x, int y,
-                         int scaleWidth, int scaleHeight)
-    {
+                         int scaleWidth, int scaleHeight) {
         super(name, type, x, y, 3, scaleWidth, scaleHeight);
         totalHealth = DEFAULT_TOTAL_HEALTH;
         curHealth = totalHealth;
@@ -103,190 +107,156 @@ public abstract class GameCharacter extends GameObject
     }
 
     public abstract void initializeStatus();
+
     public abstract void initializeAnimations();
 
-    public int getTotalHealth()
-    {
+    public int getTotalHealth() {
         return totalHealth;
     }
 
-    public void setTotalHealth(int totalHealth)
-    {
+    public void setTotalHealth(int totalHealth) {
         if (totalHealth >= 0)
             this.totalHealth = totalHealth;
     }
 
-    public int getCurHealth()
-    {
+    public int getCurHealth() {
         return curHealth;
     }
 
-    public void setCurHealth(int curHealth)
-    {
-        if ( curHealth >= 0)
+    public void setCurHealth(int curHealth) {
+        if (curHealth >= 0)
             this.curHealth = curHealth;
-        else  this.curHealth = 0;
+        else this.curHealth = 0;
     }
-
 
     public int getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed)
-    {
+    public void setSpeed(int speed) {
         this.speed = speed;
     }
 
     // Returns the animation used when determining if a character is latched to a platform or not
-    public Animation getPlatformingReferenceAnimation()
-    {
+    public Animation getPlatformingReferenceAnimation() {
         return getIdleAnimation();
     }
 
-    public Animation getMoveRightAnimation()
-    {
+    public Animation getMoveRightAnimation() {
         return walkRight;
     }
 
-    public Animation getMoveLeftAnimation()
-    {
+    public Animation getMoveLeftAnimation() {
         return walkLeft;
     }
 
-    public Animation getMoveUpAnimation()
-    {
+    public Animation getMoveUpAnimation() {
         return walkUp;
     }
 
-    public Animation getMoveDownAnimation()
-    {
+    public Animation getMoveDownAnimation() {
         return walkDown;
     }
 
-    public Animation getRunRightAnimation()
-    {
+    public Animation getRunRightAnimation() {
         return runRight;
     }
 
-    public Animation getRunLeftAnimation()
-    {
+    public Animation getRunLeftAnimation() {
         return runLeft;
     }
 
-    public Animation getRunUpAnimation()
-    {
+    public Animation getRunUpAnimation() {
         return runUp;
     }
 
-    public Animation getRunDownAnimation()
-    {
+    public Animation getRunDownAnimation() {
         return runDown;
     }
 
-    public Animation getIdleAnimation()
-    {
+    public Animation getIdleAnimation() {
         return idle;
     }
 
-    public Animation getJumpAnimation()
-    {
+    public Animation getJumpAnimation() {
         return jump;
     }
 
-    public Animation getAttackRightAnimation()
-    {
+    public Animation getAttackRightAnimation() {
         return attackRight;
     }
 
-    public Animation getAttackLeftAnimation()
-    {
+    public Animation getAttackLeftAnimation() {
         return attackLeft;
     }
 
-    public Animation getAttackUpAnimation()
-    {
+    public Animation getAttackUpAnimation() {
         return attackUp;
     }
 
-    public Animation getAttackDownAnimation()
-    {
+    public Animation getAttackDownAnimation() {
         return attackDown;
     }
 
-    public Animation getGuardRightAnimation()
-    {
+    public Animation getGuardRightAnimation() {
         return guardRight;
     }
 
-    public Animation getGuardLeftAnimation()
-    {
+    public Animation getGuardLeftAnimation() {
         return guardLeft;
     }
 
-    public Animation getGuardUpAnimation()
-    {
+    public Animation getGuardUpAnimation() {
         return guardUp;
     }
 
-    public Animation getGuardDownAnimation()
-    {
+    public Animation getGuardDownAnimation() {
         return guardDown;
     }
 
-    public Animation getDieRightAnimation()
-    {
+    public Animation getDieRightAnimation() {
         return dieRight;
     }
 
-    public Animation getDieLeftAnimation()
-    {
+    public Animation getDieLeftAnimation() {
         return dieLeft;
     }
 
-    public Animation getDieUpAnimation()
-    {
+    public Animation getDieUpAnimation() {
         return dieUp;
     }
 
-    public Animation getDieDownAnimation()
-    {
+    public Animation getDieDownAnimation() {
         return dieDown;
     }
 
-    public boolean isAttackingRight()
-    {
-        return (curAnimation == getAttackRightAnimation() );
+    public boolean isAttackingRight() {
+        return (curAnimation == getAttackRightAnimation());
     }
 
-    public boolean isAttackingLeft()
-    {
+    public boolean isAttackingLeft() {
         return (curAnimation == getAttackLeftAnimation());
     }
 
-    public boolean isAttackingUp()
-    {
-        return ( curAnimation == getAttackUpAnimation());
+    public boolean isAttackingUp() {
+        return (curAnimation == getAttackUpAnimation());
     }
 
-    public boolean isAttackingDown()
-    {
-        return ( curAnimation == getAttackDownAnimation());
+    public boolean isAttackingDown() {
+        return (curAnimation == getAttackDownAnimation());
     }
 
 
-    public boolean isDefending()
-    {
-        return ( curAnimation == getGuardRightAnimation() ||
+    public boolean isDefending() {
+        return (curAnimation == getGuardRightAnimation() ||
                 curAnimation == getGuardLeftAnimation() ||
                 curAnimation == getGuardUpAnimation() ||
                 curAnimation == getGuardDownAnimation()
         );
     }
 
-    public boolean isMoving()
-    {
-        return ( curAnimation == getMoveRightAnimation() ||
+    public boolean isMoving() {
+        return (curAnimation == getMoveRightAnimation() ||
                 curAnimation == getMoveLeftAnimation() ||
                 curAnimation == getMoveUpAnimation() ||
                 curAnimation == getMoveDownAnimation() ||
@@ -294,56 +264,48 @@ public abstract class GameCharacter extends GameObject
         );
     }
 
-    public boolean isRunning()
-    {
-        return ( curAnimation == getRunRightAnimation() ||
+    public boolean isRunning() {
+        return (curAnimation == getRunRightAnimation() ||
                 curAnimation == getRunLeftAnimation() ||
                 curAnimation == getRunUpAnimation() ||
                 curAnimation == getRunDownAnimation()
         );
     }
 
-    public boolean isMovingRight()
-    {
-        return ( curAnimation == getMoveRightAnimation() ||
+    public boolean isMovingRight() {
+        return (curAnimation == getMoveRightAnimation() ||
                 curAnimation == getRunRightAnimation()
         );
     }
 
-    public boolean isMovingLeft()
-    {
-        return ( curAnimation == getMoveLeftAnimation() ||
+    public boolean isMovingLeft() {
+        return (curAnimation == getMoveLeftAnimation() ||
                 curAnimation == getRunLeftAnimation()
         );
     }
 
-    public boolean isMovingUp()
-    {
-        return ( curAnimation == getMoveUpAnimation() ||
+    public boolean isMovingUp() {
+        return (curAnimation == getMoveUpAnimation() ||
                 curAnimation == getRunUpAnimation()
         );
     }
 
-    public boolean isMovingDown()
-    {
-        return ( curAnimation == getMoveDownAnimation() ||
+    public boolean isMovingDown() {
+        return (curAnimation == getMoveDownAnimation() ||
                 curAnimation == getRunDownAnimation()
         );
     }
 
-    public boolean isJumping()
-    {
+    public boolean isJumping() {
         return (getJumpAnimation() != null &&
                 curAnimation == getJumpAnimation());
     }
 
-    public boolean isInTheMiddleOfJump()
-    {
+    public boolean isInTheMiddleOfJump() {
         return isJumping() && !curAnimation.isPaused();
     }
 
-    public boolean isDead()
-    {
+    public boolean isDead() {
         return (curAnimation == getDieLeftAnimation() ||
                 curAnimation == getDieRightAnimation() ||
                 curAnimation == getDieUpAnimation() ||
@@ -351,24 +313,23 @@ public abstract class GameCharacter extends GameObject
     }
 
     @Override
-    public boolean isFalling()
-    {
+    public boolean isFalling() {
         //If we are in midair and not in the middle of a jump then we are falling.
-        return (isInMidAir() && !(isInTheMiddleOfJump()) && velY > 0 );
+        return (isInMidAir() && !(isInTheMiddleOfJump()) && getVelY() > 0);
     }
 
     //Disable automatic nearby tile relatching for characters that are jumping
-    public boolean disableAutoRelatching() { return isJumping(); }
+    public boolean disableAutoRelatching() {
+        return isJumping();
+    }
 
     /* These methods change the speed, direction and animation of a character
      * in order to make it move it in a certain direction. */
-    public void moveRight(boolean running)
-    {
+    public void moveRight(boolean running) {
         if (!isAbleToMove())
             return;
 
-        if (running)
-        {
+        if (running) {
             runRight();
             return;
         }
@@ -377,13 +338,11 @@ public abstract class GameCharacter extends GameObject
         targetVelX = speed;
     }
 
-    public void moveLeft(boolean running)
-    {
+    public void moveLeft(boolean running) {
         if (!isAbleToMove())
             return;
 
-        if (running)
-        {
+        if (running) {
             runLeft();
             return;
         }
@@ -392,8 +351,7 @@ public abstract class GameCharacter extends GameObject
         targetVelX = -speed;
     }
 
-    public void moveUp(boolean running)
-    {
+    public void moveUp(boolean running) {
         if (!isAbleToMove())
             return;
 
@@ -401,18 +359,16 @@ public abstract class GameCharacter extends GameObject
         if (getGravity() > 0)
             return;
 
-        if (running)
-        {
+        if (running) {
             runUp();
             return;
         }
         changeActiveAnimation(getMoveUpAnimation(), true);
         direction = Direction.UP;
-        velY = -speed;
+        setVelY(-speed);
     }
 
-    public void moveDown(boolean running)
-    {
+    public void moveDown(boolean running) {
         if (!isAbleToMove())
             return;
 
@@ -420,41 +376,38 @@ public abstract class GameCharacter extends GameObject
         if (getGravity() > 0)
             return;
 
-        if (running)
-        {
+        if (running) {
             runDown();
             return;
         }
         changeActiveAnimation(getMoveDownAnimation(), true);
         direction = Direction.DOWN;
-        velY = speed;
+        setVelY(speed);
     }
 
-    public void stop()
-    {
+    public void stop() {
         if (isMoving())
             changeActiveAnimation(getIdleAnimation(), true);
         direction = Direction.NONE;
-        velX = velY = 0;
+        setVelX(0);
+        setVelY(0);
     }
-    public void stopX()
-    {
+
+    public void stopX() {
         // Smoothly decelerate to 0
         targetVelX = 0;
         // Only reset to idle if there's no vertical motion (so we don't stop mid-jump)
-        if (velY == 0)
-        {
+        if (getVelY() == 0) {
             if (isMoving())
                 changeActiveAnimation(getIdleAnimation(), true);
             direction = Direction.NONE;
         }
     }
-    public void stopY()
-    {
-        velY = 0;
+
+    public void stopY() {
+        setVelY(0);
         // Only reset to idle if not moving horizontally
-        if (velX == 0)
-        {
+        if (getVelX() == 0) {
             if (isMoving())
                 changeActiveAnimation(getIdleAnimation(), true);
             direction = Direction.NONE;
@@ -464,45 +417,42 @@ public abstract class GameCharacter extends GameObject
     /* These methods change the speed, direction and animation of a character
      * in order to make it run in a certain direction (When running, the engine
      * sets the speed to double the walking speed, for the time being). */
-    private void runRight()
-    {
+    private void runRight() {
         targetVelX = speed * 2;
         changeActiveAnimation(getRunRightAnimation(), true);
         direction = Direction.RIGHT;
     }
 
-    private void runLeft()
-    {
+    private void runLeft() {
         targetVelX = -speed * 2;
         changeActiveAnimation(getRunLeftAnimation(), true);
         direction = Direction.LEFT;
     }
 
-    private void runUp()
-    {
-        velY = -speed * 2;
+    private void runUp() {
+        setVelY(-speed * 2);
         changeActiveAnimation(getRunUpAnimation(), true);
         direction = Direction.UP;
     }
 
-    private void runDown()
-    {
-        velY = speed * 2;
+    private void runDown() {
+        setVelY(speed * 2);
         changeActiveAnimation(getRunDownAnimation(), true);
         direction = Direction.DOWN;
     }
+
     /********/
 
-    public void attack()
-    {
-        changeActiveAnimation(attackRight, true);
+    public void attack() {
+        // Change by DV
+        //changeActiveAnimation(attackRight, true);
+        weapon.attack();
     }
 
     /* Method used to determine if a character is able to move in the current situation
      * or not. Note that currently this method is only called to evaluate if the player
      * can move in response to an input event.*/
-    public boolean isAbleToMove()
-    {
+    public boolean isAbleToMove() {
 
         boolean ableToMove = false;
 
@@ -510,23 +460,17 @@ public abstract class GameCharacter extends GameObject
         if (isDead())
             return false;
         else if (curAnimation == getIdleAnimation()
-                || isMoving() )
-        {
+                || isMoving()) {
             //If the character is idle then we can move and if we are moving we
             // can always change direction.
             ableToMove = true;
-        }
-        else
-        {
+        } else {
             //Performing a different action that isn't idle or moving
-            if (getGravity() != 0 && isInTheMiddleOfJump())
-            {
+            if (getGravity() != 0 && isInTheMiddleOfJump()) {
                 //The engine allows characters to still move while
                 //they are in the middle of a jump (still have jump impulse)
                 ableToMove = true;
-            }
-            else
-            {
+            } else {
                 //We can move as long as we aren't in the middle
                 //of another action (animation must be completed).
                 if (curAnimation.isPaused())
@@ -537,13 +481,23 @@ public abstract class GameCharacter extends GameObject
 
     }
 
-    public boolean handleObjectCollision(GameObject object)
-    {
+    //method for a game character receiving damage when being hit by a weapon -DV
+    public void takeDamage(int damage) {
+        curHealth -= damage;
+        System.out.println(getName() + " CURRENT HEALTH: " + curHealth);
+
+        //character dies
+        if (curHealth <= 0) {
+            System.out.println(getName() + " IS DEAD");
+            GameThread.data.removeObjectWhenSafe(this);
+        }
+    }
+
+    public boolean handleObjectCollision(GameObject object) {
         //Handle collision with objects in a general way (applies to all game characters)
         boolean handled = true;
 
-        switch (object.getType())
-        {
+        switch (object.getType()) {
             case GameObjectType.INANIMATE:
                 //Handle how general characters handle collision with inanimate objects
                 handled = handleCollision(object);
@@ -557,8 +511,7 @@ public abstract class GameCharacter extends GameObject
         return handled;
     }
 
-    public void update(GameObjects objects)
-    {
+    public void update(GameObjects objects) {
         // Clear per-frame wall contact — collisions during this update will set it again if present
         touchingWall = false;
         touchingWallSide = gameframework.gameobjects.Direction.NONE;
@@ -570,17 +523,15 @@ public abstract class GameCharacter extends GameObject
             jumpBufferedTimer--;
 
         // If jump buffered and we can jump now (coyote, on ground, or touching wall) attempt jump
-        if (jumpBufferedTimer > 0)
-        {
+        if (jumpBufferedTimer > 0) {
             boolean canJumpNow = (!isInMidAir()) || (coyoteTimer > 0) || touchingWall || remainingJumps > 0;
-            if (canJumpNow)
-            {
+            if (canJumpNow) {
                 // Call performJump() hook which subclasses (e.g., Player) override to perform the actual jump
                 performJump();
                 // Clear buffer
                 jumpBufferedTimer = 0;
             }
-         }
+        }
 
         // Apply horizontal smoothing toward targetVelX before physics step
         applyHorizontalSmoothing();
@@ -588,33 +539,27 @@ public abstract class GameCharacter extends GameObject
         super.update(objects);
 
         // After physics and collision have run, if touching a wall while falling, apply wall-slide
-        if (touchingWall)
-        {
-            if (wallStickTimer > 0)
-            {
+        if (touchingWall) {
+            if (wallStickTimer > 0) {
                 // temporary stick: slow down fall more while just touching the wall
                 wallStickTimer--;
-                if (velY > wallSlideSpeed / 2.0)
-                    velY = wallSlideSpeed / 2.0;
-            }
-            else if (velY > wallSlideSpeed)
-            {
-                velY = wallSlideSpeed;
+                if (getVelY() > wallSlideSpeed / 2.0)
+                    setVelY(wallSlideSpeed / 2.0);
+            } else if (getVelY() > wallSlideSpeed) {
+                setVelY(wallSlideSpeed);
             }
         }
 
         // Variable jump height: while jump is held and character is rising, reduce effective gravity a bit
-        if (jumpHeld && velY < 0 && jumpHoldTimer > 0)
-        {
+        if (jumpHeld && getVelY() < 0 && jumpHoldTimer > 0) {
             // partially cancel gravity to extend jump
-            velY += getGravity() * 0.5; // reduce downward acceleration while holding
+            setVelY(getVelY() + getGravity() * 0.5); // reduce downward acceleration while holding
             jumpHoldTimer--;
         }
     }
 
-    protected void applyHorizontalSmoothing()
-    {
-        double current = velX;
+    protected void applyHorizontalSmoothing() {
+        double current = getVelX();
         double target = targetVelX;
         // Choose accel or decel depending on whether we're speeding up or slowing down
         double usedAccel;
@@ -623,35 +568,27 @@ public abstract class GameCharacter extends GameObject
         if (isInMidAir())
             usedAccel *= airControlMultiplier;
 
-        if (Math.abs(target - current) <= usedAccel)
-        {
-            velX = target;
-        }
-        else if (target > current)
-        {
-            velX = current + usedAccel;
-        }
-        else if (target < current)
-        {
-            velX = current - usedAccel;
+        if (Math.abs(target - current) <= usedAccel) {
+            setVelX(target);
+        } else if (target > current) {
+            setVelX(current + usedAccel);
+        } else if (target < current) {
+            setVelX(current - usedAccel);
         }
     }
 
     // Buffer a jump input for a short period (jump buffering)
-    public void bufferJump()
-    {
+    public void bufferJump() {
         jumpBufferedTimer = jumpBufferFrames;
     }
 
     // Cancel any buffered jump input
-    public void cancelJumpBuffer()
-    {
+    public void cancelJumpBuffer() {
         jumpBufferedTimer = 0;
     }
 
     // Allow external callers (input handlers) to set whether jump is held for variable jump height
-    public void setJumpHeld(boolean held)
-    {
+    public void setJumpHeld(boolean held) {
         this.jumpHeld = held;
         if (held)
             this.jumpHoldTimer = this.maxJumpHoldFrames;
@@ -660,18 +597,15 @@ public abstract class GameCharacter extends GameObject
     }
 
     // Reset the remaining jumps to the configured maximum (used when landing / latching to platform)
-    public void resetRemainingJumps()
-    {
+    public void resetRemainingJumps() {
         this.remainingJumps = this.maxJumps;
     }
 
     // Mark that this character is touching a wall on the given side (used by collision handler)
-    public void setWallContact(Direction side)
-    {
+    public void setWallContact(Direction side) {
         if (side == null)
             return;
-        if (side == Direction.LEFT || side == Direction.RIGHT)
-        {
+        if (side == Direction.LEFT || side == Direction.RIGHT) {
             this.touchingWall = true;
             this.touchingWallSide = side;
             this.wallStickTimer = this.wallStickFrames;
@@ -679,18 +613,16 @@ public abstract class GameCharacter extends GameObject
     }
 
     // Allow external code to set knockback impulse applied to this character when knocked back
-    public void setKnockbackImpulse(int impulse)
-    {
+    public void setKnockbackImpulse(int impulse) {
         this.knockbackImpulse = impulse;
     }
 
     // Apply a knockback impulse to this character. If toLeft is true, push left, otherwise push right.
-    public void knockback(boolean toLeft)
-    {
+    public void knockback(boolean toLeft) {
         int horiz = toLeft ? -Math.abs(knockbackImpulse) : Math.abs(knockbackImpulse);
         // Apply horizontal knockback and a small upward knock
-        this.velX = horiz;
-        this.velY = -Math.max(2, Math.abs(knockbackImpulse) / 2);
+        setVelX(horiz);
+        setVelY(-Math.max(2, Math.abs(knockbackImpulse) / 2));
         // Mark as in mid-air so physics/coyote/jump logic behaves correctly
         setInMidAir(true);
     }
@@ -699,8 +631,15 @@ public abstract class GameCharacter extends GameObject
      * Hook invoked when the character should perform a jump (called from coyote/jump-buffer logic).
      * Subclasses (like Player) should override this to invoke their jump behavior.
      */
-    protected void performJump()
-    {
+    protected void performJump() {
         // default: no-op. Player overrides this.
+    }
+
+    public Weapon getWeapon() {
+        return weapon;
+    }
+
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
     }
 }
