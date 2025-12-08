@@ -1,7 +1,6 @@
 package gameframework.gamecharacters;
 
 import gameframework.gameobjects.Direction;
-import gameframework.gameobjects.Collectible;
 import gameframework.gameobjects.GameObjectType;
 import gameframework.gameobjects.GameObjects;
 
@@ -17,14 +16,14 @@ public abstract class Player extends GameCharacter
     private static int curPlayerIndex;
     private static double dashSpeed;
     private static final long DASH_COOL_DOWN = 5000;
-    private static long lastDashTime;
-    private static boolean isDashing;
-    private static boolean dashSlowDown;
+    private long lastDashTime;
+    private boolean isDashing;
+    private boolean dashSlowDown;
     private static final double DASH_SPEED_UP_MULTIPLIER = 1.2;
     private static final double DASH_SLOW_DOWN_MULTIPLIER = 0.8;
     private static final double DASH_SPEED_MULTIPLIER = 6;
-    private static int score;
-    private static GameObjects keyList;
+    private int score;
+    private GameObjects keyList;
 
     public Player(String name, int x, int y,
                   int scaleWidth, int scaleHeight)
@@ -58,6 +57,17 @@ public abstract class Player extends GameCharacter
     {
         curPlayerIndex = (curPlayerIndex + 1) % availablePlayers.size();
         return getActivePlayer();
+    }
+
+    public int getScore()
+    {
+        return score;
+    }
+
+    public void setScore(int score)
+    {
+        if (score >= 0)
+            this.score = score;
     }
 
     /* The engine supports the triggering of special actions by pressing the right (A), middle (B) and
@@ -147,6 +157,6 @@ public abstract class Player extends GameCharacter
         else dashSlowDown=false;
 
         super.update(objects);
-        System.out.println("Current X And Y: "+getPosition());
+        //System.out.println("Current X And Y: "+getPosition());
     }
 }

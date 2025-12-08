@@ -149,6 +149,17 @@ public abstract class GameObject
         this.velY = velY;
     }
 
+    //these methods are used in the weapons class to get the gameObject's scaleWidth and height - DV
+    public int getScaleWidth()
+    {
+        return scaleWidth;
+    }
+
+    public int getScaleHeight()
+    {
+        return scaleHeight;
+    }
+
     public String getName()
     {
         return name;

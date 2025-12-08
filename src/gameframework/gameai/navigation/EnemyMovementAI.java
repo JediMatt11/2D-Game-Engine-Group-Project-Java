@@ -12,7 +12,7 @@ public class EnemyMovementAI {
 
     public EnemyMovementAI(GameCharacter enemy,
                            PatrolBehavior patrol,
-                           RangedChaseBehavior chase,
+                           ChaseBehavior chase,
                            int detectionRange) {
 
         this.enemy = enemy;

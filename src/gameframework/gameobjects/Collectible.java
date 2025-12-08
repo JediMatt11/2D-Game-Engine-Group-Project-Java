@@ -7,8 +7,8 @@ import java.awt.image.BufferedImage;
 
 public class Collectible extends GameObject
 {
-    private final int X_COLLECTION_BOUNDS  = 150;
-    private final int Y_COLLECTION_BOUNDS = 150;
+    private final int X_COLLECTION_BOUNDS  = 120;
+    private final int Y_COLLECTION_BOUNDS = 120;
     public Collectible(String name, int x, int y, int z, int scaleWidth, int scaleHeight)
     {
         super(name, GameObjectType.COLLECTIBLE, x, y, z, scaleWidth, scaleHeight);
