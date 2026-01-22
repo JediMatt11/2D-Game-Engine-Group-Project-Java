@@ -1,0 +1,1 @@
+This project is a Java-based game engine made by the students in a Game Programming course I was in. We also created a game using this engine. Here is a link to the game's repository: https://github.com/JediMatt11/Ninja-Game-Group-Project
